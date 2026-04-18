@@ -1,5 +1,3 @@
-# formationKAFKADev_TECHNO
-
 # 🚀 Formation KAFKA PAR LA PRATIQUE (Version 9 jours optimisée)
 
 
