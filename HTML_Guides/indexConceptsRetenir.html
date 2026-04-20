@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Formation Kafka | Guide complet pour développeurs & architectes</title>
+    <!-- Bootstrap 5 CSS + Icons + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #f8fafc; scroll-behavior: smooth; }
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 4rem 0 3rem;
+            border-bottom: 4px solid #ffb347;
+        }
+        .hero h1 { font-weight: 700; font-size: 2.8rem; }
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid #ffb347;
+            display: inline-block;
+        }
+        .card-concept {
+            border: none;
+            border-radius: 1.5rem;
+            box-shadow: 0 12px 28px -8px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-concept:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 24px 36px -12px rgba(0,0,0,0.15);
+        }
+        .card-header-concept {
+            background: white;
+            border-bottom: 2px solid #ffedd5;
+            padding: 1.2rem 1.2rem 0.8rem;
+            font-weight: 800;
+            font-size: 1.4rem;
+            border-radius: 1.5rem 1.5rem 0 0;
+        }
+        .mnemo-badge {
+            background: #fef9c3;
+            color: #854d0e;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 40px;
+            padding: 0.3rem 0.9rem;
+            display: inline-block;
+            letter-spacing: 0.3px;
+        }
+        .concept-section {
+            margin-top: 0.8rem;
+            border-left: 3px solid #ffedd5;
+            padding-left: 0.8rem;
+        }
+        .concept-section strong {
+            color: #c2410c;
+        }
+        .card-body {
+            flex: 1;
+            padding: 1.2rem 1.2rem 1.5rem;
+        }
+        footer {
+            background: #0f172a;
+            color: #cbd5e1;
+        }
+        .table-of-contents {
+            background: white;
+            border-radius: 1.25rem;
+            padding: 1.2rem;
+            position: sticky;
+            top: 1rem;
+        }
+        .toc-link {
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 500;
+            display: block;
+            padding: 0.3rem 0;
+        }
+        .toc-link:hover { color: #ffb347; padding-left: 5px; }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+        }
+        code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+        .badge-tech {
+            background: #eef2ff;
+            color: #1e40af;
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO SECTION identique -->
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-light text-dark mb-3"><i class="fab fa-apache me-1"></i> Apache Kafka®</span>
+                <h1 class="display-5 fw-bold">Maîtrisez Kafka <br>Développeurs & Architectes</h1>
+                <p class="lead mt-3">Des concepts fondamentaux aux patterns avancés : 21 clés expliquées avec analogies, exemples et mnémoniques. + Histoire, cas d'usage, bonnes pratiques.</p>
+                <div class="mt-4">
+                    <a href="#concepts" class="btn btn-warning btn-lg me-2 fw-semibold"><i class="fas fa-brain me-2"></i>Explorer les 21 concepts</a>
+                    <a href="#cas-usage" class="btn btn-outline-light btn-lg"><i class="fas fa-chart-line me-2"></i>Cas d'usage</a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block text-center">
+                <i class="fas fa-stream fa-4x text-warning opacity-50"></i>
+                <i class="fas fa-database fa-3x ms-3 text-light opacity-50"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mt-5">
+    <div class="row g-4">
+        <div class="col-lg-3 order-lg-1 order-2">
+            <div class="table-of-contents shadow-sm">
+                <h5 class="mb-3"><i class="fas fa-list-ul me-2 text-warning"></i>Sommaire rapide</h5>
+                <a href="#intro-kafka" class="toc-link"><i class="fas fa-info-circle me-2 fa-fw"></i> Qu'est-ce que Kafka ?</a>
+                <a href="#historique" class="toc-link"><i class="fas fa-history me-2 fa-fw"></i> Historique</a>
+                <a href="#cas-usage" class="toc-link"><i class="fas fa-rocket me-2 fa-fw"></i> Cas d'usage</a>
+                <a href="#concepts" class="toc-link"><i class="fas fa-cubes me-2 fa-fw"></i> 21 concepts clés</a>
+                <hr>
+                <div class="mt-2 small text-muted"><i class="fas fa-graduation-cap"></i> Formation pro · mnémos incluses</div>
+            </div>
+        </div>
+
+        <div class="col-lg-9 order-lg-2 order-1">
+            <!-- intro Kafka -->
+            <div id="intro-kafka" class="mb-5">
+                <h2 class="section-title"><i class="fab fa-kickstarter me-2 text-warning"></i> Qu'est-ce qu'Apache Kafka ?</h2>
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <p><strong>Kafka</strong> est une plateforme de streaming distribuée, open-source, conçue pour gérer des flux de données à très haut débit, en temps réel, avec une tolérance aux pannes exceptionnelle. Initialement développé par <strong>LinkedIn</strong> en 2011, puis donné à la Fondation Apache. Il combine les fonctionnalités d’un <strong>message broker</strong>, d’un <strong>stockage durable</strong> (commit log) et d’un <strong>système de traitement de flux</strong>.</p>
+                    <div class="row mt-3 text-center">
+                        <div class="col-md-4"><i class="fas fa-tachometer-alt fa-2x text-warning"></i><br><strong>Haute performance</strong><br>Millions msg/sec</div>
+                        <div class="col-md-4"><i class="fas fa-copy fa-2x text-warning"></i><br><strong>Réplication</strong><br>Haute disponibilité</div>
+                        <div class="col-md-4"><i class="fas fa-clock fa-2x text-warning"></i><br><strong>Rétention</strong><br>Stockage persistant</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique -->
+            <div id="historique" class="mb-5">
+                <h2 class="section-title"><i class="fas fa-timeline me-2 text-warning"></i> Historique & évolution</h2>
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item bg-transparent"><i class="fas fa-calendar-alt text-warning me-2"></i> <strong>2011</strong> - LinkedIn crée Kafka pour remplacer leurs pipelines de données hétérogènes.</li>
+                        <li class="list-group-item bg-transparent"><i class="fas fa-calendar-alt text-warning me-2"></i> <strong>2012</strong> - Apache Incubator, devient top-level project.</li>
+                        <li class="list-group-item bg-transparent"><i class="fas fa-calendar-alt text-warning me-2"></i> <strong>2017</strong> - Kafka Streams mature, KSQL apparaît.</li>
+                        <li class="list-group-item bg-transparent"><i class="fas fa-calendar-alt text-warning me-2"></i> <strong>2020+</strong> - KRaft (remplacement ZooKeeper), exactly-once semantics, eco-système Confluent.</li>
+                    </ul>
+                    <p class="mt-3 mb-0">Aujourd'hui : utilisé par 80% du Fortune 500, cœur de l'architecture data-driven.</p>
+                </div>
+            </div>
+
+            <!-- Cas d'usage -->
+            <div id="cas-usage" class="mb-5">
+                <h2 class="section-title"><i class="fas fa-chalkboard-user me-2 text-warning"></i> Cas d'usage (pour architectes)</h2>
+                <div class="row g-3">
+                    <div class="col-md-6"><div class="cas-usage-card" style="background:white;border-left:5px solid #ffb347;padding:1.5rem;border-radius:1rem;"><i class="fas fa-shopping-cart fa-2x text-warning mb-2"></i><h5>E-commerce & logs</h5>Tracking d'activité utilisateur, paniers abandonnés, commandes asynchrones.</div></div>
+                    <div class="col-md-6"><div class="cas-usage-card" style="background:white;border-left:5px solid #ffb347;padding:1.5rem;border-radius:1rem;"><i class="fas fa-chart-line fa-2x text-warning mb-2"></i><h5>Monitoring & métriques</h5>Collecte centralisée de métriques, alerting temps réel.</div></div>
+                    <div class="col-md-6"><div class="cas-usage-card" style="background:white;border-left:5px solid #ffb347;padding:1.5rem;border-radius:1rem;"><i class="fas fa-database fa-2x text-warning mb-2"></i><h5>CDC (Change Data Capture)</h5>Capture des modifications de bases de données vers Kafka (Debezium).</div></div>
+                    <div class="col-md-6"><div class="cas-usage-card" style="background:white;border-left:5px solid #ffb347;padding:1.5rem;border-radius:1rem;"><i class="fas fa-microchip fa-2x text-warning mb-2"></i><h5>IoT & capteurs</h5>Ingestion massive d'événements depuis des millions de devices.</div></div>
+                </div>
+            </div>
+
+            <!-- 21 CONCEPTS DÉTAILLÉS 5 FOIS PLUS RICHES -->
+            <div id="concepts">
+                <h2 class="section-title"><i class="fas fa-lightbulb me-2 text-warning"></i> 21 concepts Kafka - Version ultra-détaillée</h2>
+                <p class="mb-4">Chaque carte contient : <strong>analogie approfondie, exemples concrets, astuces techniques pour dev/archi, et mnémonique renforcée</strong>.</p>
+                <div class="row g-4 mt-1" id="conceptsGrid">
+                    
+                    <!-- 1. Topic -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-folder-open me-2 text-warning"></i>Topic</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : T comme Tiroir de classement</span><div class="concept-section"><strong>📦 Analogie détaillée :</strong> Un topic est comme un <strong>classeur entier</strong> dans un bureau. Chaque classeur possède un nom unique (ex : « Factures », « Logs applicatifs ») et regroupe des documents de même nature. Si vous devez archiver toutes les commandes clients, vous créez un classeur « Commandes ».</div><div class="concept-section"><strong>💻 Exemple concret :</strong> Dans une plateforme de livraison, topic <code>orders</code> contient tous les événements de commande. Un autre topic <code>payments</code> stocke les paiements. Les producteurs écrivent dans ces topics, les consommateurs s’abonnent aux topics pertinents.</div><div class="concept-section"><strong>🧠 Pour l’architecte :</strong> Les topics sont <strong>logiques</strong> et partitionnés. Ils supportent la rétention et la réplication. Un cluster peut avoir des milliers de topics. Nommez-les avec une convention (ex: <code>env.service.donnee</code>).</div><div class="concept-section"><strong>🔁 Rappel mnémotechnique :</strong> « Topic = Tiroir » : chaque tiroir a un nom et contient des messages classés.</div></div></div></div>
+                    
+                    <!-- 2. Partition -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-columns me-2 text-warning"></i>Partition</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : P comme Page numérotée</span><div class="concept-section"><strong>📦 Analogie :</strong> Si le topic est un classeur, la partition est un <strong>sous-dossier à onglet</strong> numéroté (0,1,2…). Chaque sous-dossier contient des fiches dans l’ordre chronologique. Kafka garantit l’ordre <strong>à l’intérieur d’une partition</strong> mais pas entre partitions.</div><div class="concept-section"><strong>💻 Exemple :</strong> Topic <code>clics-utilisateurs</code> avec 4 partitions. Le producteur avec clé = <code>user_123</code> ira toujours dans la même partition (hash). Ainsi tous les clics d’un même utilisateur sont ordonnés.</div><div class="concept-section"><strong>🧠 Technique :</strong> Le parallélisme d’un topic est égal au nombre de partitions. Un consumer group peut avoir au maximum autant de consommateurs que de partitions. Plus de partitions = plus de throughput, mais aussi plus de fichiers ouverts et de latence de métadonnées.</div></div></div></div>
+                    
+                    <!-- 3. Offset -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-sort-numeric-down me-2 text-warning"></i>Offset</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : O comme Ordre absolu</span><div class="concept-section"><strong>📦 Analogie :</strong> Le <strong>numéro de page</strong> dans un sous-dossier. La première fiche porte l’offset 0, la suivante 1, etc. Ce numéro est immuable et incrémental. On ne peut pas modifier un offset existant.</div><div class="concept-section"><strong>💻 Exemple :</strong> Partition 0, offsets 0 à 99. Un consommateur lit offset 45 à 78, puis reprend plus tard à 79. Kafka utilise les offsets pour suivre la progression de lecture (committed offset).</div><div class="concept-section"><strong>🧠 Pour le développeur :</strong> L’offset est stocké dans un topic interne (<code>__consumer_offsets</code>). Permet de « rejouer » des messages en remettant l’offset à zéro. Attention : les offsets ne sont pas uniques globalement, seulement par partition.</div></div></div></div>
+                    
+                    <!-- 4. Producer -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-pen-fancy me-2 text-warning"></i>Producer</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Pousse les messages (push)</span><div class="concept-section"><strong>📦 Analogie :</strong> Un employé qui <strong>écrit une fiche</strong> et la dépose dans le classeur. Il peut choisir dans quel sous-dossier (partition) la mettre, ou laisser Kafka décider via une clé.</div><div class="concept-section"><strong>💻 Exemple :</strong> Application backend qui, après validation d’un paiement, produit un message <code>{"orderId":123, "status":"paid"}</code> vers le topic <code>payments</code>.</div><div class="concept-section"><strong>🧠 Configuration clé :</strong> <code>acks=all</code> (attente réplication), <code>compression.type=gzip</code>, <code>retries</code>, <code>idempotence=true</code>. Le producteur peut envoyer des batchs pour optimiser le débit.</div></div></div></div>
+                    
+                    <!-- 5. Consumer -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-eye me-2 text-warning"></i>Consumer</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Consulte (pull)</span><div class="concept-section"><strong>📦 Analogie :</strong> Un employé qui <strong>lit une fiche</strong> dans le classeur, la traite, puis laisse sa place. Il tire les messages (pull) à son propre rythme, contrairement à certains brokers push.</div><div class="concept-section"><strong>💻 Exemple :</strong> Service de notification qui consomme le topic <code>orders</code>, et pour chaque commande envoie un email au client. Si le service est lent, Kafka ne le surcharge pas.</div><div class="concept-section"><strong>🧠 Bonnes pratiques :</strong> Gérer la <code>session.timeout.ms</code> et <code>heartbeat</code>. Utiliser <code>enable.auto.commit=false</code> et commiter manuellement après traitement pour éviter les pertes ou doublons. Un consumer appartient à un consumer group.</div></div></div></div>
+                    
+                    <!-- 6. Broker -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-server me-2 text-warning"></i>Broker</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Boîtier serveur</span><div class="concept-section"><strong>📦 Analogie :</strong> Une <strong>étagère</strong> dans la bibliothèque. Chaque broker (serveur Kafka) stocke plusieurs partitions de différents topics. Un broker unique peut gérer des téraoctets de données.</div><div class="concept-section"><strong>💻 Exemple :</strong> Un cluster de 3 brokers. Broker 1 héberge la partition leader du topic A, partition follower du topic B. Broker 2 héberge d’autres partitions.</div><div class="concept-section"><strong>🧠 Architecture :</strong> Chaque broker a un ID unique. Les clients se connectent à un broker (bootstrap) qui leur renvoie la métadonnée complète du cluster. Un broker peut être leader ou follower pour différentes partitions. La montée en charge se fait en ajoutant des brokers.</div></div></div></div>
+                    
+                    <!-- 7. Cluster -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-network-wired me-2 text-warning"></i>Cluster</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Collectif de brokers</span><div class="concept-section"><strong>📦 Analogie :</strong> La <strong>bibliothèque entière</strong> composée de plusieurs étagères (brokers). Toutes travaillent ensemble pour offrir un service unifié, tolérant aux pannes et scalable.</div><div class="concept-section"><strong>💻 Exemple :</strong> Cluster de 5 brokers, facteur de réplication 3. Même si 2 brokers tombent, le cluster reste opérationnel (car les partitions leaders sont sur les brokers restants).</div><div class="concept-section"><strong>🧠 Pour architecte :</strong> Le cluster est identifié par un <code>cluster.id</code>. La communication interne utilise le protocole Kafka (binaire). Les outils d’administration (Kafka AdminClient, kafka-topics) agissent au niveau cluster.</div></div></div></div>
+                    
+                    <!-- 8. Consumer Group -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-users me-2 text-warning"></i>Consumer Group</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Coopération de groupe</span><div class="concept-section"><strong>📦 Analogie :</strong> Une <strong>équipe de lecteurs</strong> qui se répartissent les sous-dossiers d’un même classeur. Chaque lecteur est responsable d’un sous-dossier (partition). Si un lecteur tombe malade, ses sous-dossiers sont attribués à un autre.</div><div class="concept-section"><strong>💻 Exemple :</strong> Topic avec 6 partitions. Un groupe avec 3 consommateurs : chacun prend 2 partitions. Si un consommateur s’arrête, les 2 partitions sont rééquilibrées entre les 2 restants.</div><div class="concept-section"><strong>🧠 Important :</strong> Dans un groupe, chaque partition est consommée par un seul consommateur. Le nombre de consommateurs ne peut pas dépasser le nombre de partitions, sinon certains restent inactifs. Le rééquilibrage (rebalance) peut causer une courte pause.</div></div></div></div>
+                    
+                    <!-- 9. Replication -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-copy me-2 text-warning"></i>Réplication</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Redondance photocopie</span><div class="concept-section"><strong>📦 Analogie :</strong> Faire des <strong>photocopies</strong> de chaque fiche et les ranger sur d’autres étagères (brokers différents). Si l’original brûle, on utilise une copie.</div><div class="concept-section"><strong>💻 Exemple :</strong> Facteur de réplication = 3 pour le topic <code>transactions</code>. Chaque message est écrit sur 3 brokers différents. Un broker peut tomber sans perte de données.</div><div class="concept-section"><strong>🧠 Détail technique :</strong> Une partition a un leader (lecture/écriture) et des followers (qui copient passivement). Les followers demandent les données au leader via des requêtes fetch. La réplication asynchrone peut mener à des pertes si le leader meurt avant que les followers aient copié (config <code>min.insync.replicas</code>).</div></div></div></div>
+                    
+                    <!-- 10. Leader/Follower -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-crown me-2 text-warning"></i>Leader / Follower</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : L comme Lecture/écriture</span><div class="concept-section"><strong>📦 Analogie :</strong> Un <strong>chef d’équipe</strong> (leader) gère toutes les demandes d’écriture et de lecture pour sa partition. Ses <strong>adjoints</strong> (followers) ne font que copier les données du leader pour être prêts à prendre la relève.</div><div class="concept-section"><strong>💻 Exemple :</strong> Partition 0 du topic <code>logs</code> : le leader est Broker 2, les followers sont Brokers 1 et 3. Tous les producteurs écrivent sur Broker 2. Si Broker 2 tombe, un follower (Broker 1) devient automatiquement leader.</div><div class="concept-section"><strong>🧠 Pour l’architecte :</strong> L’élection du leader est gérée par le contrôleur (un broker spécial ou via KRaft). Les followers ne servent que pour la réplication et la haute disponibilité. Un broker peut être leader pour certaines partitions et follower pour d’autres.</div></div></div></div>
+                    
+                    <!-- 11. ZooKeeper / KRaft -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-robot me-2 text-warning"></i>ZooKeeper / KRaft</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Secrétaire (Zoo) ou KRaft intégré</span><div class="concept-section"><strong>📦 Analogie :</strong> Un <strong>secrétaire</strong> qui connaît l’emplacement de toutes les étagères, qui désigne les chefs (leaders) et tient à jour le registre du cluster. Depuis Kafka 3.x, le secrétaire est intégré dans le cluster lui-même : c’est KRaft.</div><div class="concept-section"><strong>💻 Exemple :</strong> ZooKeeper stocke les métadonnées : liste des brokers, configuration des topics, quotas, ACL. Avec KRaft, Kafka utilise un protocole Raft pour élire un contrôleur.</div><div class="concept-section"><strong>🧠 Évolution :</strong> KRaft supprime la dépendance externe, simplifie l’exploitation, améliore la scalabilité (plus de limite de 200k partitions). Pour les nouvelles installations, préférez KRaft (Kafka 3.3+).</div></div></div></div>
+                    
+                    <!-- 12. Message / Record -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-envelope me-2 text-warning"></i>Message / Record</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Missive complète</span><div class="concept-section"><strong>📦 Analogie :</strong> Une <strong>fiche</strong> avec plusieurs champs : en-tête (clé), corps (valeur), horodatage, et métadonnées optionnelles. C’est l’unité de base transportée par Kafka.</div><div class="concept-section"><strong>💻 Exemple :</strong> <code>key="user_42", value="{\"action\":\"click\", \"page\":\"home\"}", timestamp=1698765432000, headers={"source":"web"}</code>.</div><div class="concept-section"><strong>🧠 Technique :</strong> La taille maximale par défaut est 1 Mo (configurable). Les messages peuvent être compressés (batch). Les en-têtes (headers) sont utiles pour du routage ou métadonnées sans modifier la valeur.</div></div></div></div>
+                    
+                    <!-- 13. Key (Clé) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-key me-2 text-warning"></i>Key (Clé)</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Kabinet de classement</span><div class="concept-section"><strong>📦 Analogie :</strong> Une <strong>étiquette de couleur</strong> sur la fiche. Cette couleur détermine automatiquement dans quel sous-dossier (partition) la fiche sera rangée. Toutes les fiches avec la même couleur vont dans le même sous-dossier.</div><div class="concept-section"><strong>💻 Exemple :</strong> Clé = <code>customerId</code>. Tous les événements d’un même client vont dans la même partition, donc ils sont lus dans l’ordre par un consommateur. Sans clé, les messages sont répartis en round-robin.</div><div class="concept-section"><strong>🧠 Pour le développeur :</strong> La clé est optionnelle. Si vous avez besoin d’ordre strict par entité, fournissez une clé non nulle. Le partitionnement par défaut : <code>hash(key) % nombre_partitions</code>. Vous pouvez implémenter un partitionneur personnalisé.</div></div></div></div>
+                    
+                    <!-- 14. SerDes -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-exchange-alt me-2 text-warning"></i>Sérialisation / Désérialisation</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : S comme Schéma</span><div class="concept-section"><strong>📦 Analogie :</strong> <strong>Traduire</strong> un message en langage binaire pour l’envoyer sur le réseau (sérialiser), puis le retraduire en objet lisible (désérialiser). Sans traduction, les ordinateurs ne se comprennent pas.</div><div class="concept-section"><strong>💻 Exemple :</strong> Un objet Java <code>Order</code> est sérialisé en JSON (texte), puis Kafka le transforme en bytes. À la réception, le consommateur désérialise les bytes en JSON, puis en objet Order.</div><div class="concept-section"><strong>🧠 Bonnes pratiques :</strong> Utilisez Avro avec Schema Registry pour gérer l’évolution des schémas. Les sérialiseurs courants : String, JSON, Avro, Protobuf. La clé et la valeur peuvent avoir des sérialiseurs différents.</div></div></div></div>
+                    
+                    <!-- 15. Commit Log -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-scroll me-2 text-warning"></i>Commit Log</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Comptable immuable</span><div class="concept-section"><strong>📦 Analogie :</strong> Un <strong>registre comptable</strong> où chaque écriture est ajoutée à la fin, et on ne peut jamais effacer ou modifier une ligne existante. Kafka stocke tous les messages dans l’ordre d’arrivée, comme un journal immuable.</div><div class="concept-section"><strong>💻 Exemple :</strong> Le répertoire de stockage sur disque contient des fichiers <code>.log</code> où chaque message est ajouté séquentiellement. Une lecture aléatoire est possible mais optimisée via index.</div><div class="concept-section"><strong>🧠 Architecture :</strong> Cette conception permet des lectures séquentielles ultra-rapides, et une réplication simple. La suppression se fait par « compaction » ou par expiration (suppression de vieux segments). Pas de mise à jour sur place.</div></div></div></div>
+                    
+                    <!-- 16. Retention Policy -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-clock me-2 text-warning"></i>Retention Policy</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Retrait des anciens</span><div class="concept-section"><strong>📦 Analogie :</strong> Un <strong>videur</strong> qui jette les fiches trop vieilles (par durée) ou lorsque le classeur est trop plein (par taille). Ainsi la bibliothèque ne sature pas.</div><div class="concept-section"><strong>💻 Exemple :</strong> Topic avec <code>retention.ms=604800000</code> (7 jours) et <code>retention.bytes=1073741824</code> (1 Go). Les messages plus vieux que 7 jours sont supprimés, et si la taille totale dépasse 1 Go, les plus anciens sont éliminés.</div><div class="concept-section"><strong>🧠 Pour l’architecte :</strong> Deux politiques : <code>delete</code> (suppression) ou <code>compact</code> (compaction, garde seulement la dernière valeur par clé). La compaction est utile pour les tables de référence (KTable).</div></div></div></div>
+                    
+                    <!-- 17. Compression -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-compress-alt me-2 text-warning"></i>Compression</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Compact et rapide</span><div class="concept-section"><strong>📦 Analogie :</strong> <strong>Aspirer l’air</strong> d’un coussin pour le rendre plus petit à transporter. Le destinataire le regonfle (décompresse) pour l’utiliser. Gain de place et de bande passante.</div><div class="concept-section"><strong>💻 Exemple :</strong> Activer <code>compression.type=gzip</code> sur un topic de logs texte. La taille passe de 100 Mo à 30 Mo. Les producteurs compressent par batch, les consommateurs décompressent automatiquement.</div><div class="concept-section"><strong>🧠 Types supportés :</strong> gzip, snappy, lz4, zstd. Snappy est rapide, gzip meilleur taux. La compression est transparente pour le consommateur. Attention : un broker peut recompresser si les configurations diffèrent.</div></div></div></div>
+                    
+                    <!-- 18. Idempotent Producer -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-check-double me-2 text-warning"></i>Idempotent Producer</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Interdit de dupliquer</span><div class="concept-section"><strong>📦 Analogie :</strong> Un facteur qui note <strong>le numéro de chaque lettre</strong> dans son carnet. S’il doit réexpédier une lettre à cause d’un problème réseau, il vérifie qu’il ne l’a pas déjà envoyée. Pas de doublon.</div><div class="concept-section"><strong>💻 Exemple :</strong> Producer avec <code>enable.idempotence=true</code>. Même après un timeout et une retransmission, Kafka garantit que le message n’est écrit qu’une seule fois dans le log.</div><div class="concept-section"><strong>🧠 Technique :</strong> Basé sur les PID (Producer ID) et les numéros de séquence par partition. Nécessite <code>max.in.flight.requests.per.connection <= 5</code> et <code>acks=all</code>. Idempotence est un prérequis pour Exactly-Once Semantics.</div></div></div></div>
+                    
+                    <!-- 19. Exactly-once Semantics (EOS) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-check-circle me-2 text-warning"></i>Exactly-once (EOS)</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Exact One Shot</span><div class="concept-section"><strong>📦 Analogie :</strong> Un <strong>transfert bancaire</strong> parfait : ni perte, ni double dépense, ni omission. Chaque message est traité exactement une fois, même en cas de panne ou de rejeu.</div><div class="concept-section"><strong>💻 Exemple :</strong> Kafka Streams avec <code>processing.guarantee=exactly_once_v2</code>. Un consommateur lit un topic, transforme, et produit dans un autre topic le tout dans une transaction atomique.</div><div class="concept-section"><strong>🧠 Pour architecte :</strong> Combine l’idempotence du producteur et les transactions (atomicité lecture-écriture). Les transactions Kafka permettent de committer les offsets du consommateur et les messages produits ensemble. Impact sur les performances.</div></div></div></div>
+                    
+                    <!-- 20. Kafka Streams -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-chart-simple me-2 text-warning"></i>Kafka Streams</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Stream = ruisseau continu</span><div class="concept-section"><strong>📦 Analogie :</strong> Une <strong>chaîne de montage</strong> qui lit les messages à la volée, les transforme (filtre, agrandit, joint, compte) et les réécrit dans un autre topic. Tout cela en continu, sans base externe.</div><div class="concept-section"><strong>💻 Exemple :</strong> Lire un topic <code>clics</code>, faire une fenêtre de 5 secondes, compter les clics par utilisateur, écrire dans <code>stats-clics</code>. Code Java avec KStream et KTable.</div><div class="concept-section"><strong>🧠 Pour le développeur :</strong> Bibliothèque (pas de serveur séparé) intégrable dans n’importe quelle app JVM. Supporte l’état (state stores) via RocksDB. Garanties exactly-once, tolérance aux pannes, répartition automatique.</div></div></div></div>
+                    
+                    <!-- 21. Kafka Connect -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-plug me-2 text-warning"></i>Kafka Connect</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mnémo : Câble universel</span><div class="concept-section"><strong>📦 Analogie :</strong> Un <strong>adaptateur universel</strong> qui branche Kafka à des sources (bases de données, fichiers, IoT) ou des puits (Elasticsearch, S3, HDFS) sans écrire une seule ligne de code.</div><div class="concept-section"><strong>💻 Exemple :</strong> Connecteur JDBC Source : toutes les 5 minutes, il lit les nouvelles lignes d’une table MySQL <code>customers</code> et les publie dans le topic <code>mysql.customers</code>. Connecteur S3 Sink : écrit tous les messages du topic <code>logs</code> dans des fichiers Parquet sur S3.</div><div class="concept-section"><strong>🧠 Mode distribué :</strong> Connect s’exécute en cluster (workers) pour la scalabilité et la tolérance. Supporte les transformations simples (Single Message Transforms). Idéal pour les pipelines ETL sans code.</div></div></div></div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mt-5 d-flex align-items-center" role="alert">
+                <i class="fas fa-lightbulb fa-2x me-3"></i>
+                <div><strong>Mémo global de la formation :</strong> Bibliothèque (cluster) → étagères (brokers) → classeurs (topics) → sous-dossiers (partitions) → pages numérotées (offsets). Producteurs écrivent, groupes de consommateurs lisent, photocopies (réplication) sécurisent. Les 21 concepts forment le socle de l’architecture event-driven moderne.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="mt-5 pt-4 pb-3">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <i class="fab fa-apache me-1"></i> Formation Kafka · pour développeurs & architectes
+                <br><small>Contenu enrichi avec analogies profondes et mnémos professionnelles.</small>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="#" class="text-white-50 text-decoration-none me-3"><i class="fas fa-arrow-up"></i> Haut de page</a>
+                <span class="text-white-50">© 2025 — Concepts détaillés inspirés d'Apache Kafka</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('.toc-link, a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if(href && href !== "#" && href.startsWith('#')) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+</script>
+</body>
+</html>
