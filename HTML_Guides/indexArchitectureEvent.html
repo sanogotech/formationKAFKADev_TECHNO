@@ -1,0 +1,3292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Architectures Event-Driven & CQRS | Portail DSI Moderne</title>
+  <!-- Bootstrap 5 + Icons + Fonts -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background: #f4f7fc;
+      scroll-behavior: smooth;
+    }
+    /* Effet waouh pro : gradients, ombres, transitions */
+    .hero-section {
+      background: linear-gradient(135deg, #0b2b3d 0%, #1b4f6e 100%);
+      padding: 2.5rem 0;
+      border-bottom: 4px solid #ffb74d;
+    }
+    .hero-title {
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+    }
+    .card-modern {
+      border: none;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+      transition: transform 0.25s ease, box-shadow 0.3s ease;
+      background: #ffffff;
+      height: 100%;
+    }
+    .card-modern:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 40px -14px rgba(0,0,0,0.2);
+    }
+    .badge-glow {
+      background: linear-gradient(145deg, #ffb347, #ff8c00);
+      box-shadow: 0 4px 10px rgba(255,140,0,0.3);
+      transition: all 0.2s;
+    }
+    .nav-tabs-custom .nav-link {
+      font-weight: 600;
+      color: #1e4663;
+      border-radius: 40px;
+      margin: 0 4px;
+      transition: all 0.2s;
+      padding: 0.6rem 1.2rem;
+      background: rgba(255,255,255,0.7);
+      border: none;
+    }
+    .nav-tabs-custom .nav-link:hover {
+      background: #e9f0f5;
+      color: #0f2c3f;
+      transform: translateY(-2px);
+    }
+    .nav-tabs-custom .nav-link.active {
+      background: #1b4f6e;
+      color: white;
+      box-shadow: 0 8px 18px rgba(27,79,110,0.3);
+    }
+    .tab-pane {
+      animation: fadeInUp 0.35s ease-out;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .diagram-box {
+      background: #f0f4f9;
+      border-radius: 1.2rem;
+      padding: 1.2rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      border-left: 5px solid #ff914d;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .stat-badge {
+      font-size: 0.9rem;
+      background: #eef2ff;
+      border-radius: 40px;
+      padding: 0.3rem 0.9rem;
+      font-weight: 500;
+    }
+    .table-arch {
+      background: white;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+    .footer-custom {
+      background: #0b2b3d;
+      color: #ccdee8;
+      border-top: 1px solid #2c627e;
+    }
+    .glossary-term {
+      font-weight: 700;
+      color: #1b4f6e;
+      border-left: 3px solid #ff914d;
+      padding-left: 12px;
+    }
+    .hover-lift {
+      transition: transform 0.2s;
+    }
+    .hover-lift:hover {
+      transform: scale(1.02);
+    }
+    .tab-content {
+      padding-top: 2rem;
+    }
+    @media (max-width: 768px) {
+      .nav-tabs-custom {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: thin;
+      }
+      .nav-tabs-custom .nav-link {
+        white-space: nowrap;
+      }
+    }
+    code {
+      background: #eef2f7;
+      padding: 0.2rem 0.4rem;
+      border-radius: 8px;
+      color: #c4450c;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Hero section -->
+<div class="hero-section text-white">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center">
+      <div>
+        <h1 class="display-4 fw-bold hero-title"><i class="fas fa-bolt me-2"></i>Event-Driven Mastery</h1>
+        <p class="lead mb-0 opacity-90">CQRS · Kafka-first · Event Sourcing · CDC · Outbox · Hybrid Patterns</p>
+        <p class="mt-2"><span class="badge bg-light text-dark">DSI Énergie, Eau, Banque, Télécom</span> <span class="badge bg-warning text-dark ms-2">Architectures haute performance</span></p>
+      </div>
+      <div class="mt-3 mt-md-0">
+        <i class="fas fa-cloud-arrow-up fa-3x opacity-50"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container my-4">
+  <!-- Navigation par onglets (12 onglets) -->
+  <ul class="nav nav-tabs-custom nav nav-tabs mb-3 flex-nowrap overflow-auto pb-2" id="masterTabs" role="tablist">
+    <li class="nav-item" role="presentation"><button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab"><i class="fas fa-compass me-1"></i> Panorama</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab"><i class="fas fa-database me-1"></i> CQRS + DB Write</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab"><i class="fab fa-kickstarter-k me-1"></i> Kafka-first</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab"><i class="fas fa-scale-balanced me-1"></i> Comparaison</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab5-tab" data-bs-toggle="tab" data-bs-target="#tab5" type="button" role="tab"><i class="fas fa-layer-group me-1"></i> Patterns alt.</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab6-tab" data-bs-toggle="tab" data-bs-target="#tab6" type="button" role="tab"><i class="fas fa-code-branch me-1"></i> Guide décision</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab7-tab" data-bs-toggle="tab" data-bs-target="#tab7" type="button" role="tab"><i class="fas fa-industry me-1"></i> Cas réel Énergie/Eau</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab8-tab" data-bs-toggle="tab" data-bs-target="#tab8" type="button" role="tab"><i class="fas fa-clipboard-list me-1"></i> Bonnes pratiques</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab9-tab" data-bs-toggle="tab" data-bs-target="#tab9" type="button" role="tab"><i class="fas fa-book-open me-1"></i> Glossaire</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab10-tab" data-bs-toggle="tab" data-bs-target="#tab10" type="button" role="tab"><i class="fas fa-chalkboard-user me-1"></i> REX DSI</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab11-tab" data-bs-toggle="tab" data-bs-target="#tab11" type="button" role="tab"><i class="fas fa-briefcase me-1"></i> Cas usages métier</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab12-tab" data-bs-toggle="tab" data-bs-target="#tab12" type="button" role="tab"><i class="fas fa-chart-line me-1"></i> Benchmarks</button></li>
+  </ul>
+
+  <div class="tab-content" id="masterTabsContent">
+    <!-- ONGLET 1 : PANORAMA / INTRODUCTION -->
+<!-- ONGLET 1 : PANORAMA / INTRODUCTION - Version ultra-détaillée -->
+<div class="tab-pane fade show active" id="tab1" role="tabpanel">
+  <div class="row g-4">
+    <!-- Carte principale : définition et enjeux -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fas fa-brain text-primary me-2"></i>Architectures Event-Driven : Panorama stratégique pour DSI</h2>
+        <p class="lead">Dans les systèmes d'information modernes, l'approche <strong>event-driven</strong> (pilotée par les événements) transforme la façon dont les microservices communiquent, réagissent en temps réel et garantissent la scalabilité. Ce guide pose les bases pour choisir entre CQRS, Kafka-first, Event Sourcing, Outbox, CDC et les architectures synchrones.</p>
+        <hr>
+        <div class="row">
+          <div class="col-md-6">
+            <h5><i class="fas fa-question-circle text-info"></i> Pourquoi ce sujet est critique ?</h5>
+            <p>Les DSI doivent absorber des volumes massifs de données (IoT, logs, clics) tout en maintenant une cohérence forte pour les transactions financières ou réglementaires. L'architecture event-driven n'est pas un pattern unique mais une <strong>boîte à outils</strong> dont le mauvais choix peut entraîner pertes de données, latences ou surcoûts.</p>
+          </div>
+          <div class="col-md-6">
+            <h5><i class="fas fa-chart-line text-success"></i> Tendance 2025 : hybride dominant</h5>
+            <p>Selon une étude récente, 78% des grandes DSI utilisent au moins deux patterns event-driven combinés (ex. CQRS + Outbox + CDC). L'approche "Kafka-first pure" reste minoritaire (12%) en raison des risques de cohérence.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau comparatif des paradigmes (synchrone vs asynchrone) -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-exchange-alt"></i> Synchrone vs Asynchrone / Event-Driven</h4>
+        <table class="table table-sm table-bordered mt-2">
+          <thead class="table-light"><tr><th>Critère</th><th>Synchrone (REST/gRPC)</th><th>Asynchrone (Event-Driven)</th></tr></thead>
+          <tbody>
+            <tr><td>Couplage</td><td>Fort (appels directs)</td><td>Faible (via bus)</td></tr>
+            <tr><td>Latence réponse</td><td>Immédiate (bloquante)</td><td>Eventuelle / non bloquante</td></tr>
+            <tr><td>Scalabilité</td><td>Limitée par dépendances</td><td>Très élevée (consommateurs indépendants)</td></tr>
+            <tr><td>Tolérance panne</td><td>Propagation (circuit breaker)</td><td>Isolée (rejeu possible)</td></tr>
+            <tr><td>Traçabilité</td><td>Logs applicatifs</td><td>Journaux d'événements immuables</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Checklist maturité DSI pour l'event-driven -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-clipboard-list"></i> Checklist : votre DSI est-elle prête pour l'event-driven ?</h4>
+        <ul class="list-unstyled">
+          <li><i class="fas fa-square-check text-success me-2"></i> Capacité à gérer l'<strong>eventual consistency</strong> acceptée par le métier</li>
+          <li><i class="fas fa-square-check text-success me-2"></i> Mise en place d’un <strong>Schema Registry</strong> (évolution des événements)</li>
+          <li><i class="fas fa-square-check text-success me-2"></i> Outillage de <strong>replay</strong> et de reconstruction d’états</li>
+          <li><i class="fas fa-square-check text-success me-2"></i> Monitoring des décalages (lag) des consommateurs Kafka</li>
+          <li><i class="fas fa-square-check text-success me-2"></i> Stratégie de <strong>gestion des doublons</strong> (idempotence)</li>
+          <li><i class="fas fa-square-check text-secondary me-2"></i> Auditabilité des événements critiques (optionnel)</li>
+        </ul>
+        <div class="alert alert-warning mt-2 py-2"><i class="fas fa-lightbulb"></i> <strong>Point critique :</strong> si vous ne maîtrisez pas le versioning des schémas, préférez d'abord un pattern Outbox ou CDC avant de passer à Kafka-first.</div>
+      </div>
+    </div>
+
+    <!-- Questions clés pour l'arbitrage -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-question-circle"></i> Questions clés à se poser avant de choisir une architecture event-driven</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="p-2 bg-light rounded mb-2"><strong>🔹 Métier :</strong> Acceptez-vous une cohérence à terme (secondes/minutes) ?</div>
+            <div class="p-2 bg-light rounded mb-2"><strong>🔹 Réglementation :</strong> Existe-t-il une obligation d’audit exhaustif ? (RGPD, SOX, MIFID)</div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-2 bg-light rounded mb-2"><strong>🔹 Volume :</strong> Plus de 100 000 événements/seconde ? → Kafka-first ou CDC.</div>
+            <div class="p-2 bg-light rounded mb-2"><strong>🔹 Legacy :</strong> Pouvez-vous modifier les applications pour publier des événements ? Sinon CDC.</div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-2 bg-light rounded mb-2"><strong>🔹 Équipes :</strong> Avez-vous l'expertise pour gérer Event Sourcing (complexité) ?</div>
+            <div class="p-2 bg-light rounded mb-2"><strong>🔹 Infrastructure :</strong> Kafka cluster avec réplication inter-AZ ?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REX (Retours d'Expérience) détaillés -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-users-between"></i> REX concrets de DSI ayant adopté l'event-driven</h4>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-primary border-4 ps-3">
+              <strong>🏦 Banque européenne (Crédit Agricole-like)</strong><br>
+              Problème : latence sur les calculs de risques (10 secondes). Solution : passage de REST à CQRS + Kafka avec Outbox. Résultat : latence réduite à 600 ms, zéro perte d'événements. Leçon : investir dans l'idempotence des consommateurs.
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-primary border-4 ps-3">
+              <strong>⚡ Fournisseur d'énergie (ENEDIS-like)</strong><br>
+              5 millions de compteurs IoT. Choix : Kafka-first pour l'ingestion, mais conservation d'une DB Write pour la facturation légale. Erreur évitée : ne pas avoir centralisé la gouvernance des schémas → correction par Schema Registry.
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-primary border-4 ps-3">
+              <strong>📱 E-commerce français (ManoMano)</strong><br>
+              Utilisation de CDC (Debezium) pour alimenter un moteur de recommandation à partir de la base MySQL legacy. Gain : déploiement en 3 semaines sans toucher au code existant. Limite : dépendance aux logs binaires (perfs).
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-primary border-4 ps-3">
+              <strong>🚰 Régie des eaux (Veolia)</strong><br>
+              Event Sourcing + CQRS pour la gestion des abonnements. Reconstruit l'état après sinistre en 45 minutes (vs 8h avant). Complexité de versionning des événements → investir dans des outils comme EventStoreDB.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture de référence (schéma) + stack technologique -->
+    <div class="col-md-7">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-project-diagram"></i> Architecture de référence – Event-driven hybride (standard DSI)</h4>
+        <div class="diagram-box">
+          ┌─────────────┐     ┌─────────────────┐     ┌───────────┐<br>
+          │ Applications│────▶│    Write DB     │────▶│  Outbox   │<br>
+          │   (Legacy)  │     │ (source vérité) │     │   Table   │<br>
+          └─────────────┘     └─────────────────┘     └─────┬─────┘<br>
+                                                            │<br>
+          ┌─────────────┐     ┌─────────────────┐     ┌─────▼─────┐<br>
+          │   IoT/Mobile│────▶│     Kafka       │◀────│  Relay    │<br>
+          └─────────────┘     │   (backbone)    │     │ (CDC/Poll)│<br>
+                              └────────┬────────┘     └───────────┘<br>
+                                       │<br>
+          ┌──────────┬──────────┬──────▼─────┬──────────┐<br>
+          │ Read DB  │ Data Lake│   Cache    │   AI     │<br>
+          │ (CQRS)   │ (BI)     │  (Redis)   │ (Fraud)  │<br>
+          └──────────┴──────────┴────────────┴──────────┘
+        </div>
+        <p class="mt-2">Cette architecture combine Outbox pour la fiabilité, Kafka pour la diffusion, et des consommateurs spécialisés.</p>
+      </div>
+    </div>
+
+    <div class="col-md-5">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-layer-group"></i> Stack technologique recommandée</h4>
+        <table class="table table-sm">
+          <tr><td><i class="fab fa-java"></i> <strong>Streaming</strong></td><td>Apache Kafka (ou Confluent), Kafka Streams, ksqlDB</td></tr>
+          <tr><td><i class="fas fa-database"></i> <strong>CDC</strong></td><td>Debezium, Maxwell, Striim</td></tr>
+          <tr><td><i class="fas fa-inbox"></i> <strong>Outbox</strong></td><td>Pattern natif + framework (Spring Kafka, MassTransit)</td></tr>
+          <tr><td><i class="fas fa-history"></i> <strong>Event Sourcing</strong></td><td>EventStoreDB, Axon Framework, Akka Persistence</td></tr>
+          <tr><td><i class="fas fa-chart-line"></i> <strong>Monitoring</strong></td><td>Prometheus + Grafana, Confluent Control Center</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bonnes pratiques générales event-driven -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-medal"></i> Bonnes pratiques transverses (quel que soit le pattern)</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <ul>
+              <li><strong>Événements immutables</strong> – ne jamais modifier un événement déjà publié.</li>
+              <li><strong>Idempotence des consommateurs</strong> – tolérer les relectures (at-least-once).</li>
+              <li><strong>Corrélation</strong> – utiliser un <code>correlationId</code> pour tracer un flux métier.</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <ul>
+              <li><strong>Schema Registry</strong> – pour l'évolution rétrocompatible (Avro, Protobuf).</li>
+              <li><strong>Dead Letter Queue</strong> – gérer les événements non consommables.</li>
+              <li><strong>Monitoring des lags</strong> – alerter si un consommateur décroche.</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <ul>
+              <li><strong>Test de replay</strong> – valider la reconstruction des états.</li>
+              <li><strong>Séparation commandes/requêtes</strong> – base du CQRS.</li>
+              <li><strong>Documentation des événements</strong> – contrat explicite.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cas d'usage sectoriels détaillés -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-briefcase"></i> Cas d'usage par secteur – quand adopter quel pattern ?</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-light"><tr><th>Secteur</th><th>Cas d'usage</th><th>Pattern recommandé</th><th>Pourquoi</th></tr></thead>
+            <tbody>
+              <tr><td>Énergie/Eau</td><td>Télérélevée millions de compteurs</td><td>Kafka-first (ingestion) + CQRS (facturation)</td><td>Volume massif, mais facturation nécessite cohérence forte</td></tr>
+              <tr><td>Banque/Finance</td><td>Détection fraude temps réel</td><td>Event Sourcing + CQRS + Kafka Streams</td><td>Traçabilité absolue, rejeu pour analyse</td></tr>
+              <tr><td>E-commerce</td><td>Panier abandonné, synchronisation stock</td><td>Outbox Pattern + CDC</td><td>Fiabilité sans refonte lourde</td></tr>
+              <tr><td>Télécom</td><td>Analyse de flux réseau (billions d'événements)</td><td>Kafka-first + ksqlDB</td><td>Scalabilité horizontale immédiate</td></tr>
+              <tr><td>Santé</td><td>Dossier patient partagé</td><td>Event Sourcing + CDC legacy</td><td>Conformité, historique des modifications</td></tr>
+              <tr><td>Logistique</td><td>Suivi colis multi-transporteurs</td><td>CQRS + Kafka avec Outbox</td><td>Cohérence entre systèmes tiers</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Points d'attention & anti-patterns -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-exclamation-triangle text-danger"></i> Anti-patterns fréquents à éviter</h4>
+        <ul>
+          <li><strong>Kafka comme base de données</strong> : requêter directement les topics (sauf pour très petits volumes).</li>
+          <li><strong>Événements sans version</strong> → rupture silencieuse des consommateurs.</li>
+          <li><strong>Ignorer la gestion des doublons</strong> → double écriture dans les vues.</li>
+          <li><strong>Consumer unique pour tout faire</strong> → réintroduit du couplage.</li>
+          <li><strong>Pas de plan de replay</strong> → impossibilité de reconstruire après corruption.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-check-circle text-success"></i> Signes que vous avez bien architecturé</h4>
+        <ul>
+          <li>✔ Un nouveau consommateur peut lire tous les événements historiques.</li>
+          <li>✔ Une panne de consommateur n'affecte pas les producteurs.</li>
+          <li>✔ Les schémas d'événements sont gérés de façon évolutive.</li>
+          <li>✔ Le monitoring montre un lag proche de zéro en régime normal.</li>
+          <li>✔ Vous pouvez rejouer les événements d'une journée sans impacter la production.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- ONGLET 2 : CQRS + DB Write -->
+<!-- ONGLET 2 : CQRS + DB Write - Version ultra-détaillée -->
+<div class="tab-pane fade" id="tab2" role="tabpanel">
+  <div class="row g-4">
+    <!-- Carte principale : définition et principe -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fas fa-database me-2 text-primary"></i>CQRS + DB Write : l'architecture de référence pour SI critiques</h2>
+        <p class="lead">Le pattern <strong>CQRS (Command Query Responsibility Segregation)</strong> associé à une base de données d’écriture centrale et à Kafka comme bus d’événements est la colonne vertébrale des systèmes d’information exigeants (finance, énergie, ERP). La base de données reste la <strong>source de vérité</strong> pour les commandes, tandis que Kafka assure la diffusion asynchrone vers des modèles de lecture optimisés.</p>
+        <hr>
+        <div class="row">
+          <div class="col-md-6">
+            <h5><i class="fas fa-sitemap"></i> Flux typique</h5>
+            <div class="diagram-box bg-light p-2 rounded">
+              API Command → Validation métier → Write DB (transaction) → Publication événement Kafka → Consumers → Read DB / Cache / DWH
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h5><i class="fas fa-balance-scale"></i> Quand l'utiliser ?</h5>
+            <ul>
+              <li>Transactions financières (billing, paiements)</li>
+              <li>Systèmes réglementés (audit obligatoire)</li>
+              <li>Domaines où la <strong>cohérence forte</strong> prime sur la latence</li>
+              <li>Refonte d’un monolithe avec besoin de découplage progressif</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Avantages / Inconvénients détaillés -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-thumbs-up text-success"></i> Avantages opérationnels</h4>
+        <ul>
+          <li><strong>Source de vérité unique</strong> – la Write DB (ACID) garantit l’intégrité.</li>
+          <li><strong>Cohérence forte immédiate</strong> – après validation, la commande est enregistrée.</li>
+          <li><strong>Auditabilité simple</strong> – requêtage direct de la base transactionnelle.</li>
+          <li><strong>Découplage lecture/écriture</strong> – les vues Read DB peuvent être adaptées aux besoins.</li>
+          <li><strong>Résilience</strong> – si Kafka est indisponible, l’écriture en DB reste possible (mode dégradé).</li>
+          <li><strong>Évolutivité verticale et horizontale</strong> – réplication lecture, sharding écriture possible.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-thumbs-down text-danger"></i> Inconvénients et défis</h4>
+        <ul>
+          <li><strong>Double écriture</strong> (DB + Kafka) – risque de désynchronisation sans pattern Outbox.</li>
+          <li><strong>Latence supplémentaire</strong> – l’événement n’est disponible qu’après commit DB.</li>
+          <li><strong>Complexité de synchronisation</strong> – garantir l’ordre des événements.</li>
+          <li><strong>Consommation de ressources</strong> – maintenir à jour les vues de lecture.</li>
+          <li><strong>Gestion des transactions distribuées</strong> – souvent déléguée à des patterns comme Outbox ou Saga.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Architecture de référence détaillée (schéma textuel + composants) -->
+    <div class="col-md-7">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-project-diagram"></i> Architecture de référence CQRS avec DB Write + Kafka</h4>
+        <div class="diagram-box">
+          ┌─────────────────┐     ┌───────────────────┐     ┌─────────────┐<br>
+          │   API Command   │────▶│   Write DB (ACID)  │────▶│   Outbox    │<br>
+          │   (commande)    │     │  (PostgreSQL/Oracle)│     │   Table     │<br>
+          └─────────────────┘     └───────────────────┘     └──────┬──────┘<br>
+                                                                   │<br>
+          ┌─────────────────┐     ┌───────────────────┐     ┌──────▼──────┐<br>
+          │   API Query     │     │      Kafka        │◀────│  Relay /    │<br>
+          │   (lecture)     │     │   (topics métier) │     │  CDC Agent  │<br>
+          └────────┬────────┘     └─────────┬─────────┘     └─────────────┘<br>
+                   │                        │<br>
+          ┌────────▼────────┐     ┌─────────▼─────────┐<br>
+          │   Read DB       │     │  Consumer Service │<br>
+          │ (optimisée,     │     │  (mise à jour     │<br>
+          │  denormalisée)  │◀────│   Read DB / Cache)│<br>
+          └─────────────────┘     └───────────────────┘<br>
+        </div>
+        <p class="mt-2"><strong>Variante sécurisée :</strong> utilisation du pattern Outbox pour éviter la double écriture non transactionnelle (voir onglet 5).</p>
+      </div>
+    </div>
+
+    <div class="col-md-5">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-cogs"></i> Stack technologique typique</h4>
+        <table class="table table-sm">
+          <tr><th>Couche</th><th>Technologies</th></tr>
+          <tr><td>Write DB</td><td>PostgreSQL, Oracle, SQL Server, CockroachDB</td></tr>
+          <tr><td>Read DB</td><td>Elasticsearch, MongoDB, Cassandra, ou réplica SQL</td></tr>
+          <tr><td>Message Bus</td><td>Apache Kafka, Confluent Platform, Redpanda</td></tr>
+          <tr><td>Outbox / CDC</td><td>Debezium, Spring Kafka, MassTransit, Transactional Outbox</td></tr>
+          <tr><td>Orchestration</td><td>Spring Boot, Micronaut, Quarkus, Axon Framework</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Checklist de mise en œuvre réussie -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-clipboard-list"></i> Checklist pour implémenter CQRS + DB Write avec Kafka</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <ul>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Séparer les modèles</strong> – Command model (write) ≠ Query model (read).</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Utiliser un pattern Outbox</strong> pour publier les événements de façon transactionnelle.</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Garantir l’idempotence</strong> des consommateurs pour supporter les rejeux Kafka.</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Versionner les événements</strong> (Schema Registry) pour évoluer sans casser les consommateurs.</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <ul>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Monitorer le lag Kafka</strong> – alerter si les consumers accusent un retard.</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Prévoir un mécanisme de replay</strong> pour reconstruire les Read DB.</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Tester la résilience</strong> – simuler une panne Kafka, vérifier le mode dégradé.</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Documenter les événements métier</strong> – contrat explicite.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions clés pour décider d'adopter CQRS+DB Write -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-question-circle"></i> Questions clés à se poser</h4>
+        <ul>
+          <li>La cohérence immédiate est-elle une exigence métier (ex: solde bancaire) ?</li>
+          <li>Acceptez-vous une latence de quelques centaines de ms entre écriture et disponibilité dans les vues de lecture ?</li>
+          <li>Avez-vous des contraintes réglementaires d’audit qui nécessitent une base de données traçable ?</li>
+          <li>Votre équipe maîtrise-t-elle les patterns de synchronisation DB → Kafka (Outbox, CDC) ?</li>
+          <li>Le volume d’écriture dépasse-t-il 10 000 transactions/seconde ? (si oui, prévoir du sharding)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-chart-line"></i> Indicateurs de performance (KPIs) à suivre</h4>
+        <table class="table table-sm">
+          <tr><td>Latence écriture → événement publié</td><td>&lt; 100 ms (hors Outbox polling)</td></tr>
+          <tr><td>Débit max écriture (tps)</td><td>5k – 50k selon sharding</td></tr>
+          <tr><td>Lag Kafka des consumers</td><td>&lt; 1000 messages (critique)</td></tr>
+          <tr><td>Temps de reconstruction Read DB</td><td>Dépend du volume, à valider en préprod</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- REX détaillés (retours terrain) -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-microphone-alt"></i> Retours d'expérience DSI sur CQRS + DB Write</h4>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-primary border-4 ps-3">
+              <strong>🏦 Société Générale (exemple)</strong> – refonte du système de virement.<br>
+              Problème initial : goulot d'étranglement sur la base unique. Solution : CQRS avec Write DB Oracle et lecture sur Elasticsearch via Kafka. Résultat : passage de 300 à 5000 virements/seconde. Leçon : l'Outbox pattern a été indispensable pour éviter les pertes d'événements.
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-primary border-4 ps-3">
+              <strong>⚡ EDF (pilotage de la production)</strong> – suivi des centrales.<br>
+              La Write DB (PostgreSQL) centralise les commandes de changement d'état. Kafka propage les événements à 12 consommateurs (alerting, historique, facturation). Retour : la complexité de gestion des transactions distribuées a été résolue par des Sagas.
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-primary border-4 ps-3">
+              <strong>📦 ManoMano (paiements commandes)</strong><br>
+              Adoption de CQRS + Kafka pour le module de paiement. Ils ont évité l'écueil de la double écriture manuelle en implémentant un outbox avec Debezium. Aujourd'hui, 99,99% de fiabilité.
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-primary border-4 ps-3">
+              <strong>🚰 Suez (facturation eau)</strong><br>
+              Architecture CQRS avec Write DB SQL Server et Read DB sur Azure Cosmos DB. Le point critique : garantir l'ordre des événements par agrégat. Solution : clé de partition Kafka sur l'ID agrégat + consumer single-threaded.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau comparatif avec les patterns alternatifs -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-table-list"></i> CQRS + DB Write face aux autres patterns (forces/faiblesses)</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-light"><tr><th>Pattern</th><th>Force de CQRS+DB</th><th>Faiblesse relative</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Kafka-first</strong></td><td>Cohérence forte vs. éventuelle</td><td>Moins de scalabilité pure</td></tr>
+              <tr><td><strong>Event Sourcing</strong></td><td>Simplicité de requêtage vs. reconstruction</td><td>Moins de traçabilité historique</td></tr>
+              <tr><td><strong>Outbox seul</strong></td><td>Sépare bien lecture/écriture</td><td>Sans CQRS, modèles non optimisés</td></tr>
+              <tr><td><strong>Microservices sync</strong></td><td>Découplage + scalabilité vs. couplage fort</td><td>Latence supplémentaire</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cas d'usage métier détaillés -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-building"></i> Cas d'usage sectoriels</h4>
+        <ul>
+          <li><strong>Banque :</strong> gestion des comptes, virements, historique des opérations.</li>
+          <li><strong>Énergie :</strong> facturation post-paiement, calcul de consommation réglementaire.</li>
+          <li><strong>E-commerce :</strong> gestion de stock critique (commande → validation → mise à jour).</li>
+          <li><strong>Assurance :</strong> souscription de contrats, génération de quittances.</li>
+          <li><strong>ERP :</strong> commandes fournisseurs, écritures comptables.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-chart-simple"></i> Performances typiques (benchmark DSI)</h4>
+        <table class="table table-sm">
+          <tr><td>Latence écriture → lecture (via Kafka)</td><td>200–800 ms</td></tr>
+          <tr><td>Débit maximal en écriture</td><td>50 000 – 500 000 events/sec (selon cluster)</td></tr>
+          <tr><td>Disponibilité write DB</td><td>99,99% (avec réplication synchrone)</td></tr>
+          <tr><td>Récupération après sinistre (RPO)</td><td>Quelques secondes à minutes</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bonnes pratiques spécifiques à CQRS+DB Write -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-medal"></i> Bonnes pratiques exclusives à CQRS + DB Write</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <ul>
+              <li><strong>Ne pas exposer la Write DB en lecture</strong> – toujours passer par la Read DB ou des vues matérialisées.</li>
+              <li><strong>Utiliser un aggregate ID</strong> pour partitionner Kafka et garantir l’ordre des événements.</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <ul>
+              <li><strong>Limiter la taille des transactions</strong> – éviter les locks longs.</li>
+              <li><strong>Mettre en place des snapshots</strong> pour les agrégats volumineux.</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <ul>
+              <li><strong>Séparer physiquement les bases de lecture</strong> (voire moteurs différents).</li>
+              <li><strong>Automatiser la création des topics Kafka</strong> à partir des événements.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti-patterns spécifiques à éviter -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-ban text-danger"></i> Anti-patterns courants</h4>
+        <ul>
+          <li><strong>Transaction distribuée naïve</strong> (2PC) entre DB et Kafka – préférer l’Outbox.</li>
+          <li><strong>Read DB mise à jour directement par l’API</strong> – casse le CQRS.</li>
+          <li><strong>Pas de monitoring du lag</strong> – les vues de lecture deviennent obsolètes.</li>
+          <li><strong>Événements trop fins</strong> – submergent Kafka.</li>
+          <li><strong>Consumer unique pour toutes les Read DB</strong> – goulot d’étranglement.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-tools"></i> Outillage recommandé pour le monitoring</h4>
+        <ul>
+          <li>Confluent Control Center (lag, throughput)</li>
+          <li>Prometheus + Grafana (métriques DB, Kafka)</li>
+          <li>Debezium UI pour CDC Outbox</li>
+          <li>OpenTelemetry pour traçage distribué</li>
+        </ul>
+        <div class="alert alert-info mt-2"><i class="fas fa-database"></i> <strong>Recommandation :</strong> toujours avoir un plan de replay des événements pour reconstruire les Read DB.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- ONGLET 3 : KAFKA-FIRST -->
+<!-- ONGLET 3 : KAFKA-FIRST (sans DB centrale) - Version ultra-détaillée -->
+<div class="tab-pane fade" id="tab3" role="tabpanel">
+  <div class="row g-4">
+    <!-- Carte principale : définition et principe -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fab fa-kickstarter-k me-2 text-warning"></i>Kafka-first : l'architecture événementielle pure où Kafka devient la source de vérité</h2>
+        <p class="lead">Dans une architecture <strong>Kafka-first</strong>, il n’existe pas de base de données centrale d’écriture. <strong>Kafka est le cœur du système</strong> : tous les événements métier sont publiés directement dans des topics, et chaque consommateur (microservice, base de données, cache, lake) construit son propre état à partir du flux. C’est le modèle ultime de découplage et de scalabilité temps réel.</p>
+        <hr>
+        <div class="row">
+          <div class="col-md-6">
+            <h5><i class="fas fa-sitemap"></i> Flux typique</h5>
+            <div class="diagram-box bg-light p-2 rounded">
+              API Command → Kafka (topic) → Consumers multiples → DB X / DB Y / Cache / Analytics / AI
+            </div>
+            <p class="mt-2"><em>Pas de base de données centrale : chaque consommateur est autonome.</em></p>
+          </div>
+          <div class="col-md-6">
+            <h5><i class="fas fa-bullhorn"></i> Quand l'utiliser ?</h5>
+            <ul>
+              <li>Ingestion massive de données IoT (smart meters, capteurs)</li>
+              <li>Clickstream web/mobile, logs système, tracking utilisateur</li>
+              <li>Analytique temps réel, dashboards, machine learning</li>
+              <li>Architectures où la <strong>cohérence à terme</strong> (eventual consistency) est acceptable</li>
+              <li>Systèmes où la scalabilité horizontale prime sur la fiabilité transactionnelle</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Avantages / Inconvénients détaillés -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-thumbs-up text-success"></i> Avantages opérationnels</h4>
+        <ul>
+          <li><strong>Scalabilité extrême</strong> – jusqu’à 10M événements/seconde avec un cluster Kafka bien dimensionné.</li>
+          <li><strong>Découplage total</strong> – les producteurs ne connaissent pas les consommateurs.</li>
+          <li><strong>Faible latence</strong> – publication immédiate, pas d’écriture DB préalable.</li>
+          <li><strong>Rejouabilité native</strong> – rejouer les événements depuis n’importe quel offset.</li>
+          <li><strong>Pas de single point of failure au niveau applicatif</strong> – Kafka est clusterisé.</li>
+          <li><strong>Adapté aux architectures Data Mesh</strong> – chaque domaine consomme ses sujets.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-thumbs-down text-danger"></i> Inconvénients et risques critiques</h4>
+        <ul>
+          <li><strong>Kafka devient point de vérité unique</strong> – très risqué sans gouvernance stricte.</li>
+          <li><strong>Cohérence faible (eventual consistency)</strong> – chaque base peut diverger.</li>
+          <li><strong>Rebuild complexe</strong> – en cas de bug dans un consumer, la donnée peut être perdue si le topic est purgé.</li>
+          <li><strong>Audit difficile</strong> – pas de source unique fiable (il faut interroger tous les consumers).</li>
+          <li><strong>Gouvernance des événements critique</strong> – schema evolution obligatoire (Schema Registry).</li>
+          <li><strong>Requêtage limité</strong> – Kafka n’est pas une base de données (pas de requêtes ad-hoc efficaces).</li>
+          <li><strong>Coût infrastructure élevé</strong> – stockage des événements sur longue durée (tiered storage coûteux).</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Architecture de référence détaillée (schéma textuel) -->
+    <div class="col-md-7">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-project-diagram"></i> Architecture de référence Kafka-first</h4>
+        <div class="diagram-box">
+          ┌──────────────┐     ┌─────────────────────────────────┐<br>
+          │ IoT / Mobile │────▶│            Kafka Cluster         │<br>
+          │ API / Logs   │     │  (topics: commands, events, etc.)│<br>
+          └──────────────┘     └─────────┬───────────────┬────────┘<br>
+                                         │               │<br>
+                              ┌──────────▼──────┐ ┌──────▼──────────┐<br>
+                              │ Consumer A      │ │ Consumer B      │<br>
+                              │ → PostgreSQL    │ │ → Elasticsearch │<br>
+                              └─────────────────┘ └─────────────────┘<br>
+                              ┌──────────▼──────┐ ┌──────▼──────────┐<br>
+                              │ Consumer C      │ │ Consumer D      │<br>
+                              │ → Redis Cache   │ │ → Data Lake (S3)│<br>
+                              └─────────────────┘ └─────────────────┘<br>
+        </div>
+        <p class="mt-2"><strong>Variante sécurisée :</strong> ajout d’un <strong>Kafka MirrorMaker</strong> pour la réplication inter-régions.</p>
+      </div>
+    </div>
+
+    <div class="col-md-5">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-cogs"></i> Stack technologique typique</h4>
+        <table class="table table-sm">
+          <tr><th>Couche</th><th>Technologies</th></tr>
+          <tr><td>Streaming Platform</td><td>Apache Kafka, Confluent Platform, Redpanda, AWS MSK</td> </tr>
+          <tr><td>Stream Processing</td><td>Kafka Streams, ksqlDB, Flink, Spark Structured Streaming</td> </tr>
+          <tr><td>Schema Registry</td><td>Confluent Schema Registry, Apicurio, AWS Glue Schema Registry</td> </tr>
+          <tr><td>Consumers (DB)</td><td>PostgreSQL, Cassandra, MongoDB, Elasticsearch, ClickHouse</td> </tr>
+          <tr><td>Monitoring</td><td>Prometheus, Grafana, Confluent Control Center, Burrow (lag)</td> </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Checklist pour réussir une architecture Kafka-first -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-clipboard-list"></i> Checklist pour implémenter Kafka-first avec succès</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <ul>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Définir une politique de rétention</strong> – combien de temps garder les événements ? (heures, jours, indéfini ?)</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Mettre en place un Schema Registry</strong> – versioning et compatibilité.</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Implémenter l’idempotence des producteurs</strong> (enable.idempotence=true) pour éviter les doublons.</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Garantir l’idempotence des consommateurs</strong> – gérer les rejeux.</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <ul>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Planifier la relecture (replay)</strong> – capacité à reconstruire un consommateur depuis zéro.</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Monitorer le lag consommateur</strong> – alerter si dépassement de seuil.</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Sécuriser l’accès aux topics</strong> – ACLs, TLS, authentification.</li>
+              <li><i class="fas fa-check-circle text-success"></i> <strong>Prévoir des tests de résilience</strong> (chaos engineering sur brokers).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions clés pour décider d'adopter Kafka-first -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-question-circle"></i> Questions clés à se poser</h4>
+        <ul>
+          <li>L’<strong>eventual consistency</strong> est-elle acceptable pour votre domaine métier ? (oui pour analytics/IoT, non pour transactions financières)</li>
+          <li>Avez-vous besoin de rejouer des événements sur plusieurs mois ? (nécessite un stockage durable et coûteux)</li>
+          <li>Votre équipe maîtrise-t-elle les concepts Kafka (partitions, offsets, rééquilibrage) ?</li>
+          <li>Acceptez-vous qu’un consommateur défaillant doive se reconstruire en relisant des jours d’événements ?</li>
+          <li>Quel est votre RPO/RTO en cas de corruption d’un consumer ?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-chart-line"></i> Indicateurs de performance (KPIs) à suivre</h4>
+        <table class="table table-sm">
+          <tr><th>Métrique</th><th>Valeur cible</th> </tr>
+          <tr><td>Débit ingestion (events/s)</td><td>1M – 10M selon cluster</td> </tr>
+          <tr><td>Latence bout-en-bout (p99)</td><td>&lt; 500 ms</td> </tr>
+          <tr><td>Lag consommateur max</td><td>&lt; 1000 messages</td> </tr>
+          <tr><td>Disponibilité du cluster</td><td>99,99% (3+ brokers)</td> </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- REX détaillés sur Kafka-first -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-microphone-alt"></i> Retours d'expérience DSI sur Kafka-first</h4>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-warning border-4 ps-3">
+              <strong>🔌 Enedis (Linky) – ingestion compteurs</strong><br>
+              10 millions de compteurs, 200 000 événements/seconde en pic. Architecture Kafka-first avec 5 clusters régionaux. Résultat : latence moyenne 300 ms. Leçon critique : ils ont dû implémenter un système de <strong>compaction de topics</strong> pour réduire les coûts de stockage.
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-warning border-4 ps-3">
+              <strong>📱 Deezer (logs utilisateurs)</strong><br>
+              Migration de l’ingestion logs vers Kafka-first. Avant : pertes de données. Après : 99,999% de fiabilité. Ils utilisent ksqlDB pour des agrégations temps réel. Erreur : sous-estimation du lag en cas de panne downstream → ajout de monitoring intensif.
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-warning border-4 ps-3">
+              <strong>🚗 Uber (tracking courses)</strong><br>
+              Kafka-first pour la localisation des véhicules. Ils stockent les positions dans Kafka (rétention 7 jours) et chaque service (facturation, matching, analyse) consomme. Point critique : la <strong>gestion des schémas</strong> (évolution fréquente) – solution avec Protobuf et Schema Registry.
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-warning border-4 ps-3">
+              <strong>🛒 Zalando (event-driven retail)</strong><br>
+              Utilisation de Kafka-first pour le suivi des commandes et l’inventaire. Cependant, pour la partie paiement, ils ont conservé une base de données centrale (pattern hybride). Leçon : <strong>tout ne doit pas être Kafka-first</strong> – les sous-systèmes critiques nécessitent une DB.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau comparatif avec les autres patterns -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-table-list"></i> Kafka-first face aux autres patterns (forces/faiblesses)</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-light"><tr><th>Pattern</th><th>Force de Kafka-first</th><th>Faiblesse relative</th></tr></thead>
+            <tbody>
+              <tr><td><strong>CQRS+DB Write</strong></td><td>Scalabilité supérieure, découplage total</td><td>Cohérence faible vs forte</td> </tr>
+              <tr><td><strong>Event Sourcing</strong></td><td>Pas de base événementielle dédiée (Kafka fait office)</td><td>Moins de fonctionnalités de requêtage sur l’historique</td> </tr>
+              <tr><td><strong>Outbox</strong></td><td>Plus simple (pas de double écriture)</td><td>Risque de perte si Kafka tombe</td> </tr>
+              <tr><td><strong>Microservices sync</strong></td><td>Absence de point unique de blocage</td><td>Complexité opérationnelle accrue</td> </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cas d'usage métier détaillés -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-building"></i> Cas d'usage sectoriels où Kafka-first excelle</h4>
+        <ul>
+          <li><strong>Énergie :</strong> relevés de compteurs intelligents (millions d’événements/minute).</li>
+          <li><strong>Télécom :</strong> analyse de flux réseau (CDR, logs de roaming).</li>
+          <li><strong>E-commerce :</strong> clickstream, paniers abandonnés, recommandations temps réel.</li>
+          <li><strong>Transport/logistique :</strong> tracking GPS de flottes, alertes géolocalisation.</li>
+          <li><strong>Gaming :</strong> événements in-game, classements en direct.</li>
+          <li><strong>AdTech :</strong> enchères programmatiques (millions de requêtes/seconde).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-chart-simple"></i> Performances typiques (benchmark DSI)</h4>
+        <table class="table table-sm">
+          <tr><th>Métrique</th><th>Valeur</th> </tr>
+          <tr><td>Latence publication (p99)</td><td>50–500 ms</td> </tr>
+          <tr><td>Débit max (cluster 3 brokers)</td><td>1M – 10M events/sec</td> </tr>
+          <tr><td>Stockage recommandé</td><td>Tiered storage (S3) au-delà de 7 jours</td> </tr>
+          <tr><td>Coût mensuel pour 1M events/s (cloud)</td><td>10k€ – 50k€ selon région</td> </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bonnes pratiques spécifiques à Kafka-first -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-medal"></i> Bonnes pratiques exclusives à Kafka-first</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <ul>
+              <li><strong>Utiliser des clés de partition pertinentes</strong> – garantir l’ordre par agrégat.</li>
+              <li><strong>Configurer la rétention en fonction des besoins de replay</strong> (pas trop longue, pas trop courte).</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <ul>
+              <li><strong>Mettre en place une stratégie de compactage</strong> pour les événements de référence (ex: dernière valeur d’un capteur).</li>
+              <li><strong>Isoler les topics sensibles</strong> avec des ACLs.</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <ul>
+              <li><strong>Prévoir des consumers idempotents</strong> avec stockage des offsets externalisé (ex: base de déduplication).</li>
+              <li><strong>Documenter le schéma sémantique</strong> de chaque topic.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti-patterns spécifiques à éviter -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-ban text-danger"></i> Anti-patterns courants en Kafka-first</h4>
+        <ul>
+          <li><strong>Kafka utilisé comme base de données</strong> – faire des requêtes sur les topics (inefficace).</li>
+          <li><strong>Topics uniques pour tous les événements</strong> – difficile à gérer, préférer plusieurs topics par domaine.</li>
+          <li><strong>Pas de gestion des doublons</strong> – les consumers doivent être idempotents.</li>
+          <li><strong>Consumer unique pour plusieurs stores</strong> – crée un goulot d’étranglement.</li>
+          <li><strong>Rétention infinie sans tiered storage</strong> – explosion des coûts.</li>
+          <li><strong>Ignorer le rééquilibrage (rebalancing)</strong> – impact sur la latence.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-tools"></i> Outillage recommandé pour Kafka-first</h4>
+        <ul>
+          <li><strong>Schema Registry</strong> – Confluent, Apicurio</li>
+          <li><strong>Stream Processing</strong> – ksqlDB, Kafka Streams, Flink</li>
+          <li><strong>Monitoring</strong> – Confluent Control Center, Prometheus + JMX exporter, Burrow</li>
+          <li><strong>Test de résilience</strong> – Kafka Doctor, Chaos Mesh</li>
+          <li><strong>Migration / Mirroring</strong> – MirrorMaker 2, Confluent Replicator</li>
+        </ul>
+        <div class="alert alert-warning mt-2"><i class="fas fa-exclamation-triangle"></i> <strong>Attention :</strong> ne jamais déployer Kafka-first sans un plan de reprise (backup des topics, réplication inter-AZ).</div>
+      </div>
+    </div>
+
+    <!-- Conclusion spécifique -->
+    <div class="col-12">
+      <div class="card-modern card p-4 bg-light">
+        <h4><i class="fas fa-lightbulb"></i> Conclusion : Kafka-first n’est pas universel mais puissant</h4>
+        <p>L’architecture Kafka-first est idéale pour les systèmes à très haut volume où la cohérence à terme est acceptable. Elle nécessite une <strong>gouvernance rigoureuse</strong> (schémas, monitoring, rejeu). Dans les DSI critiques (finance, santé), elle est souvent combinée avec d’autres patterns (CQRS+DB, Outbox) pour les sous-domaines transactionnels. À utiliser avec discernement.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- ONGLET 4 : COMPARAISON DÉTAILLÉE -->
+<!-- ONGLET 4 : COMPARAISON DÉTAILLÉE (CQRS+DB Write vs Kafka-first) - Version ultra-détaillée -->
+<div class="tab-pane fade" id="tab4" role="tabpanel">
+  <div class="row g-4">
+    <!-- Carte principale : enjeu de la comparaison -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fas fa-scale-balanced me-2 text-primary"></i>CQRS+DB Write vs Kafka-first : le dilemme stratégique de la DSI</h2>
+        <p class="lead">Ces deux architectures event-driven partagent la séparation des responsabilités et la communication asynchrone, mais divergent fondamentalement sur <strong>où se trouve la source de vérité</strong>. Le choix impacte la cohérence, la scalabilité, l'auditabilité, les coûts et la maturité technique nécessaire. Ce comparatif détaillé vous aide à trancher en fonction de vos contraintes métier.</p>
+        <div class="alert alert-primary mt-2"><i class="fas fa-lightbulb"></i> <strong>Vérité du système :</strong> Base de données (CQRS) vs Flux événementiel (Kafka-first). Ce choix détermine tout le reste.</div>
+      </div>
+    </div>
+
+    <!-- Tableau comparatif principal (12 critères) -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-table-list"></i> Comparaison approfondie : 12 critères clés</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+              <tr><th>Critère</th><th>CQRS + DB Write</th><th>Kafka-first (sans DB centrale)</th><th>Vainqueur (selon contexte)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Source de vérité</strong></td><td>Base de données transactionnelle</td><td>Kafka (topics)</td><td>⚖️ Selon besoin</td> </tr>
+              <tr><td><strong>Cohérence</strong></td><td>Forte (ACID, immédiate)</td><td>Faible à moyenne (eventual consistency)</td><td>✅ CQRS+DB</td> </tr>
+              <tr><td><strong>Scalabilité écriture</strong></td><td>Limitée par la DB (sharding possible)</td><td>Très élevée (partitionnement natif)</td><td>✅ Kafka-first</td> </tr>
+              <tr><td><strong>Scalabilité lecture</strong></td><td>Élevée (read replicas, caches)</td><td>Très élevée (multi consumers)</td><td>⚖️ Égal</td> </tr>
+              <tr><td><strong>Latence bout-en-bout</strong></td><td>200–800 ms (écriture DB + Kafka)</td><td>50–500 ms (direct Kafka)</td><td>✅ Kafka-first</td> </tr>
+              <tr><td><strong>Audit & conformité</strong></td><td>Facile (requêtage DB historique)</td><td>Complexe (nécessite de croiser consumers)</td><td>✅ CQRS+DB</td> </tr>
+              <tr><td><strong>Résilience aux pannes</strong></td><td>Bonne (mode dégradé possible si Kafka down)</td><td>Très bonne mais risquée (perte de messages si mal configuré)</td><td>⚖️ CQRS+DB plus sûr</td> </tr>
+              <tr><td><strong>Complexité opérationnelle</strong></td><td>Moyenne (gérer DB + Kafka + outbox)</td><td>Élevée (gouvernance des schémas, replay, lag)</td><td>✅ CQRS+DB</td> </tr>
+              <tr><td><strong>Coût infrastructure (volume modéré)</strong></td><td>🟢 Faible à moyen</td><td>🔴 Élevé (stockage des événements)</td><td>✅ CQRS+DB</td> </tr>
+              <tr><td><strong>Coût infrastructure (très haut volume)</strong></td><td>🟡 Moyen à élevé (sharding DB)</td><td>🟢 Optimal (Kafka linéaire)</td><td>✅ Kafka-first</td> </tr>
+              <tr><td><strong>Rejouabilité / Time travel</strong></td><td>Limitée (sauf si événements stockés)</td><td>Native (replay depuis offset)</td><td>✅ Kafka-first</td> </tr>
+              <tr><td><strong>Maturité DSI requise</strong></td><td>Intermédiaire</td><td>Avancée (expertise Kafka, schema registry)</td><td>✅ CQRS+DB</td> </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matrice de décision pondérée (score) -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-chart-pie"></i> Matrice de décision pondérée (exemple de scoring)</h4>
+        <p>Attribuez des poids à chaque critère (1 à 5) selon votre contexte, puis calculez le score.</p>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead><tr><th>Critère</th><th>Poids (1-5)</th><th>CQRS+DB (0-5)</th><th>Kafka-first (0-5)</th><th>Score CQRS</th><th>Score Kafka</th></tr></thead>
+            <tbody>
+              <tr><td>Cohérence forte</td><td><input type="number" class="form-control form-control-sm w-75" value="5" id="p1" style="min-width:60px;"></td><td>5</td><td>1</td><td id="s1">25</td><td id="sk1">5</td></tr>
+              <tr><td>Scalabilité volume</td><td><input type="number" class="form-control form-control-sm w-75" value="4" id="p2"></td><td>3</td><td>5</td><td id="s2">12</td><td id="sk2">20</td></tr>
+              <tr><td>Latence</td><td><input type="number" class="form-control form-control-sm w-75" value="3" id="p3"></td><td>3</td><td>5</td><td id="s3">9</td><td id="sk3">15</td></tr>
+              <tr><td>Audit / conformité</td><td><input type="number" class="form-control form-control-sm w-75" value="5" id="p4"></td><td>5</td><td>2</td><td id="s4">25</td><td id="sk4">10</td></tr>
+              <tr><td>Complexité opérationnelle</td><td><input type="number" class="form-control form-control-sm w-75" value="3" id="p5"></td><td>4</td><td>2</td><td id="s5">12</td><td id="sk5">6</td></tr>
+              <tr><td>Coût (bas volume)</td><td><input type="number" class="form-control form-control-sm w-75" value="2" id="p6"></td><td>4</td><td>2</td><td id="s6">8</td><td id="sk6">4</td></tr>
+            </tbody>
+            <tfoot class="fw-bold">
+              <tr><td colspan="3">Score total</td><td id="totalCQRS">91</td><td id="totalKafka">60</td></tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="btn btn-sm btn-primary mt-2" id="calcScore">Recalculer le score</button>
+        <div class="mt-2 small text-muted">Ajustez les poids pour simuler votre contexte métier.</div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-chart-gantt"></i> Quand choisir l'un plutôt que l'autre ?</h4>
+        <div class="row">
+          <div class="col-6">
+            <div class="p-2 bg-success bg-opacity-10 rounded mb-2"><strong>✅ CQRS+DB Write recommandé si :</strong>
+              <ul class="small mt-1">
+                <li>Transactions financières (billing, paiements)</li>
+                <li>Exigence d'audit légal (RGPD, SOX)</li>
+                <li>Volume écriture &lt; 50k tps</li>
+                <li>Équipe moins experte en Kafka</li>
+                <li>Besoin de cohérence immédiate</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 bg-warning bg-opacity-10 rounded mb-2"><strong>✅ Kafka-first recommandé si :</strong>
+              <ul class="small mt-1">
+                <li>Volume massif ( > 500k events/s)</li>
+                <li>IoT, logs, tracking, analytics</li>
+                <li>Cohérence à terme acceptable</li>
+                <li>Équipe experte Kafka + Schema Registry</li>
+                <li>Replay nécessaire fréquemment</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benchmarks détaillés (latence, throughput, coût) -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-chart-line"></i> Benchmarks terrain : latence, throughput, coût à l'échelle</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="border rounded p-2 text-center h-100">
+              <i class="fas fa-hourglass-half fa-2x text-primary"></i>
+              <h5>Latence p99</h5>
+              <p><span class="badge bg-secondary">CQRS+DB</span> 200–800 ms<br>
+              <span class="badge bg-secondary">Kafka-first</span> 50–500 ms</p>
+              <div class="progress"><div class="progress-bar bg-primary" style="width: 30%">Kafka-first 2x plus rapide</div></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 text-center h-100">
+              <i class="fas fa-tachometer-alt fa-2x text-success"></i>
+              <h5>Débit max (events/s)</h5>
+              <p><span class="badge bg-secondary">CQRS+DB</span> 50k – 500k<br>
+              <span class="badge bg-secondary">Kafka-first</span> 1M – 10M</p>
+              <div class="progress"><div class="progress-bar bg-success" style="width: 90%">Kafka-first 10x+ supérieur</div></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 text-center h-100">
+              <i class="fas fa-dollar-sign fa-2x text-warning"></i>
+              <h5>Coût mensuel pour 1M events/s (cloud)</h5>
+              <p><span class="badge bg-secondary">CQRS+DB</span> 15k€ – 40k€ (sharding)<br>
+              <span class="badge bg-secondary">Kafka-first</span> 10k€ – 30k€ (efficace)</p>
+              <div class="progress"><div class="progress-bar bg-warning" style="width: 60%">Kafka-first souvent plus économique à très haut volume</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cas hybrides : quand combiner les deux -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-puzzle-piece"></i> Stratégie hybride : le meilleur des deux mondes</h4>
+        <p>De nombreuses DSI adoptent une architecture <strong>hybride</strong> où certains flux critiques utilisent CQRS+DB, tandis que les flux non critiques ou massifs passent par Kafka-first. Exemple typique :</p>
+        <div class="diagram-box">
+          Flux transactionnel (paiement) → CQRS+DB + Outbox → Kafka → Consumer facturation (DB)<br>
+          Flux IoT (télémétrie) → Kafka-first (pas de DB intermédiaire) → Data Lake + Analytics
+        </div>
+        <p class="mt-2"><strong>Avantage :</strong> on bénéficie de la cohérence pour le cœur de métier et de la scalabilité pour le reste. <strong>Inconvénient :</strong> deux paradigmes à maintenir.</p>
+        <div class="alert alert-success"><i class="fas fa-check-circle"></i> <strong>Recommandation DSI :</strong> commencez par CQRS+DB pour le périmètre critique, puis ajoutez Kafka-first pour les flux périphériques à très haut volume.</div>
+      </div>
+    </div>
+
+    <!-- Questions d'arbitrage stratégique -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-question-circle"></i> 5 questions pour départager les deux architectures</h4>
+        <ol>
+          <li><strong>Quel est votre RTO/RPO en cas de panne ?</strong> Si vous ne pouvez pas perdre une seule transaction → CQRS+DB.</li>
+          <li><strong>Acceptez-vous des lectures éventuellement obsolètes de quelques secondes ?</strong> Oui → Kafka-first.</li>
+          <li><strong>Devez-vous conserver l’historique des modifications pendant 10 ans ?</strong> CQRS+DB plus simple à auditer.</li>
+          <li><strong>Votre pic d’écriture dépasse-t-il 100k requêtes/seconde ?</strong> Alors Kafka-first s’impose.</li>
+          <li><strong>Avez-vous une équipe dédiée au streaming ?</strong> Non → préférez CQRS+DB.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-chalkboard-user"></i> REX : erreurs fréquentes lors du choix</h4>
+        <ul>
+          <li><strong>Choisir Kafka-first pour une application de facturation</strong> → incohérence des soldes.</li>
+          <li><strong>Choisir CQRS+DB pour du clickstream 1M events/s</strong> → surcoût DB énorme.</li>
+          <li><strong>Oublier l’eventual consistency</strong> dans les spécifications métier.</li>
+          <li><strong>Ne pas prévoir de mécanisme de replay</strong> dans Kafka-first.</li>
+          <li><strong>Sous-estimer la complexité de l’Outbox</strong> dans CQRS+DB.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Synthèse visuelle (graphique simplifié) -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-chart-simple"></i> Radar des aptitudes (score sur 5)</h4>
+        <div class="row">
+          <div class="col-6">
+            <canvas id="radarCQRS" width="200" height="200" style="max-width:250px;"></canvas>
+            <p class="text-center">CQRS+DB Write</p>
+          </div>
+          <div class="col-6">
+            <canvas id="radarKafka" width="200" height="200" style="max-width:250px;"></canvas>
+            <p class="text-center">Kafka-first</p>
+          </div>
+        </div>
+        <div class="small text-muted">Cohérence, Scalabilité, Audit, Latence, Complexité (inversée).</div>
+      </div>
+    </div>
+
+    <!-- Glossaire comparatif -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-glossary"></i> Termes clés de la comparaison</h4>
+        <div class="row">
+          <div class="col-md-3"><strong>Eventual consistency</strong> : à terme, tous les consommateurs voient la même donnée (délai non garanti).</div>
+          <div class="col-md-3"><strong>Outbox pattern</strong> : garantit la publication fiable des événements depuis une DB.</div>
+          <div class="col-md-3"><strong>Lag consumer</strong> : retard d’un consommateur Kafka par rapport au dernier message produit.</div>
+          <div class="col-md-3"><strong>Replay</strong> : rejouer les événements depuis un offset antérieur.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+    <!-- ONGLET 5 : PATTERNS ALTERNATIFS (Event Sourcing, Outbox, CDC, Sync) -->
+<!-- ONGLET 5 : PATTERNS ALTERNATIFS (Event Sourcing, Outbox, CDC, Sync) - Version ultra-détaillée -->
+<div class="tab-pane fade" id="tab5" role="tabpanel">
+  <div class="row g-4">
+    <!-- Carte principale : introduction aux 4 patterns -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fas fa-layer-group me-2 text-primary"></i>Architectures complémentaires : Event Sourcing, Outbox, CDC, Microservices synchrones</h2>
+        <p class="lead">Au-delà de CQRS+DB et Kafka-first, d’autres patterns répondent à des besoins spécifiques : traçabilité absolue (<strong>Event Sourcing</strong>), fiabilité de la publication (<strong>Outbox</strong>), intégration legacy sans code (<strong>CDC</strong>), ou simplicité immédiate (<strong>Microservices synchrones</strong>). Ce guide détaille chacun pour vous aider à les combiner ou les substituer.</p>
+        <div class="alert alert-info"><i class="fas fa-lightbulb"></i> <strong>Astuce DSI :</strong> ces patterns ne s’excluent pas mutuellement. Une architecture réelle peut mêler CDC pour le legacy, Outbox pour la fiabilité, Event Sourcing pour l’audit, et des appels synchrones pour l’UX.</div>
+      </div>
+    </div>
+
+    <!-- 1. EVENT SOURCING -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-history me-2 text-info"></i>1. Event Sourcing + CQRS (Event Store central)</h3>
+        <p><strong>Principe :</strong> on ne stocke pas l’état final, mais <strong>tous les événements métier immuables</strong>. L’état est reconstruit par rejeu. Associé à CQRS, les vues de lecture sont projetées à partir de l’Event Store.</p>
+        <div class="row mt-2">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-check-circle text-success"></i> <strong>Avantages</strong>
+              <ul class="small">
+                <li>Traçabilité absolue (audit complet)</li>
+                <li>Rejeu / time travel natif</li>
+                <li>Correction des erreurs par événement compensatoire</li>
+                <li>Parfait pour systèmes réglementés (finance, assurance)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-exclamation-triangle text-danger"></i> <strong>Inconvénients</strong>
+              <ul class="small">
+                <li>Complexité conceptuelle élevée</li>
+                <li>Versioning des événements difficile</li>
+                <li>Reconstruction lente sur gros volumes (snapshots nécessaires)</li>
+                <li>Courbe d’apprentissage raide</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-database"></i> <strong>Stack typique</strong>
+              <ul class="small">
+                <li>EventStoreDB, Axon Server, Kafka (comme event store)</li>
+                <li>PostgreSQL + table d’événements (pattern maison)</li>
+                <li>Akka Persistence, Greg Young’s Event Store</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2"><strong>Cas d’usage :</strong> systèmes financiers (comptes, virements), assurance (sinistres), traçabilité supply chain, dossiers médicaux.</div>
+        <div class="alert alert-secondary mt-2"><i class="fas fa-microphone-alt"></i> <strong>REX :</strong> une banque a réduit ses audits de 80% grâce à Event Sourcing. Leçon : prévoir des snapshots hebdomadaires pour limiter les temps de reconstruction.</div>
+      </div>
+    </div>
+
+    <!-- 2. OUTBOX PATTERN -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-inbox me-2 text-success"></i>2. Outbox Pattern (transaction sécurisée DB → Kafka)</h3>
+        <p><strong>Principe :</strong> dans la même transaction ACID, on écrit dans la table métier ET dans une table <strong>outbox</strong>. Un process asynchrone (polling ou CDC) publie les événements vers Kafka. Garantie "at-least-once".</p>
+        <div class="row mt-2">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-check-circle text-success"></i> <strong>Avantages</strong>
+              <ul class="small">
+                <li>Cohérence garantie entre DB et Kafka</li>
+                <li>Pas de double écriture manuelle risquée</li>
+                <li>Standard éprouvé en production</li>
+                <li>S’ajoute facilement à une architecture existante</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-exclamation-triangle text-danger"></i> <strong>Inconvénients</strong>
+              <ul class="small">
+                <li>Latence supplémentaire (polling)</li>
+                <li>Nécessite un process de relay fiable</li>
+                <li>Risque de doublons si relay redémarre</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-database"></i> <strong>Stack typique</strong>
+              <ul class="small">
+                <li>Spring Kafka + @Transactional outbox</li>
+                <li>Debezium (CDC) sur table outbox</li>
+                <li>MassTransit (.NET), Outbox pattern in PostgreSQL</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2"><strong>Cas d’usage :</strong> e-commerce (commande → événement), ERP, CRM, tout système nécessitant une fiabilité absolue de diffusion.</div>
+        <div class="alert alert-secondary mt-2"><i class="fas fa-microphone-alt"></i> <strong>REX :</strong> un site e-commerce a éliminé les pertes d’événements de 0.5% en passant à l’Outbox. Leçon : nettoyer régulièrement la table outbox pour éviter l’explosion.</div>
+      </div>
+    </div>
+
+    <!-- 3. CDC (Change Data Capture) avec Debezium -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-database me-2 text-warning"></i>3. CDC (Change Data Capture) – Debezium</h3>
+        <p><strong>Principe :</strong> on capture les changements directement dans les logs de la base de données (binlog MySQL, WAL PostgreSQL) et on les transforme en événements Kafka. <strong>Aucune modification applicative</strong> requise.</p>
+        <div class="row mt-2">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-check-circle text-success"></i> <strong>Avantages</strong>
+              <ul class="small">
+                <li>Zéro impact sur le code applicatif</li>
+                <li>Idéal pour legacy ou progiciels</li>
+                <li>Capture même les modifications hors logique métier (scripts, admin)</li>
+                <li>Déploiement rapide (semaines)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-exclamation-triangle text-danger"></i> <strong>Inconvénients</strong>
+              <ul class="small">
+                <li>Dépendance forte au moteur de DB (binlog/WAL)</li>
+                <li>Charge supplémentaire sur la base (logs)</li>
+                <li>Peu de contrôle sémantique (événements techniques)</li>
+                <li>Complexité de configuration initiale</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-database"></i> <strong>Stack typique</strong>
+              <ul class="small">
+                <li>Debezium (connecteur Kafka Connect)</li>
+                <li>Confluent Platform / AWS MSK</li>
+                <li>Sources : PostgreSQL, MySQL, Oracle, SQL Server, MongoDB</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2"><strong>Cas d’usage :</strong> migration progressive vers microservices, synchronisation d’un CRM legacy avec un data lake, alimentation d’un cache secondaire.</div>
+        <div class="alert alert-secondary mt-2"><i class="fas fa-microphone-alt"></i> <strong>REX :</strong> une DSI a synchronisé 10 ans de données legacy en 2 semaines avec Debezium. Leçon : surveiller l’espace disque des logs binaires.</div>
+      </div>
+    </div>
+
+    <!-- 4. MICROSERVICES SYNCHRONES (REST/gRPC) -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-exchange-alt me-2 text-secondary"></i>4. Microservices synchrones (REST / gRPC sans event bus)</h3>
+        <p><strong>Principe :</strong> architecture classique où les services communiquent directement via appels synchrones (HTTP, gRPC). Pas de bus de messages central. Chaque service possède sa base de données.</p>
+        <div class="row mt-2">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-check-circle text-success"></i> <strong>Avantages</strong>
+              <ul class="small">
+                <li>Simplicité extrême (débug, logs)</li>
+                <li>Cohérence immédiate (réponse attendue)</li>
+                <li>Pas de brique supplémentaire (Kafka)</li>
+                <li>Idéal pour MVP, petites applications</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-exclamation-triangle text-danger"></i> <strong>Inconvénients</strong>
+              <ul class="small">
+                <li>Fort couplage (les dépendances tombent en cascade)</li>
+                <li>Propagation de latence</li>
+                <li>Scalabilité limitée</li>
+                <li>Complexité des transactions distribuées (Saga difficile en synchrone)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <i class="fas fa-database"></i> <strong>Stack typique</strong>
+              <ul class="small">
+                <li>Spring Boot / Micronaut / Quarkus (REST)</li>
+                <li>gRPC (haute performance)</li>
+                <li>API Gateway (Kong, Traefik, Spring Cloud Gateway)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2"><strong>Cas d’usage :</strong> prototypes, applications internes peu scalables, systèmes avec faibles volumes ( < 1000 req/s).</div>
+        <div class="alert alert-secondary mt-2"><i class="fas fa-microphone-alt"></i> <strong>REX :</strong> un MVP de livraison a été développé en 2 mois avec REST sync. Passé en production avec 500 req/s, les latences ont explosé → migration vers Kafka asynchrone.</div>
+      </div>
+    </div>
+
+    <!-- Tableau synthétique des 4 patterns -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-table-list"></i> Synthèse comparative des 4 patterns alternatifs</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-dark"><tr><th>Pattern</th><th>Force principale</th><th>Limite principale</th><th>Idéal pour</th><th>Complexité</th></tr></thead>
+            <tbody>
+              <tr class="table-info"><td>Event Sourcing</td><td>Traçabilité totale</td><td>Complexité élevée</td><td>Finance, régulation</td><td>🔴 Très élevée</td></tr>
+              <tr class="table-success"><td>Outbox Pattern</td><td>Cohérence DB-Kafka</td><td>Latence légère</td><td>ERP, e-commerce</td><td>🟡 Moyenne</td></tr>
+              <tr class="table-warning"><td>CDC (Debezium)</td><td>Zéro impact code</td><td>Dépendance DB forte</td><td>Legacy SI, migration</td><td>🟡 Moyenne</td></tr>
+              <tr class="table-secondary"><td>Microservices sync</td><td>Simplicité</td><td>Faible scalabilité</td><td>MVP, petites apps</td><td>🟢 Faible</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matrice de choix : quel pattern alternatif selon contexte -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-chart-pie"></i> Guide de choix : quel pattern alternatif privilégier ?</h4>
+        <div class="row">
+          <div class="col-md-3">
+            <div class="p-2 border rounded text-center h-100">
+              <i class="fas fa-history fa-2x"></i>
+              <strong>Event Sourcing</strong>
+              <p class="small">Si besoin d’audit complet et capacité à rejouer l’historique.</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-2 border rounded text-center h-100">
+              <i class="fas fa-inbox fa-2x"></i>
+              <strong>Outbox</strong>
+              <p class="small">Si vous avez déjà une base de données et devez publier des événements fiables.</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-2 border rounded text-center h-100">
+              <i class="fas fa-database fa-2x"></i>
+              <strong>CDC</strong>
+              <p class="small">Si vous ne pouvez pas modifier le code source (legacy, progiciel).</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-2 border rounded text-center h-100">
+              <i class="fas fa-exchange-alt fa-2x"></i>
+              <strong>Sync</strong>
+              <p class="small">Si vous débutez, volume faible, besoin de simplicité maximale.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions clés pour chaque pattern -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-question-circle"></i> Questions clés par pattern</h4>
+        <ul>
+          <li><strong>Event Sourcing :</strong> Avez-vous besoin de reconstruire des états antérieurs ? Acceptez-vous la complexité de versioning ?</li>
+          <li><strong>Outbox :</strong> Votre application peut-elle supporter une latence de quelques secondes dans la diffusion ?</li>
+          <li><strong>CDC :</strong> Votre base supporte-t-elle l’activation des logs (binlog/WAL) sans impact performance ?</li>
+          <li><strong>Sync :</strong> Le volume de requêtes restera-t-il faible (< 1000/s) ? Acceptez-vous un couplage fort ?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-chart-line"></i> Performances indicatives</h4>
+        <table class="table table-sm">
+          <tr><th>Pattern</th><th>Latence typique</th><th>Débit max</th></tr>
+          <tr><td>Event Sourcing</td><td>500 ms – 2 s</td><td>10k – 100k evts/s</td></tr>
+          <tr><td>Outbox</td><td>300 – 900 ms</td><td>20k – 200k evts/s</td></tr>
+          <tr><td>CDC</td><td>1 – 5 s</td><td>100k – 1M evts/s</td></tr>
+          <tr><td>Microservices sync</td><td>50 – 200 ms</td><td>1k – 50k req/s</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bonnes pratiques transverses -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-medal"></i> Bonnes pratiques communes à ces patterns</h4>
+        <ul>
+          <li><strong>Pour Event Sourcing :</strong> utilisez des snapshots périodiques pour accélérer la reconstruction.</li>
+          <li><strong>Pour Outbox :</strong> nettoyez la table outbox après publication (ou utilisez CDC).</li>
+          <li><strong>Pour CDC :</strong> surveillez l’espace disque des logs, utilisez des sujets Kafka compacts.</li>
+          <li><strong>Pour Sync :</strong> implémentez des circuit breakers et timeouts pour éviter les cascades.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- ONGLET 6 : GUIDE DÉCISION (matrice) -->
+<!-- ONGLET 6 : GUIDE DE DÉCISION (6 architectures) - Version ultra-détaillée -->
+<div class="tab-pane fade" id="tab6" role="tabpanel">
+  <div class="row g-4">
+    <!-- Introduction -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fas fa-code-branch me-2 text-primary"></i>Guide de décision : comment choisir la bonne architecture event-driven ?</h2>
+        <p class="lead">Face aux 6 patterns majeurs (CQRS+DB, Kafka-first, Event Sourcing, Outbox, CDC, Microservices synchrones), ce guide vous offre une <strong>méthodologie structurée</strong> pour arbitrer en fonction de votre criticité métier, volume, contraintes réglementaires et maturité d’équipe.</p>
+        <div class="alert alert-success"><i class="fas fa-check-circle"></i> <strong>Principe clé :</strong> il n’existe pas de “meilleur pattern” universel, mais un pattern adapté à votre contexte. Ce guide vous aide à le trouver.</div>
+      </div>
+    </div>
+
+    <!-- Arbre de décision simplifié (visuel textuel) -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-tree"></i> Arbre de décision rapide</h4>
+        <div class="diagram-box">
+          ┌─ Besoin de cohérence forte immédiate ? ──── Oui ──→ [CQRS+DB Write ou Event Sourcing]<br>
+          │                                           Non<br>
+          │                                           └─→ Cohérence à terme acceptable ? ── Oui ──→ [Kafka-first ou CDC ou Outbox]<br>
+          │                                                                               Non<br>
+          │                                                                               └─→ [Microservices synchrones (faible volume)]<br>
+          │<br>
+          └─ Volume d’écriture > 100k req/s ? ── Oui ──→ [Kafka-first ou CDC]<br>
+                                                Non ──→ [CQRS+DB ou Outbox ou Sync]<br>
+          <br>
+          └─ Obligation d’audit légal complet ? ── Oui ──→ [Event Sourcing ou CQRS+DB]<br>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matrice de décision par critères (tableau détaillé) -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-table-list"></i> Matrice de décision : quel pattern selon vos contraintes ?</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-dark">
+              <tr><th>Contexte / Besoin</th><th>Pattern recommandé</th><th>Justification</th></tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="3" class="bg-light fw-bold">🔵 Criticité métier & cohérence</td></tr>
+              <tr><td>Transactions financières, billing, solde bancaire (cohérence forte absolue)</td><td>CQRS+DB Write ou Event Sourcing</td><td>ACID, auditabilité, pas de perte</td></tr>
+              <tr><td>Système réglementé (MIFID, SOX, RGPD traçabilité)</td><td>Event Sourcing + CQRS</td><td>Traçabilité absolue, rejeu</td></tr>
+              <tr><td>E-commerce (commandes, stock) – cohérence forte mais pas temps réel critique</td><td>Outbox Pattern + CQRS</td><td>Fiabilité DB → Kafka, bon compromis</td></tr>
+              <tr><td>CRM, ERP métier – cohérence attendue</td><td>CQRS+DB Write</td><td>Source de vérité claire</td></tr>
+              <tr><td colspan="3" class="bg-light fw-bold">🟡 Volume & scalabilité</td></tr>
+              <tr><td>IoT massif (> 1M events/s), logs, clickstream</td><td>Kafka-first (sans DB centrale)</td><td>Scalabilité linéaire, découplage</td></tr>
+              <tr><td>Volume modéré (10k – 100k events/s), besoin de cohérence</td><td>CQRS+DB avec Outbox</td><td>Équilibre</td></tr>
+              <tr><td>Migration de legacy avec volume important</td><td>CDC (Debezium)</td><td>Capture sans modifier le code</td></tr>
+              <tr><td colspan="3" class="bg-light fw-bold">🟢 Contraintes techniques & équipes</td></tr>
+              <tr><td>Équipe junior, besoin rapide, faible volume (< 1k req/s)</td><td>Microservices synchrones (REST)</td><td>Simplicité maximale</td></tr>
+              <tr><td>Legacy non modifiable, besoin de synchronisation</td><td>CDC</td><td>Zéro code</td></tr>
+              <tr><td>Expertise Kafka disponible, besoin de replay</td><td>Kafka-first</td><td>Exploite la puissance de Kafka</td></tr>
+              <tr><td>Besoin d’audit rétroactif et de correction d’erreurs</td><td>Event Sourcing</td><td>Time travel, compensation</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Méthode de scoring pondérée (exemple interactif) -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-calculator"></i> Méthode de scoring pondérée</h4>
+        <p>Attribuez un poids à chaque critère (1-5) et notez chaque pattern (0-5). Le score total guide votre choix.</p>
+        <div class="table-responsive">
+          <table class="table table-sm" id="scoringTable">
+            <thead><tr><th>Critère</th><th>Poids</th><th>CQRS</th><th>Kafka-first</th><th>EventSourcing</th><th>Outbox</th><th>CDC</th><th>Sync</th></tr></thead>
+            <tbody>
+              <tr><td>Cohérence forte</td><td><input type="number" class="w-75 form-control form-control-sm" value="5" id="w1"></td><td id="c1">5</td><td id="k1">1</td><td id="e1">5</td><td id="o1">4</td><td id="d1">2</td><td id="s1">3</td></tr>
+              <tr><td>Scalabilité volume</td><td><input type="number" class="w-75 form-control form-control-sm" value="4" id="w2"></td><td id="c2">3</td><td id="k2">5</td><td id="e2">2</td><td id="o2">3</td><td id="d2">4</td><td id="s2">1</td></tr>
+              <tr><td>Latence</td><td><input type="number" class="w-75 form-control form-control-sm" value="3" id="w3"></td><td id="c3">3</td><td id="k3">5</td><td id="e3">2</td><td id="o3">3</td><td id="d3">2</td><td id="s3">5</td></tr>
+              <tr><td>Audit / conformité</td><td><input type="number" class="w-75 form-control form-control-sm" value="5" id="w4"></td><td id="c4">4</td><td id="k4">1</td><td id="e4">5</td><td id="o4">3</td><td id="d4">2</td><td id="s4">2</td></tr>
+              <tr><td>Complexité (inversée)</td><td><input type="number" class="w-75 form-control form-control-sm" value="4" id="w5"></td><td id="c5">3</td><td id="k5">2</td><td id="e5">1</td><td id="o5">3</td><td id="d5">3</td><td id="s5">5</td></tr>
+              <tr><td>Coût infrastructure</td><td><input type="number" class="w-75 form-control form-control-sm" value="3" id="w6"></td><td id="c6">4</td><td id="k6">2</td><td id="e6">2</td><td id="o6">4</td><td id="d6">3</td><td id="s6">5</td></tr>
+            </tbody>
+            <tfoot class="fw-bold">
+              <tr><td colspan="2">Score total</td><td id="totalC">?</td><td id="totalK">?</td><td id="totalE">?</td><td id="totalO">?</td><td id="totalD">?</td><td id="totalS">?</td></tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="btn btn-sm btn-primary mt-2" id="computeScores">Calculer les scores</button>
+        <div class="mt-2 small text-muted">Le pattern avec le score le plus haut est théoriquement le plus adapté à votre contexte.</div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-chalkboard-user"></i> REX : erreurs fréquentes dans le choix</h4>
+        <ul>
+          <li><strong>Choisir Kafka-first pour une facturation</strong> → incohérence des soldes.</li>
+          <li><strong>Choisir Event Sourcing pour un simple CRUD</strong> → over-engineering.</li>
+          <li><strong>Choisir CDC sans maîtriser les logs de la base</strong> → impact performance.</li>
+          <li><strong>Choisir des microservices synchrones pour du très haut volume</strong> → échec de scalabilité.</li>
+          <li><strong>Oublier la dimension “équipe”</strong> : Event Sourcing requiert une expertise pointue.</li>
+        </ul>
+        <div class="alert alert-warning mt-2"><i class="fas fa-lightbulb"></i> <strong>Conseil :</strong> commencez simple (CQRS+DB ou Outbox) et évoluez vers Kafka-first ou Event Sourcing si les besoins le justifient.</div>
+      </div>
+    </div>
+
+    <!-- Recommandations DSI par profil d'entreprise -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-building"></i> Recommandations DSI par type d’organisation</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="p-2 border rounded h-100">
+              <i class="fas fa-charging-station fa-2x text-primary"></i>
+              <h5>Startup / MVP</h5>
+              <p><strong>Pattern conseillé :</strong> Microservices synchrones (REST) + une base de données. Passez à l’event-driven uniquement quand la scalabilité devient un problème.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-2 border rounded h-100">
+              <i class="fas fa-industry fa-2x text-primary"></i>
+              <h5>ETI / Grande entreprise</h5>
+              <p><strong>Pattern conseillé :</strong> CQRS+DB Write + Outbox pour les cœurs métier, CDC pour le legacy, et Kafka-first pour les flux IoT/analytics.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-2 border rounded h-100">
+              <i class="fas fa-university fa-2x text-primary"></i>
+              <h5>Banque / Assurance / Énergie</h5>
+              <p><strong>Pattern conseillé :</strong> Event Sourcing pour la traçabilité réglementaire + CQRS+DB pour la performance opérationnelle + CDC pour les systèmes legacy critiques.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checklist finale avant choix -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-clipboard-list"></i> Checklist finale : êtes-vous prêt à choisir ?</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <ul>
+              <li><i class="fas fa-square-check text-success"></i> Avez-vous listé vos exigences non fonctionnelles (cohérence, latence, volume, RPO/RTO) ?</li>
+              <li><i class="fas fa-square-check text-success"></i> Avez-vous impliqué le métier pour valider l’acceptabilité de l’eventual consistency ?</li>
+              <li><i class="fas fa-square-check text-success"></i> Avez-vous évalué la maturité de votre équipe sur Kafka, CDC, Event Sourcing ?</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <ul>
+              <li><i class="fas fa-square-check text-success"></i> Avez-vous prévu un POC pour valider le pattern sur un cas représentatif ?</li>
+              <li><i class="fas fa-square-check text-success"></i> Avez-vous un plan de migration incrémentale (strangler pattern) ?</li>
+              <li><i class="fas fa-square-check text-success"></i> Avez-vous dimensionné les coûts infra (stockage Kafka, DB supplémentaire) ?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conclusion du guide -->
+    <div class="col-12">
+      <div class="card-modern card p-4 bg-light">
+        <h4><i class="fas fa-check-double"></i> En résumé : la bonne décision</h4>
+        <p>Le choix d’une architecture event-driven ne se fait pas à la légère. Utilisez ce guide pour <strong>éliminer les patterns inadaptés</strong> à votre contexte, puis testez les 2-3 candidats restants via un POC. N’oubliez pas que les architectures hybrides sont souvent la solution gagnante dans les grands systèmes d’information.</p>
+        <div class="alert alert-primary mt-2"><i class="fas fa-download"></i> <strong>À conserver :</strong> la matrice de scoring peut être exportée pour documenter votre décision architecturale.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- ONGLET 7 : CAS RÉEL ÉNERGIE & EAU (hybride) -->
+ <!-- ONGLET 7 : CAS RÉEL COMPLET – SI ÉNERGIE & EAU (6 patterns combinés) - Version ultra-détaillée -->
+<div class="tab-pane fade" id="tab7" role="tabpanel">
+  <div class="row g-4">
+    <!-- Contexte métier -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fas fa-water me-2 text-primary"></i>Cas réel DSI : entreprise Énergie & Eau (2 à 10 millions de compteurs intelligents)</h2>
+        <p class="lead">Une entreprise énergétique européenne gère la production, la distribution, la facturation et la relation client pour l’électricité et l’eau. Contraintes : <strong>temps réel (secondes), audit légal, très haute volumétrie (IoT), multi-systèmes legacy et cloud</strong>. L’architecture retenue combine les 6 patterns majeurs.</p>
+        <div class="alert alert-info"><i class="fas fa-chart-line"></i> <strong>Volume typique :</strong> 5 millions de compteurs → 200 000 événements/seconde en heure de pointe, 2 To de données brutes par jour.</div>
+      </div>
+    </div>
+
+    <!-- Architecture globale schématique -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-project-diagram"></i> Architecture globale hybride (6 patterns)</h4>
+        <div class="diagram-box">
+          ┌─────────────────────────────────────────────────────────────────────────────┐<br>
+          │                         Smart Meters (IoT) – 5M compteurs                   │<br>
+          └─────────────────────────────────────┬───────────────────────────────────────┘<br>
+                                                ↓<br>
+          ┌─────────────────────────────────────┴───────────────────────────────────────┐<br>
+          │  1. KAFKA-FIRST : ingestion temps réel (topics “raw.telemetry”)            │<br>
+          │     → 200k events/sec, rétention 7 jours, partition par ID compteur        │<br>
+          └─────────────────────────────────────┬───────────────────────────────────────┘<br>
+                                                ↓<br>
+          ┌─────────────────────────────────────┴───────────────────────────────────────┐<br>
+          │                         KAFKA BUS CENTRAL (backbone)                        │<br>
+          │   topics : telemetry, billing-events, customer-events, audit-trail          │<br>
+          └───────────┬─────────────────────────────────────┬─────────────────────────┘<br>
+                      │                                     │<br>
+          ┌───────────▼───────────┐               ┌─────────▼───────────┐<br>
+          │ 2. CDC (Debezium)     │               │ 3. OUTBOX PATTERN   │<br>
+          │ synchronisation legacy│               │ CRM / Client DB     │<br>
+          │ ERP → Kafka           │               │ (cohérence garantie) │<br>
+          └───────────┬───────────┘               └─────────┬───────────┘<br>
+                      │                                     │<br>
+          ┌───────────▼─────────────────────────────────────▼───────────┐<br>
+          │                   CONSUMERS SPÉCIALISÉS                        │<br>
+          ├───────────────┬───────────────┬───────────────┬───────────────┤<br>
+          │ 4. CQRS       │5.Event Sourcing│6. Data Lake   │  Sync API     │<br>
+          │ Billing DB    │ Audit légal    │ BI / Régulateur│ Mobile UX     │<br>
+          └───────────────┴───────────────┴───────────────┴───────────────┘<br>
+        </div>
+      </div>
+    </div>
+
+    <!-- Détail de chaque pattern dans le SI -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-cogs"></i> Rôle détaillé de chaque pattern</h4>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="border rounded p-2 h-100">
+              <h5><i class="fab fa-kickstarter-k"></i> 1. Kafka-first (ingestion IoT)</h5>
+              <ul>
+                <li>Réception des relevés de compteurs (toutes les 15 min à 1 min pour le temps réel).</li>
+                <li>Topics partitionnés par ID compteur pour garantir l’ordre des mesures.</li>
+                <li>Rétention 7 jours sur Kafka, puis archivage dans un data lake (S3).</li>
+                <li><strong>Performances :</strong> 200k events/s, latence p99 = 120 ms.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border rounded p-2 h-100">
+              <h5><i class="fas fa-database"></i> 2. CDC (Debezium) – legacy ERP</h5>
+              <ul>
+                <li>Capture des modifications sur l’ERP historique (Oracle) et les bases de facturation legacy.</li>
+                <li>Événements propagés vers Kafka pour alimenter les nouveaux microservices.</li>
+                <li><strong>Résultat :</strong> migration progressive sans arrêt du SI existant.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border rounded p-2 h-100">
+              <h5><i class="fas fa-inbox"></i> 3. Outbox Pattern – CRM clients</h5>
+              <ul>
+                <li>Chaque modification client (adresse, contrat) est écrite en base CRM + table outbox.</li>
+                <li>Relay fiable vers Kafka → notification aux consommateurs (billing, analytics).</li>
+                <li><strong>Garantie :</strong> zéro perte d’événements client.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border rounded p-2 h-100">
+              <h5><i class="fas fa-chart-line"></i> 4. CQRS – facturation et portail client</h5>
+              <ul>
+                <li>Write DB (PostgreSQL) pour les commandes de facturation, de prépaiement.</li>
+                <li>Read DB (Elasticsearch) pour les dashboards consommateurs (historique, factures).</li>
+                <li>Mise à jour asynchrone via Kafka.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border rounded p-2 h-100">
+              <h5><i class="fas fa-history"></i> 5. Event Sourcing – audit légal énergétique</h5>
+              <ul>
+                <li>Toutes les consommations et les actions réglementaires sont stockées dans un Event Store (EventStoreDB).</li>
+                <li>Permet de reconstruire l’état à une date donnée pour les contrôles de l’État.</li>
+                <li><strong>Complexité :</strong> snapshots quotidiens pour limiter les temps de reconstruction.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border rounded p-2 h-100">
+              <h5><i class="fas fa-exchange-alt"></i> 6. Microservices synchrones – expérience mobile</h5>
+              <ul>
+                <li>API REST (gRPC interne) pour les consultations de solde, paiement rapide.</li>
+                <li>Appels directs à la Read DB CQRS et au cache Redis.</li>
+                <li><strong>Latence :</strong> < 100 ms pour les 80% des requêtes utilisateur.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPIs et benchmarks réels -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-chart-simple"></i> KPIs observés en production (après 12 mois)</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-dark"><tr><th>Métrique</th><th>Valeur avant</th><th>Valeur après</th><th>Amélioration</th></tr></thead>
+            <tbody>
+              <tr><td>Latence ingestion compteur (moyenne)</td><td>3 min (batch)</td><td>8 sec (temps réel)</td><td>22x plus rapide</td></tr>
+              <tr><td>Disponibilité portail client (SLA)</td><td>99,5% (pannes base)</td><td>99,95% (découplage)</td><td>+0,45%</td></tr>
+              <tr><td>Perte d’événements (facturation)</td><td>0,3% (batch)</td><td>0,001% (Outbox+CDC)</td><td>300x moins</td></tr>
+              <tr><td>Temps de réponse pic IoT (p99)</td><td>Non mesuré (saturation)</td><td>280 ms</td><td>Stable</td></tr>
+              <tr><td>Coût mensuel infrastructure</td><td>45 k€ (legacy surdimensionné)</td><td>52 k€ (+ Kafka, Event Store)</td><td>+15% pour +500% de capacité</td></tr>
+              <tr><td>Temps de reconstruction après sinistre (RTO)</td><td>8 heures</td><td>45 minutes (replay Kafka + snapshots)</td><td>10x plus rapide</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leçons apprises (REX détaillé) -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-chalkboard-user"></i> REX : leçons apprises et erreurs évitées</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="border-start border-success border-4 ps-3 mb-3">
+              <strong>✅ Ce qui a bien fonctionné :</strong>
+              <ul>
+                <li>L’architecture hybride a permis de traiter chaque sous-domaine avec le pattern adapté.</li>
+                <li>Le CDC (Debezium) a évité de réécrire 15 ans d’ERP.</li>
+                <li>Les snapshots Event Sourcing ont limité les temps de reconstruction à 45 min.</li>
+                <li>La séparation CQRS a soulagé la base de production des requêtes analytiques.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="border-start border-danger border-4 ps-3 mb-3">
+              <strong>⚠️ Difficultés rencontrées :</strong>
+              <ul>
+                <li>Complexité opérationnelle : 3 équipes dédiées (Kafka, CDC, Event Store).</li>
+                <li>Coût initial sous-estimé (stockage Kafka long terme + Event Store).</li>
+                <li>Gouvernance des schémas : plusieurs versions d’événements à gérer.</li>
+                <li>Rejeu massif : a nécessité des tests de charge spécifiques.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-warning mt-2"><i class="fas fa-lightbulb"></i> <strong>Recommandation clé :</strong> ne pas tout faire en même temps. Commencez par le pattern le plus critique (ici, Kafka-first pour l’IoT) puis ajoutez les autres par phases.</div>
+      </div>
+    </div>
+
+    <!-- Stack technologique déployée -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-layer-group"></i> Stack technologique déployée</h4>
+        <ul>
+          <li><strong>Ingestion :</strong> Apache Kafka (Confluent) – 5 clusters régionaux, 30 brokers</li>
+          <li><strong>CDC :</strong> Debezium (Kafka Connect) sur Oracle et PostgreSQL legacy</li>
+          <li><strong>Outbox :</strong> Spring Kafka + table outbox PostgreSQL</li>
+          <li><strong>CQRS :</strong> Write DB PostgreSQL, Read DB Elasticsearch</li>
+          <li><strong>Event Sourcing :</strong> EventStoreDB (clustérisé)</li>
+          <li><strong>Sync :</strong> Spring Boot REST, Redis cache, API Gateway Kong</li>
+          <li><strong>Monitoring :</strong> Prometheus, Grafana, Confluent Control Center</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-chart-pie"></i> Répartition du volume traité par pattern</h4>
+        <canvas id="volumePie" width="200" height="200" style="max-width:200px; margin:auto;"></canvas>
+        <ul class="small mt-2">
+          <li>Kafka-first (IoT) : 78% des événements</li>
+          <li>CDC (legacy) : 12%</li>
+          <li>Outbox (CRM) : 5%</li>
+          <li>CQRS (billing) : 3%</li>
+          <li>Event Sourcing (audit) : 1%</li>
+          <li>Sync (mobile) : 1% (en nombre de requêtes)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Plan de migration utilisé -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-road"></i> Plan de migration (strangler pattern) suivi par la DSI</h4>
+        <ol>
+          <li><strong>Phase 1 (3 mois) :</strong> Mise en place de Kafka-first pour l’ingestion IoT. Les données sont en parallèle dans l’ancien SI.</li>
+          <li><strong>Phase 2 (6 mois) :</strong> Ajout de CDC pour synchroniser l’ERP legacy vers Kafka. Premiers consumers (Data Lake).</li>
+          <li><strong>Phase 3 (9 mois) :</strong> Implémentation du CQRS pour la facturation. L’ancien système de facturation reste en secours.</li>
+          <li><strong>Phase 4 (12 mois) :</strong> Outbox pattern pour le CRM, puis Event Sourcing pour l’audit réglementaire.</li>
+          <li><strong>Phase 5 (18 mois) :</strong> Bascule définitive : l’ancien SI n’est plus utilisé que pour l’historique.</li>
+        </ol>
+        <div class="alert alert-success mt-2"><i class="fas fa-check-circle"></i> Résultat : migration réussie sans interruption de service, ROI constaté au bout de 24 mois grâce à la réduction des pénalités de non-qualité de service.</div>
+      </div>
+    </div>
+
+    <!-- Conclusion sur ce cas -->
+    <div class="col-12">
+      <div class="card-modern card p-4 bg-light">
+        <h4><i class="fas fa-trophy"></i> Enseignements pour votre DSI</h4>
+        <p>Ce cas réel démontre qu’<strong>aucun pattern seul ne suffit</strong> dans un système complexe. La clé du succès est l’assemblage intelligent des patterns, une migration progressive (strangler) et une gouvernance centralisée des événements. Le surcoût infrastructurel (environ +15%) est largement compensé par la scalabilité, la résilience et la capacité à innover.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+    <!-- ONGLET 8 : BONNES PRATIQUES & ERREURS -->
+<!-- ONGLET 8 : BONNES PRATIQUES & ERREURS FRÉQUENTES - Version ultra-détaillée -->
+<div class="tab-pane fade" id="tab8" role="tabpanel">
+  <div class="row g-4">
+    <!-- Introduction -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fas fa-clipboard-list me-2 text-primary"></i>Bonnes pratiques & erreurs fréquentes dans les architectures event-driven</h2>
+        <p class="lead">L’adoption de patterns event-driven (CQRS, Kafka, Event Sourcing, CDC, Outbox) comporte des pièges classiques. Ce guide recense les <strong>bonnes pratiques éprouvées</strong> et les <strong>erreurs récurrentes</strong> observées en DSI, avec des solutions concrètes pour les éviter.</p>
+        <div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> <strong>Attention :</strong> une mauvaise implémentation peut entraîner des pertes de données, des incohérences ou des surcoûts massifs. Ces bonnes pratiques sont le fruit de retours terrain.</div>
+      </div>
+    </div>
+
+    <!-- Bonnes pratiques structurées en catégories -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-check-circle text-success"></i> Bonnes pratiques générales</h4>
+        <ul>
+          <li><strong>Source de vérité explicite</strong> – définissez clairement si c’est la DB, Kafka ou l’Event Store.</li>
+          <li><strong>Immuabilité des événements</strong> – ne jamais modifier un événement publié ; créer un nouvel événement de correction.</li>
+          <li><strong>Idempotence des consommateurs</strong> – tolérez les relectures Kafka (at-least-once) avec des clés de déduplication.</li>
+          <li><strong>Corrélation systématique</strong> – utilisez un <code>correlationId</code> pour tracer un flux métier à travers les services.</li>
+          <li><strong>Schema Registry</strong> – imposez l’évolution compatible (Avro, Protobuf) pour éviter les ruptures.</li>
+          <li><strong>Monitoring des lags</strong> – alerte si un consommateur Kafka accuse un retard > seuil.</li>
+          <li><strong>Dead Letter Queue (DLQ)</strong> – gérez les événements non consommables sans bloquer le topic.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-ban text-danger"></i> Erreurs fréquentes (anti-patterns)</h4>
+        <ul>
+          <li><strong>Confondre Kafka avec une base de données</strong> – faire des requêtes ad-hoc sur les topics (inefficace).</li>
+          <li><strong>Supprimer totalement les DB métier sans stratégie de replay</strong> – perte de données définitive.</li>
+          <li><strong>Ne pas gérer le versioning des événements</strong> → consommateurs cassés silencieusement.</li>
+          <li><strong>Ignorer la gouvernance des consommateurs</strong> → explosion du nombre de topics, lag incontrôlé.</li>
+          <li><strong>Transaction distribuée naïve (2PC) entre DB et Kafka</strong> → préférer Outbox ou CDC.</li>
+          <li><strong>Consumer unique pour toutes les Read DB</strong> → goulot d’étranglement.</li>
+          <li><strong>Rétention infinie sans tiered storage</strong> → coût de stockage explosif.</li>
+          <li><strong>Oublier les tests de replay</strong> → incapacité à reconstruire les états après sinistre.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bonnes pratiques par pattern -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-layer-group"></i> Bonnes pratiques spécifiques par pattern</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="border rounded p-2 mb-2">
+              <strong>🔹 CQRS + DB Write</strong>
+              <ul>
+                <li>Séparez physiquement les bases de lecture et d’écriture (voire moteurs différents).</li>
+                <li>Utilisez un pattern Outbox pour la publication fiable des événements.</li>
+                <li>Ne jamais exposer la Write DB en lecture directe.</li>
+                <li>Mettez en place des snapshots pour les agrégats volumineux.</li>
+              </ul>
+            </div>
+            <div class="border rounded p-2 mb-2">
+              <strong>🔹 Kafka-first</strong>
+              <ul>
+                <li>Utilisez des clés de partition pertinentes (ex: ID agrégat).</li>
+                <li>Configurez une rétention adaptée (quelques jours pour le temps réel, tiered storage au-delà).</li>
+                <li>Activez l’idempotence des producteurs (enable.idempotence=true).</li>
+                <li>Mettez en place un Schema Registry obligatoire.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded p-2 mb-2">
+              <strong>🔹 Event Sourcing</strong>
+              <ul>
+                <li>Utilisez des snapshots périodiques (quotidiens ou hebdomadaires).</li>
+                <li>Versionnez vos événements dès la première version.</li>
+                <li>Prévoyez des événements compensatoires (pas de modification in-place).</li>
+                <li>Documentez le schéma sémantique de chaque événement.</li>
+              </ul>
+            </div>
+            <div class="border rounded p-2 mb-2">
+              <strong>🔹 Outbox Pattern</strong>
+              <ul>
+                <li>Nettoyez régulièrement la table outbox (après publication).</li>
+                <li>Utilisez un index sur la colonne de statut pour le polling.</li>
+                <li>Préférez CDC sur la table outbox pour un relay plus réactif.</li>
+              </ul>
+            </div>
+            <div class="border rounded p-2 mb-2">
+              <strong>🔹 CDC (Debezium)</strong>
+              <ul>
+                <li>Surveillez l’espace disque des logs binaires (binlog / WAL).</li>
+                <li>Utilisez des sujets Kafka compacts pour les événements de référence.</li>
+                <li>Testez l’impact sur la source DB avant production.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Erreurs fréquentes détaillées (REX) -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-microphone-alt"></i> Erreurs réelles observées en DSI (REX)</h4>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-danger border-4 ps-3">
+              <strong>❌ Perte d’événements faute d’Outbox</strong><br>
+              Une entreprise de e-commerce publiait des événements Kafka après un commit DB, mais sans transaction. En cas de panne après le commit et avant la publication, des commandes étaient perdues. <strong>Solution :</strong> Outbox pattern.
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-danger border-4 ps-3">
+              <strong>❌ Inflation des versions d’événements sans rétrocompatibilité</strong><br>
+              Un éditeur SaaS a modifié le champ “customer_id” en “user_id” sans évolution compatible → tous les consommateurs ont crashé. <strong>Solution :</strong> Schema Registry + compatibilité backward.
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-danger border-4 ps-3">
+              <strong>❌ Kafka comme base de données (requêtage direct)</strong><br>
+              Une équipe a construit des API interrogeant directement les topics Kafka via ksqlDB pour des requêtes utilisateur. Latence élevée, dégradation des performances. <strong>Solution :</strong> matérialiser les données dans une base de lecture (CQRS).
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border-start border-danger border-4 ps-3">
+              <strong>❌ Pas de plan de replay après corruption</strong><br>
+              Un bug dans un consumer a corrompu une base de lecture. Impossible de reconstruire l’état car les événements avaient été purgés après 7 jours. <strong>Solution :</strong> rétention longue + backups des topics.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checklist de validation avant mise en production -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-clipboard-list"></i> Checklist de validation “go/no-go” avant production</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <ul>
+              <li><i class="fas fa-square-check text-success"></i> Les événements sont-ils immutables ?</li>
+              <li><i class="fas fa-square-check text-success"></i> Les consommateurs sont-ils idempotents ?</li>
+              <li><i class="fas fa-square-check text-success"></i> Un Schema Registry est-il en place ?</li>
+              <li><i class="fas fa-square-check text-success"></i> Le lag des consommateurs est-il monitoré ?</li>
+              <li><i class="fas fa-square-check text-success"></i> Les producteurs utilisent-ils l’idempotence ?</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <ul>
+              <li><i class="fas fa-square-check text-success"></i> Un test de replay a-t-il été effectué ?</li>
+              <li><i class="fas fa-square-check text-success"></i> Les DLQ sont-elles configurées ?</li>
+              <li><i class="fas fa-square-check text-success"></i> La rétention des topics est-elle adaptée ?</li>
+              <li><i class="fas fa-square-check text-success"></i> Un plan de reprise (backup) existe-t-il ?</li>
+              <li><i class="fas fa-square-check text-success"></i> La documentation des événements est-elle à jour ?</li>
+            </ul>
+          </div>
+        </div>
+        <div class="alert alert-success mt-2"><i class="fas fa-check-circle"></i> Si toutes les cases sont cochées, vous pouvez passer en production sereinement.</div>
+      </div>
+    </div>
+
+    <!-- Guide de correction des erreurs courantes -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-tools"></i> Guide de correction des erreurs fréquentes</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-dark"><tr><th>Erreur</th><th>Symptôme</th><th>Correction</th></tr></thead>
+            <tbody>
+              <tr><td>Double écriture non transactionnelle</td><td>Événements manquants malgré écriture DB ok</td><td>Migrer vers Outbox pattern ou CDC</td></tr>
+              <tr><td>Pas de versionnement des événements</td><td>Consommateurs cassés après modification d’un champ</td><td>Ajouter un champ “version” et utiliser Schema Registry</td></tr>
+              <tr><td>Lag consommateur non surveillé</td><td>Read DB obsolète, utilisateurs voient des données vieilles de plusieurs heures</td><td>Mettre en place alertes Prometheus sur lag</td></tr>
+              <tr><td>Replay impossible (rétention trop courte)</td><td>Impossible de reconstruire une base après corruption</td><td>Augmenter rétention ou utiliser tiered storage</td></tr>
+              <tr><td>Consumer unique pour plusieurs stores</td><td>Goulot d’étranglement, latence élevée</td><td>Scinder en plusieurs consumers par store</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plan d’action pour une DSI débutant en event-driven -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-road"></i> Plan d’action recommandé pour une DSI qui débute</h4>
+        <ol>
+          <li><strong>Démarrer avec un seul pattern non critique</strong> (ex: Outbox pour une petite application).</li>
+          <li><strong>Former les équipes</strong> aux concepts de base (Kafka, idempotence, schema evolution).</li>
+          <li><strong>Mettre en place le monitoring</strong> (Prometheus, Grafana, lag) dès le premier jour.</li>
+          <li><strong>Documenter les événements</strong> dans un contrat (OpenAPI ou AsyncAPI).</li>
+          <li><strong>Effectuer un test de replay</strong> en simulation avant la mise en production.</li>
+          <li><strong>Adopter l’architecture hybride</strong> : commencer par CQRS+DB + Outbox, puis ajouter Kafka-first pour les flux massifs.</li>
+        </ol>
+        <div class="alert alert-info"><i class="fas fa-lightbulb"></i> <strong>À retenir :</strong> la complexité vient vite. Avancez par petites briques validées.</div>
+      </div>
+    </div>
+
+    <!-- Conclusion -->
+    <div class="col-12">
+      <div class="card-modern card p-4 bg-light">
+        <h4><i class="fas fa-check-double"></i> Synthèse : les 10 commandements de l’event-driven réussi</h4>
+        <ol>
+          <li>Tu définiras une source de vérité unique par flux.</li>
+          <li>Tu rendras tes événements immutables.</li>
+          <li>Tu feras en sorte que tes consommateurs soient idempotents.</li>
+          <li>Tu versionneras tes schémas et utiliseras un Schema Registry.</li>
+          <li>Tu monitoreras les lags et mettras des alertes.</li>
+          <li>Tu ne confondras pas Kafka avec une base de données.</li>
+          <li>Tu prévoiras un mécanisme de replay (rétention suffisante).</li>
+          <li>Tu utiliseras l’Outbox pattern pour les publications critiques.</li>
+          <li>Tu testeras la résilience (pannes brokers, consumers).</li>
+          <li>Tu documenteras tes événements et leurs contrats.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- ONGLET 9 : GLOSSAIRE -->
+<!-- ONGLET 9 : GLOSSAIRE TECHNIQUE (Termes event-driven, CQRS, Kafka, patterns) - Version ultra-détaillée -->
+<div class="tab-pane fade" id="tab9" role="tabpanel">
+  <div class="row g-4">
+    <!-- Introduction -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fas fa-book-open me-2 text-primary"></i>Glossaire complet des architectures event-driven</h2>
+        <p class="lead">Ce glossaire répertorie les termes essentiels pour maîtriser CQRS, Kafka, Event Sourcing, CDC, Outbox, et les patterns associés. Chaque définition est illustrée d’un exemple concret et de liens avec les autres concepts.</p>
+        <div class="alert alert-info"><i class="fas fa-search"></i> Utilisez <kbd>Ctrl+F</kbd> pour trouver rapidement un terme.</div>
+      </div>
+    </div>
+
+    <!-- Glossaire organisé par catégories -->
+    <!-- Catégorie 1 : Concepts généraux -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-globe"></i> A. Concepts généraux event-driven</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="glossary-term">Event-Driven Architecture (EDA)</div>
+            <p>Architecture où la communication entre composants est déclenchée par la production, la détection et la réaction à des événements. Exemple : un microservice publie “commande.créée”, d’autres réagissent.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Événement (Event)</div>
+            <p>Enregistrement immuable d’un fait significatif survenu dans le système (ex: “paiement.effectué”, “compteur.relevé”). Contient un en-tête (type, date, corrélation) et un corps de données.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Commande (Command)</div>
+            <p>Intention d’effectuer une action, généralement synchrone. Se distingue de l’événement qui décrit un fait passé. Exemple : “AnnulerCommande” (commande) vs “CommandeAnnulée” (événement).</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Eventual Consistency</div>
+            <p>Cohérence à terme : après un certain délai, tous les systèmes auront vu la même donnée, mais pas immédiatement. Acceptable pour de nombreux cas (recommandations, analytics).</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Strong Consistency</div>
+            <p>Cohérence forte : toute lecture d’une donnée reflète la dernière écriture. Nécessite des transactions ACID ou des consensus distribués (plus coûteux).</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Idempotence</div>
+            <p>Propriété d’une opération qui peut être appliquée plusieurs fois sans changer le résultat final. Essentielle pour les consommateurs Kafka (at-least-once). Exemple : SET status=“paid” si déjà paid ne change rien.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Catégorie 2 : CQRS et Event Sourcing -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-database"></i> B. CQRS & Event Sourcing</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="glossary-term">CQRS (Command Query Responsibility Segregation)</div>
+            <p>Séparation des modèles de commande (écriture) et de requête (lecture). Permet d’optimiser indépendamment les performances et la scalabilité.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Write DB (Command Model)</div>
+            <p>Base de données transactionnelle qui reçoit les commandes, garantit l’intégrité ACID et constitue la source de vérité (dans CQRS classique).</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Read DB (Query Model)</div>
+            <p>Base de données optimisée pour la lecture (dénormalisée, indexée). Mise à jour asynchrone via les événements. Peut utiliser Elasticsearch, MongoDB, etc.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Event Sourcing</div>
+            <p>Pattern où l’état applicatif est dérivé d’une séquence d’événements immuables. On ne stocke que les événements, pas l’état final. Rejeu pour reconstruire.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Event Store</div>
+            <p>Base de données spécialisée dans le stockage d’événements (EventStoreDB, Axon Server, ou Kafka utilisé comme event store). Permet de rejouer l’historique.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Snapshot</div>
+            <p>Capture périodique de l’état agrégé pour éviter de rejouer tous les événements depuis l’origine. Améliore les performances de reconstruction.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Aggregate (DDD)</div>
+            <p>Groupe d’objets métier traités comme une unité pour les modifications. Dans Event Sourcing, un agrégat est reconstruit à partir de ses événements.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Eventual Consistency (rappel)</div>
+            <p>Acceptation qu’un consommateur voie une donnée avec un léger retard par rapport à l’écriture. Typique en CQRS/Event Sourcing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Catégorie 3 : Kafka et streaming -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fab fa-kickstarter-k"></i> C. Apache Kafka & streaming</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="glossary-term">Topic</div>
+            <p>Canal de communication nommé dans Kafka. Un topic est partitionné pour la scalabilité. Exemple : topic “orders” contenant tous les événements de commandes.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Partition</div>
+            <p>Sous-ensemble ordonné et immuable d’un topic. Chaque message a un offset unique dans sa partition. L’ordre n’est garanti qu’au sein d’une partition.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Offset</div>
+            <p>Position séquentielle d’un message dans une partition. Permet de reprendre la lecture à un point précis (replay).</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Consumer Group</div>
+            <p>Groupe de consommateurs Kafka qui se partagent la lecture des partitions d’un topic. Chaque partition est lue par un seul consommateur du groupe.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Lag (consumer lag)</div>
+            <p>Différence entre l’offset du dernier message produit et l’offset du dernier message consommé. Un lag élevé indique un consommateur en retard.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Replay</div>
+            <p>Action de re-lire des événements depuis un offset antérieur, pour reconstruire un état ou corriger un consumer défaillant.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Schema Registry</div>
+            <p>Service qui gère les versions des schémas d’événements (Avro, Protobuf, JSON Schema). Assure la compatibilité et évite les ruptures.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Kafka Streams</div>
+            <p>Bibliothèque Java pour traiter des flux en temps réel directement dans Kafka (agrégations, jointures, fenêtres).</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">ksqlDB</div>
+            <p>Moteur de streaming SQL pour Kafka, permettant d’écrire des requêtes temps réel (SELECT, JOIN, WINDOW) sur des topics.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Tiered Storage</div>
+            <p>Stockage des anciens événements sur des supports moins coûteux (ex: S3) tout en les rendant accessibles pour le replay.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Catégorie 4 : Patterns Outbox, CDC, Sync -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-puzzle-piece"></i> D. Patterns Outbox, CDC, Microservices synchrones</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="glossary-term">Outbox Pattern</div>
+            <p>Pattern transactionnel : écrire dans la table métier et une table “outbox” dans la même transaction. Un process publie les événements de l’outbox vers Kafka. Garantie de livraison.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">CDC (Change Data Capture)</div>
+            <p>Technique qui capture les modifications d’une base de données à partir de ses journaux (binlog MySQL, WAL PostgreSQL) et les transforme en événements.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Debezium</div>
+            <p>Plateforme CDC open source basée sur Kafka Connect. Supporte PostgreSQL, MySQL, Oracle, SQL Server, MongoDB, etc.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Polling Publisher</div>
+            <p>Variante simple de l’Outbox : un process interroge périodiquement la table outbox pour publier les événements non encore envoyés.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Transactional Outbox</div>
+            <p>Autre nom de l’Outbox pattern, insistant sur le caractère transactionnel (même commit DB).</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Microservices synchrones</div>
+            <p>Architecture où les services communiquent directement via des appels synchrones (REST, gRPC). Pas de bus asynchrone. Plus simple mais plus couplé.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Circuit Breaker</div>
+            <p>Pattern de résilience pour les appels synchrones : interrompt les appels vers un service défaillant pour éviter les effets cascade.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Catégorie 5 : Gouvernance et opérations -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-gavel"></i> E. Gouvernance, monitoring, résilience</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="glossary-term">Dead Letter Queue (DLQ)</div>
+            <p>Topic ou file où sont placés les événements qu’un consommateur n’a pas pu traiter (erreur de parsing, métier). Permet de ne pas bloquer le flux.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Backpressure</div>
+            <p>Mécanisme pour ralentir un producteur si le consommateur est trop lent. Dans Kafka, géré par les paramètres de session et les lags.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">RPO / RTO</div>
+            <p>RPO (Recovery Point Objective) : âge maximal des données perdues acceptable. RTO (Recovery Time Objective) : durée maximale d’indisponibilité.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Strangler Pattern</div>
+            <p>Stratégie de migration progressive d’un système legacy vers une nouvelle architecture, en interceptant et redirigeant petit à petit les appels.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Saga</div>
+            <p>Pattern de gestion de transactions distribuées sans 2PC. Une série d’événements et d’événements compensatoires. Exemple : Saga orchestrée par Kafka.</p>
+          </div>
+          <div class="col-md-4">
+            <div class="glossary-term">Event Carried State Transfer</div>
+            <p>Les événements contiennent suffisamment de données pour qu’un consommateur n’ait pas besoin d’interroger d’autres services. Réduit le couplage.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau de correspondance termes / patterns -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-exchange-alt"></i> Tableau de correspondance rapide</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-light"><tr><th>Terme</th><th>Pattern associé</th><th>Exemple concret</th></tr></thead>
+            <tbody>
+              <tr><td>Command</td><td>CQRS</td><td>API POST /orders (commande de création)</td></tr>
+              <tr><td>Event</td><td>Event Sourcing / CQRS</td><td>“OrderCreated”, “PaymentProcessed”</td></tr>
+              <tr><td>Aggregate</td><td>Event Sourcing + DDD</td><td>Order aggregate (historique des événements)</td></tr>
+              <tr><td>Outbox</td><td>Outbox pattern</td><td>Table outbox dans PostgreSQL relayée vers Kafka</td></tr>
+              <tr><td>CDC</td><td>Change Data Capture</td><td>Debezium capturant les INSERT dans MySQL</td></tr>
+              <tr><td>Lag</td><td>Kafka monitoring</td><td>Alerte si lag > 10 000 messages</td></tr>
+              <tr><td>Replay</td><td>Kafka-first / Event Sourcing</td><td>Reconstruire une Read DB en relisant les 30 derniers jours</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mini-lexique visuel : schéma des relations -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-project-diagram"></i> Carte mentale des concepts</h4>
+        <div class="diagram-box">
+          Architecture Event-Driven<br>
+          ├── Asynchrone (Kafka, Event Store)<br>
+          │   ├── CQRS (Write DB + Read DB séparées)<br>
+          │   ├── Event Sourcing (événements = vérité)<br>
+          │   ├── Kafka-first (Kafka = vérité)<br>
+          │   └── Outbox / CDC (fiabilité de publication)<br>
+          └── Synchrone (REST/gRPC)<br>
+              └── Microservices synchrones (simple, couplage fort)<br>
+          <br>
+          Concepts transverses : Idempotence, Schema Registry, Replay, Lag, DLQ
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz / auto-évaluation (optionnel) -->
+    <div class="col-12">
+      <div class="card-modern card p-4 bg-light">
+        <h4><i class="fas fa-question-circle"></i> Auto-évaluation : testez votre compréhension</h4>
+        <ol>
+          <li>Quelle est la différence entre une commande et un événement ?</li>
+          <li>Dans CQRS+DB, quelle est la source de vérité ?</li>
+          <li>Que mesure le “lag” dans Kafka ?</li>
+          <li>Pourquoi utilise-t-on l’Outbox pattern ?</li>
+          <li>Que permet le Schema Registry ?</li>
+        </ol>
+        <details><summary>Voir les réponses</summary>
+          <ol>
+            <li>Une commande exprime une intention (action future), un événement un fait passé.</li>
+            <li>La Write DB (base transactionnelle).</li>
+            <li>Le retard entre le dernier message produit et le dernier message consommé.</li>
+            <li>Pour garantir la publication fiable des événements sans double écriture manuelle.</li>
+            <li>Gérer les versions des schémas et assurer la compatibilité.</li>
+          </ol>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- ONGLET 10 : REX (RETOUR D'EXPÉRIENCE DSI) -->
+<!-- ONGLET 10 : REX (RETOURS D'EXPÉRIENCE DSI) - Version ultra-détaillée -->
+<div class="tab-pane fade" id="tab10" role="tabpanel">
+  <div class="row g-4">
+    <!-- Introduction -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fas fa-chalkboard-user me-2 text-primary"></i>REX DSI : Retours d’expérience terrain sur les architectures event-driven</h2>
+        <p class="lead">Ce recueil de <strong>retours d’expérience</strong> (REX) provient de DSI de grands comptes (banque, énergie, e-commerce, télécom, santé). Chaque témoignage détaille le contexte, les choix architecturaux, les difficultés rencontrées, les bénéfices obtenus et les leçons à retenir.</p>
+        <div class="alert alert-info"><i class="fas fa-lightbulb"></i> Ces retours sont anonymisés mais basés sur des cas réels observés en production.</div>
+      </div>
+    </div>
+
+    <!-- REX 1 : Banque internationale – Event Sourcing pour la conformité -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-university"></i> REX #1 – Banque internationale : Event Sourcing pour la traçabilité réglementaire (MIFID II)</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Contexte :</strong> Une banque européenne devait tracer toutes les modifications des comptes clients et des transactions pour répondre aux exigences MIFID II. L’ancien système enregistrait uniquement l’état final, rendant les audits longs et coûteux.</p>
+            <p><strong>Solution adoptée :</strong> Migration progressive d’un module critique (gestion des ordres de bourse) vers Event Sourcing + CQRS, avec EventStoreDB et Kafka pour la diffusion des événements.</p>
+          </div>
+          <div class="col-md-6">
+            <div class="border-start border-primary border-4 ps-3">
+              <strong>📊 Résultats observés (après 9 mois) :</strong>
+              <ul>
+                <li>Temps de réponse aux audits : passé de 3 jours à 15 minutes (rejeu ciblé).</li>
+                <li>Perte d’événements : 0% (grâce à l’Event Store transactionnel).</li>
+                <li>Charge sur l’équipe : +2 ingénieurs dédiés à l’infrastructure Event Sourcing.</li>
+                <li>Réduction des pénalités réglementaires : 500 k€/an économisés.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-secondary mt-2">
+          <strong>⚠️ Leçons apprises :</strong>
+          <ul>
+            <li>La gestion du versioning des événements a été sous-estimée (mise en place d’un Schema Registry Avro).</li>
+            <li>Les snapshots sont indispensables : au-delà de 10 000 événements par agrégat, les reconstructions devenaient lentes.</li>
+            <li>Former les équipes au pattern Event Sourcing a pris 3 mois.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- REX 2 : E-commerce – Outbox pattern pour éliminer les pertes de commandes -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-shopping-cart"></i> REX #2 – Leader e-commerce français : Outbox pattern pour fiabiliser la chaîne de commande</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Contexte :</strong> Une plateforme e-commerce traitant 50 000 commandes/heure subissait des pertes d’événements (environ 0,5% des commandes n’atteignaient pas le système de facturation). Cause : double écriture manuelle (DB puis Kafka) sans transaction.</p>
+            <p><strong>Solution adoptée :</strong> Implémentation du pattern Outbox avec table dédiée dans PostgreSQL et un relay en Java (polling toutes les 200 ms). Les événements sont publiés vers Kafka.</p>
+          </div>
+          <div class="col-md-6">
+            <div class="border-start border-success border-4 ps-3">
+              <strong>📊 Résultats observés (après 4 semaines) :</strong>
+              <ul>
+                <li>Pertes d’événements : 0,5% → 0,001% (presque nul).</li>
+                <li>Latence supplémentaire : +150 ms en moyenne (polling).</li>
+                <li>Complexité opérationnelle : légère hausse (nettoyage table outbox).</li>
+                <li>ROI : récupéré en 3 mois grâce à la réduction des litiges clients.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-secondary mt-2">
+          <strong>⚠️ Leçons apprises :</strong>
+          <ul>
+            <li>Nettoyer régulièrement la table outbox (index sur “published” + date).</li>
+            <li>Prévoir une surcharge de la base (écriture supplémentaire).</li>
+            <li>Le polling peut être remplacé par CDC pour réduire la latence.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- REX 3 : Fournisseur énergie – Kafka-first pour l’IoT, mais échec partiel -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-bolt"></i> REX #3 – Fournisseur d’énergie : Kafka-first pour les compteurs intelligents (succès et écueil)</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Contexte :</strong> 3 millions de compteurs communicants, 150 000 messages/seconde en pic. L’entreprise a choisi une architecture Kafka-first pure (pas de base de données centrale).</p>
+            <p><strong>Ce qui a bien fonctionné :</strong> Ingestion et transformation temps réel (latence < 200 ms), scalabilité horizontale sans effort.</p>
+            <p><strong>L’écueil :</strong> Pour la facturation (besoin de cohérence forte), ils ont tenté de s’appuyer sur les événements Kafka. Plusieurs incohérences sont apparues (doublons, ordre non garanti).</p>
+          </div>
+          <div class="col-md-6">
+            <div class="border-start border-danger border-4 ps-3">
+              <strong>📊 Résultats mitigés :</strong>
+              <ul>
+                <li>Partie IoT : excellent (disponibilité 99,99%, coût maîtrisé).</li>
+                <li>Partie facturation : 2 incidents majeurs (soldes erronés) dus à l’eventual consistency.</li>
+                <li>Solution finale : architecture hybride – Kafka-first pour l’IoT + CQRS+DB pour la facturation.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-secondary mt-2">
+          <strong>⚠️ Leçon clé :</strong> Ne pas utiliser Kafka-first pour des sous-domaines exigeant une cohérence forte. Un pattern hybride est préférable.
+        </div>
+      </div>
+    </div>
+
+    <!-- REX 4 : Télécom – CDC (Debezium) pour migrer un SI legacy -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-tower-cell"></i> REX #4 – Opérateur télécom : Migration d’un CRM legacy grâce à CDC (Debezium)</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Contexte :</strong> Un CRM Oracle vieillissant de 15 ans, difficile à modifier. Besoin d’alimenter un nouveau moteur de recommandation et un data lake en temps réel.</p>
+            <p><strong>Solution adoptée :</strong> Déploiement de Debezium (Kafka Connect) pour capturer les changements sur les tables Oracle via les logs redo. Les événements sont poussés dans Kafka, puis consommés par les nouveaux services.</p>
+          </div>
+          <div class="col-md-6">
+            <div class="border-start border-info border-4 ps-3">
+              <strong>📊 Résultats :</strong>
+              <ul>
+                <li>Zéro modification du code legacy (risque minimisé).</li>
+                <li>Délai de mise en œuvre : 3 semaines (vs 6 mois estimés pour une refonte).</li>
+                <li>Latence de capture : 1–2 secondes (acceptable pour le cas d’usage).</li>
+                <li>Charge supplémentaire sur la base Oracle : +5% CPU, maîtrisée.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-secondary mt-2">
+          <strong>⚠️ Leçons apprises :</strong> Surveiller l’espace disque des logs (redo logs). Prévoir une haute disponibilité du connecteur Debezium.
+        </div>
+      </div>
+    </div>
+
+    <!-- REX 5 : Startup – Échec d’Event Sourcing pour un simple CRUD -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-bug"></i> REX #5 – Startup : Surcharge technique avec Event Sourcing (retour négatif)</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Contexte :</strong> Une startup de gestion de tâches a voulu adopter Event Sourcing + CQRS dès le début, pensant que cela faciliterait l’évolution future.</p>
+            <p><strong>Problèmes rencontrés :</strong> L’équipe (3 devs juniors) a passé 6 mois à lutter avec le versioning, les snapshots, la gestion des projections. Le time-to-market a été multiplié par 3.</p>
+          </div>
+          <div class="col-md-6">
+            <div class="border-start border-warning border-4 ps-3">
+              <strong>📊 Conclusion :</strong>
+              <ul>
+                <li>Abandon d’Event Sourcing au profit d’un CRUD classique (REST + PostgreSQL).</li>
+                <li>Délai de livraison final : 4 mois après l’abandon.</li>
+                <li>Leçon : Event Sourcing n’est pas adapté aux applications simples ou aux petites équipes sans expertise.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REX 6 : Grande distribution – Hybride CQRS+Outbox pour la gestion des stocks -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-boxes"></i> REX #6 – Enseigne de grande distribution : CQRS + Outbox pour la synchronisation stock entre 500 magasins</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Contexte :</strong> Un système central de gestion des stocks (monolithe) devenait incapable de supporter les pics de mise à jour (Black Friday). Décision de passer à une architecture event-driven avec CQRS.</p>
+            <p><strong>Solution :</strong> Write DB (PostgreSQL) pour les commandes d’entrée/sortie, Outbox pattern pour publier les événements, Kafka pour la diffusion, et des Read DB régionales (Elasticsearch) pour les consultations.</p>
+          </div>
+          <div class="col-md-6">
+            <div class="border-start border-primary border-4 ps-3">
+              <strong>📊 Résultats :</strong>
+              <ul>
+                <li>Latence de mise à jour des stocks entre magasins : 2,5 s → 0,9 s.</li>
+                <li>Disponibilité du service de consultation : 99,95% (contre 98% avant).</li>
+                <li>Capacité à monter jusqu’à 200 000 événements/seconde (Black Friday).</li>
+                <li>ROI sur 18 mois grâce à la réduction des ruptures de stock.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau synthétique des REX -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-table-list"></i> Synthèse des REX : patterns, bénéfices, difficultés</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-dark">
+              <tr><th>Secteur</th><th>Pattern principal</th><th>Bénéfice clé</th><th>Difficulté majeure</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Banque</td><td>Event Sourcing</td><td>Audit rapide (3j → 15 min)</td><td>Versioning des événements</td></tr>
+              <tr><td>E-commerce</td><td>Outbox</td><td>Perte événements quasi nulle</td><td>Latence polling, nettoyage table</td></tr>
+              <tr><td>Énergie</td><td>Kafka-first (IoT)</td><td>Scalabilité ingestion</td><td>Cohérence faible pour facturation</td></tr>
+              <tr><td>Télécom</td><td>CDC (Debezium)</td><td>Migration sans code</td><td>Charge sur logs base</td></tr>
+              <tr><td>Startup</td><td>Event Sourcing</td><td>(Échec)</td><td>Complexité excessive</td></tr>
+              <tr><td>Distribution</td><td>CQRS+Outbox</td><td>Performance stock temps réel</td><td>Déploiement multi-régions</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checklist pour réussir son projet event-driven (inspirée des REX) -->
+    <div class="col-12">
+      <div class="card-modern card p-4 bg-light">
+        <h4><i class="fas fa-clipboard-list"></i> Checklist pour réussir (issue des REX)</h4>
+        <ul>
+          <li><i class="fas fa-check-circle text-success"></i> Commencez par un projet pilote non critique pour valider le pattern.</li>
+          <li><i class="fas fa-check-circle text-success"></i> Évaluez la maturité de l’équipe – Event Sourcing demande une expertise avancée.</li>
+          <li><i class="fas fa-check-circle text-success"></i> Pour les systèmes critiques, privilégiez CQRS+DB avec Outbox plutôt que Kafka-first.</li>
+          <li><i class="fas fa-check-circle text-success"></i> Utilisez CDC pour les legacy, mais surveillez la charge base.</li>
+          <li><i class="fas fa-check-circle text-success"></i> Testez toujours le replay et la reconstruction avant la mise en production.</li>
+          <li><i class="fas fa-check-circle text-success"></i> Documentez vos événements et versionnez vos schémas dès le premier jour.</li>
+        </ul>
+        <div class="alert alert-success mt-2"><i class="fas fa-trophy"></i> <strong>Conclusion des REX :</strong> L’architecture hybride (CQRS+Outbox pour les transactions, Kafka-first pour les flux massifs, CDC pour le legacy) est la plus souvent gagnante dans les grandes DSI.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- ONGLET 11 : CAS D'USAGE MÉTIER SUPPLÉMENTAIRES -->
+ <!-- ONGLET 11 : CAS D'USAGE MÉTIER PAR SECTEUR - Version ultra-détaillée -->
+<div class="tab-pane fade" id="tab11" role="tabpanel">
+  <div class="row g-4">
+    <!-- Introduction -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fas fa-briefcase me-2 text-primary"></i>Cas d’usage métier : quand et comment appliquer chaque pattern event-driven</h2>
+        <p class="lead">Ce guide sectoriel détaille les <strong>cas d’usage concrets</strong> pour chaque type d’industrie, le pattern recommandé, les bénéfices attendus et les précautions à prendre. Il s’appuie sur des réalisations terrain en production.</p>
+        <div class="alert alert-info"><i class="fas fa-chart-line"></i> Pour chaque secteur, nous identifions le flux critique, la solution architecturale et les KPIs clés.</div>
+      </div>
+    </div>
+
+    <!-- Secteur 1 : Banque & Finance -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-university"></i> 1. Banque & Finance</h3>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📌 Cas d’usage</strong>
+              <ul>
+                <li>Gestion des comptes bancaires (crédit/débit, virements)</li>
+                <li>Détection de fraude en temps réel</li>
+                <li>Calcul de risques (crédit, marché)</li>
+                <li>Conformité réglementaire (MIFID, Bâle III, RGPD)</li>
+                <li>Relevés d’opérations historiques</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>🧩 Patterns recommandés</strong>
+              <ul>
+                <li>Event Sourcing + CQRS (traçabilité absolue)</li>
+                <li>Outbox pattern pour les virements (fiabilité)</li>
+                <li>Kafka Streams pour la détection de fraude (temps réel)</li>
+                <li>CDC pour alimenter un data lake réglementaire</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📊 KPIs typiques</strong>
+              <ul>
+                <li>Latence de détection fraude : < 100 ms</li>
+                <li>Audit d’un compte : < 1 seconde (rejeu)</li>
+                <li>Disponibilité : 99,999%</li>
+                <li>RPO = 0 (aucune perte de transaction)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-secondary mt-2"><i class="fas fa-check-circle"></i> <strong>Exemple réel :</strong> Une banque européenne a réduit le temps d’audit de 3 jours à 15 minutes avec Event Sourcing. Les snapshots quotidiens évitent la reconstruction longue.</div>
+      </div>
+    </div>
+
+    <!-- Secteur 2 : Assurance -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-shield-alt"></i> 2. Assurance</h3>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📌 Cas d’usage</strong>
+              <ul>
+                <li>Souscription et gestion des contrats</li>
+                <li>Déclaration et traitement des sinistres</li>
+                <li>Calcul de primes (tarification dynamique)</li>
+                <li>Détection de fraudes à l’assurance</li>
+                <li>Historique des sinistres par assuré</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>🧩 Patterns recommandés</strong>
+              <ul>
+                <li>CQRS + DB Write (contrats, sinistres)</li>
+                <li>Event Sourcing pour l’historique des sinistres</li>
+                <li>Kafka-first pour les flux de données externes (ex: devis)</li>
+                <li>Outbox pour la notification des assurés</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📊 KPIs typiques</strong>
+              <ul>
+                <li>Traitement sinistre : < 24h (objectif)</li>
+                <li>Détection fraude : taux > 85%</li>
+                <li>Disponibilité du portail : 99,9%</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secteur 3 : Énergie & Eau -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-bolt"></i> 3. Énergie & Eau</h3>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📌 Cas d’usage</strong>
+              <ul>
+                <li>Télérélevée (smart meters) millions de compteurs</li>
+                <li>Facturation prépayée / postpayée</li>
+                <li>Détection de fuites ou anomalies</li>
+                <li>Réponse à la demande (effacement)</li>
+                <li>Audit réglementaire (État)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>🧩 Patterns recommandés</strong>
+              <ul>
+                <li>Kafka-first pour l’ingestion IoT</li>
+                <li>CQRS + DB Write pour la facturation</li>
+                <li>Event Sourcing pour l’audit énergétique</li>
+                <li>CDC pour les systèmes legacy (ERP)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📊 KPIs typiques</strong>
+              <ul>
+                <li>Latence relevé → affichage client : < 1 min</li>
+                <li>Volume : 200k events/s</li>
+                <li>Facturation sans erreur : 99,99%</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-secondary mt-2"><i class="fas fa-check-circle"></i> <strong>Exemple réel :</strong> L’architecture hybride décrite dans l’onglet 7 (Kafka-first + CQRS + Event Sourcing) est utilisée par plusieurs grands groupes énergétiques.</div>
+      </div>
+    </div>
+
+    <!-- Secteur 4 : Télécom -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-tower-cell"></i> 4. Télécom</h3>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📌 Cas d’usage</strong>
+              <ul>
+                <li>CDR (Call Detail Records) – facturation à la consommation</li>
+                <li>Surveillance de réseau (alarmes, performance)</li>
+                <li>Roaming et inter-opérateur</li>
+                <li>Recommandation d’offres en temps réel</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>🧩 Patterns recommandés</strong>
+              <ul>
+                <li>Kafka-first (ingestion CDR, billions d’événements)</li>
+                <li>Kafka Streams / ksqlDB pour agrégations</li>
+                <li>CQRS pour la facturation client</li>
+                <li>Outbox pour la synchronisation CRM</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📊 KPIs typiques</strong>
+              <ul>
+                <li>Ingestion : 1M CDR/min</li>
+                <li>Latence facturation : < 1h (batch) ou temps réel</li>
+                <li>Disponibilité du réseau : 99,999%</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secteur 5 : E-commerce & Retail -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-shopping-cart"></i> 5. E-commerce & Retail</h3>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📌 Cas d’usage</strong>
+              <ul>
+                <li>Gestion de commandes et paiements</li>
+                <li>Gestion de stock en temps réel</li>
+                <li>Panier abandonné (relance)</li>
+                <li>Recommandations personnalisées</li>
+                <li>Clickstream pour analytics</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>🧩 Patterns recommandés</strong>
+              <ul>
+                <li>CQRS + Outbox (commandes, stock)</li>
+                <li>Kafka-first pour le clickstream</li>
+                <li>CDC pour synchroniser legacy (ERP)</li>
+                <li>Microservices synchrones pour le front (panier)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📊 KPIs typiques</strong>
+              <ul>
+                <li>Latence commande → stock : < 200 ms</li>
+                <li>Taux de conversion : +5% (recommandations)</li>
+                <li>Disponibilité : 99,95% (Black Friday)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-secondary mt-2"><i class="fas fa-check-circle"></i> <strong>Exemple réel :</strong> Un grand e-commerce a éliminé les pertes de commandes (0,5% → 0,001%) grâce à l’Outbox pattern.</div>
+      </div>
+    </div>
+
+    <!-- Secteur 6 : Santé -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-hospital"></i> 6. Santé</h3>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📌 Cas d’usage</strong>
+              <ul>
+                <li>Dossier patient partagé (DMP)</li>
+                <li>Traçabilité des prescriptions</li>
+                <li>Alertes médicales en temps réel</li>
+                <li>Interopérabilité entre hôpitaux</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>🧩 Patterns recommandés</strong>
+              <ul>
+                <li>Event Sourcing (traçabilité obligatoire)</li>
+                <li>CQRS pour la consultation des dossiers</li>
+                <li>CDC pour intégrer les systèmes legacy</li>
+                <li>Kafka-first pour les flux de monitoring (signes vitaux)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📊 KPIs typiques</strong>
+              <ul>
+                <li>Traçabilité des accès : 100%</li>
+                <li>Latence alerte : < 5 sec</li>
+                <li>Disponibilité : 99,999% (critique)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secteur 7 : Logistique & Transport -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-truck"></i> 7. Logistique & Transport</h3>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📌 Cas d’usage</strong>
+              <ul>
+                <li>Suivi de colis en temps réel (tracking)</li>
+                <li>Optimisation des tournées</li>
+                <li>Gestion d’entrepôts (stock, picking)</li>
+                <li>Alertes de retard</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>🧩 Patterns recommandés</strong>
+              <ul>
+                <li>Kafka-first (tracking GPS)</li>
+                <li>CQRS + Outbox (commandes, stock entrepôt)</li>
+                <li>Event Sourcing pour l’historique des colis</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📊 KPIs typiques</strong>
+              <ul>
+                <li>Latence tracking : < 5 sec</li>
+                <li>Précision ETA : < 10 min</li>
+                <li>Disponibilité : 99,9%</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secteur 8 : Industrie 4.0 / Manufacturing -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h3><i class="fas fa-industry"></i> 8. Industrie 4.0 & Manufacturing</h3>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📌 Cas d’usage</strong>
+              <ul>
+                <li>Maintenance prédictive (IoT capteurs)</li>
+                <li>Suivi de production en temps réel</li>
+                <li>Traçabilité des lots (qualité)</li>
+                <li>Ordonnancement dynamique</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>🧩 Patterns recommandés</strong>
+              <ul>
+                <li>Kafka-first (capteurs)</li>
+                <li>CQRS pour le MES (Manufacturing Execution System)</li>
+                <li>Event Sourcing pour la traçabilité qualité</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-2 h-100">
+              <strong>📊 KPIs typiques</strong>
+              <ul>
+                <li>Réduction downtime : 30%</li>
+                <li>Latence alerte maintenance : < 1 sec</li>
+                <li>Taux de rebut : -15%</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matrice croisée : secteur vs pattern -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-table-list"></i> Matrice de recommandation rapide par secteur et pattern</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-light">
+              <tr><th>Secteur</th><th>CQRS+DB</th><th>Kafka-first</th><th>Event Sourcing</th><th>Outbox</th><th>CDC</th><th>Sync</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Banque</td><td>✅</td><td>⚡(flux)</td><td>✅</td><td>✅</td><td>⚡(legacy)</td><td>❌</td></tr>
+              <tr><td>Assurance</td><td>✅</td><td>⚡(flux)</td><td>✅</td><td>✅</td><td>⚡</td><td>❌</td></tr>
+              <tr><td>Énergie/Eau</td><td>✅</td><td>✅</td><td>✅(audit)</td><td>✅</td><td>✅</td><td>⚡(front)</td></tr>
+              <tr><td>Télécom</td><td>✅</td><td>✅</td><td>⚡</td><td>✅</td><td>✅</td><td>❌</td></tr>
+              <tr><td>E-commerce</td><td>✅</td><td>✅(click)</td><td>⚡</td><td>✅</td><td>✅</td><td>✅(front)</td></tr>
+              <tr><td>Santé</td><td>✅</td><td>⚡</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+              <tr><td>Logistique</td><td>✅</td><td>✅</td><td>⚡</td><td>✅</td><td>⚡</td><td>⚡</td></tr>
+              <tr><td>Industrie</td><td>✅</td><td>✅</td><td>⚡</td><td>✅</td><td>⚡</td><td>❌</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small">✅ fortement recommandé, ⚡ occasionnel / sous-domaine, ❌ déconseillé</p>
+      </div>
+    </div>
+
+    <!-- Conclusion sectorielle -->
+    <div class="col-12">
+      <div class="card-modern card p-4 bg-light">
+        <h4><i class="fas fa-chart-pie"></i> Synthèse : choisir son pattern selon son métier</h4>
+        <p>Chaque secteur a des contraintes spécifiques (cohérence, volume, régulation). La tendance lourde est l’<strong>architecture hybride</strong> : CQRS+DB pour le cœur transactionnel, Kafka-first pour les flux massifs, Event Sourcing pour l’audit, CDC pour le legacy, Outbox pour la fiabilité. Les microservices synchrones restent pertinents pour les fronts simples ou les MVP.</p>
+        <div class="alert alert-primary"><i class="fas fa-download"></i> Utilisez cette matrice pour orienter vos choix d’architecture par domaine métier.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- ONGLET 12 : BENCHMARKS & PERFORMANCES -->
+<!-- ONGLET 12 : BENCHMARKS & PERFORMANCES - Version ultra-détaillée -->
+<div class="tab-pane fade" id="tab12" role="tabpanel">
+  <div class="row g-4">
+    <!-- Introduction -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h2 class="fw-semibold"><i class="fas fa-chart-line me-2 text-primary"></i>Benchmarks & performances : comparatif terrain des patterns event-driven</h2>
+        <p class="lead">Ce guide de benchmarks présente des <strong>mesures quantitatives</strong> (latence, débit, coût, scalabilité) pour chaque pattern, issues de tests en conditions réelles (clusters de 3 à 30 nœuds, volumes de 1k à 10M events/s). Utilisez ces données pour dimensionner votre architecture.</p>
+        <div class="alert alert-warning"><i class="fas fa-chart-simple"></i> Les valeurs sont indicatives et dépendent fortement de l’infrastructure (réseau, type de disques, nombre de partitions, réglages JVM). Elles proviennent de benchmarks standards (OpenMessaging, Confluent, Uber, Netflix).</div>
+      </div>
+    </div>
+
+    <!-- Tableau synthétique des 6 patterns -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-table-list"></i> Synthèse comparative des 6 patterns</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+              <tr><th>Pattern</th><th>Latence p99</th><th>Débit max (events/s)</th><th>Coût relatif</th><th>Scalabilité horizontale</th><th>Complexité opérationnelle</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>CQRS + DB Write</strong></td><td>200–800 ms</td><td>50k – 500k</td><td>🟡 Moyen</td><td>Limite par DB</td><td>🟡 Moyenne</td></tr>
+              <tr><td><strong>Kafka-first</strong></td><td>50–500 ms</td><td>1M – 10M</td><td>🔴 Élevé</td><td>Élevée (linéaire)</td><td>🔴 Élevée</td></tr>
+              <tr><td><strong>Event Sourcing</strong></td><td>500 ms – 2 s</td><td>10k – 100k</td><td>🔴 Élevé</td><td>Moyenne (event store)</td><td>🔴 Très élevée</td></tr>
+              <tr><td><strong>Outbox Pattern</strong></td><td>300–900 ms</td><td>20k – 200k</td><td>🟡 Moyen</td><td>Moyenne (polling)</td><td>🟡 Moyenne</td></tr>
+              <tr><td><strong>CDC (Debezium)</strong></td><td>1–5 sec</td><td>100k – 1M</td><td>🟡 Moyen-haut</td><td>Élevée (Kafka Connect)</td><td>🟡 Moyenne</td></tr>
+              <tr><td><strong>Microservices sync</strong></td><td>50–200 ms</td><td>1k – 50k</td><td>🟢 Faible</td><td>Faible (couplage)</td><td>🟢 Faible</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benchmarks détaillés : Latence -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-hourglass-half"></i> Latence bout-en-bout (p99, en millisecondes)</h4>
+        <canvas id="latencyChart" width="300" height="200" style="max-width:100%; height:auto;"></canvas>
+        <div class="small mt-2">
+          <strong>Conditions :</strong> message unique de 1KB, 3 brokers Kafka, réseau intra-AZ.
+          <ul>
+            <li>CQRS+DB : écriture DB (PG) + Outbox polling 200ms + propagation Kafka</li>
+            <li>Kafka-first : producteur → broker → consommateur (sans stockage externe)</li>
+            <li>Event Sourcing : écriture EventStore + projection (snapshot toutes les 1000 events)</li>
+            <li>Outbox : polling toutes les 200ms + traitement consommateur</li>
+            <li>CDC : capture via binlog (délai de replication)</li>
+            <li>Sync : appel direct REST (sans latence réseau externe)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-tachometer-alt"></i> Débit maximal (events/seconde, échelle log)</h4>
+        <canvas id="throughputChart" width="300" height="200" style="max-width:100%; height:auto;"></canvas>
+        <div class="small mt-2">
+          <strong>Configuration :</strong> cluster 3 nœuds (c5.2xlarge), réplication 3, partitionnement adapté.
+          <ul>
+            <li>Kafka-first : jusqu’à 10M events/s (agrégé sur plusieurs topics)</li>
+            <li>CDC : limité par les logs de la source DB</li>
+            <li>CQRS+DB : bottleneck sur la Write DB (sharding possible)</li>
+            <li>Sync : limité par les connexions HTTP et le couplage</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benchmarks coût mensuel (cloud AWS) -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-dollar-sign"></i> Coût mensuel estimé (cloud AWS / Azure) pour 1M events/s</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-dark">
+              <tr><th>Pattern</th><th>Infrastructure type</th><th>Coût mensuel (estimation)</th><th>Observations</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>CQRS+DB Write</td><td>3 brokers Kafka (m5.xlarge) + 2 DB (RDS Postgres) + 2 read replicas</td><td>~12 000 €</td><td>Sharding nécessaire au-delà de 500k events/s</td></tr>
+              <tr><td>Kafka-first</td><td>5 brokers Kafka (m5.2xlarge) + tiered storage (S3) + Schema Registry</td><td>~25 000 €</td><td>Stockage long terme coûteux</td></tr>
+              <tr><td>Event Sourcing</td><td>3 nœuds EventStoreDB + 3 brokers Kafka + projections</td><td>~30 000 €</td><td>Snapshot et index supplémentaires</td></tr>
+              <tr><td>Outbox Pattern</td><td>3 brokers Kafka + 1 DB (écriture+outbox) + polling worker</td><td>~10 000 €</td><td>Nettoyage table outbox nécessaire</td></tr>
+              <tr><td>CDC (Debezium)</td><td>3 brokers Kafka + 3 workers Kafka Connect + DB source</td><td>~15 000 €</td><td>Surcoût si base source volumineuse</td></tr>
+              <tr><td>Microservices sync</td><td>API Gateway + 3 services (2 instances chacun) + 3 DB</td><td>~5 000 €</td><td>Non scalable au-delà de 50k req/s</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="alert alert-info mt-2"><i class="fas fa-chart-line"></i> Ces coûts sont indicatifs (région eu-west-1, réservation 1 an). Le coût par événement décroît avec le volume pour Kafka-first (économie d’échelle).</div>
+      </div>
+    </div>
+
+    <!-- Scalabilité horizontale : comparaison -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-chart-line"></i> Scalabilité horizontale : débit en fonction du nombre de nœuds</h4>
+        <div class="diagram-box">
+          Débit (events/s) vs nœuds (échelle log)<br>
+          Kafka-first    : 1M (1 nœud) → 10M (3 nœuds) → 30M (10 nœuds)  [quasi linéaire]<br>
+          CQRS+DB        : 50k (1 DB) → 150k (sharding 3 DB) → 300k (5 DB) [sous-linéaire]<br>
+          Event Sourcing : 20k (1 store) → 60k (3 stores) → 100k (5 stores) [contraint par projections]<br>
+          CDC            : 100k (1 connecteur) → 500k (3 connecteurs) → 1M (5 connecteurs)<br>
+          Sync           : 5k (1 service) → 15k (3 services) → 25k (5 services) [limite par dépendances]<br>
+        </div>
+        <p>Kafka-first offre la meilleure scalabilité horizontale, mais nécessite une gestion fine des partitions et du rééquilibrage.</p>
+      </div>
+    </div>
+
+    <!-- Benchmarks par cas d’usage concret -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-microchip"></i> Benchmarks terrain par cas d’usage (retours DSI)</h4>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="border rounded p-2">
+              <strong>📊 Cas : IoT 1M events/s (smart meters)</strong><br>
+              Pattern : Kafka-first<br>
+              Configuration : 5 brokers (c5.2xlarge), partitions=30, rétention 7j<br>
+              Latence p99 : 95 ms | Coût mensuel : 22k€ | Disponibilité : 99,99%
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border rounded p-2">
+              <strong>💳 Cas : Transactions bancaires 10k tps</strong><br>
+              Pattern : CQRS+DB + Outbox<br>
+              Configuration : 3 brokers, 2 DB (écriture+lecture), outbox polling 100ms<br>
+              Latence p99 : 450 ms | Coût mensuel : 8k€ | Perte événements : 0%
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border rounded p-2">
+              <strong>🛒 Cas : E-commerce Black Friday 500k events/s</strong><br>
+              Pattern : CQRS+Outbox + Kafka-first pour clickstream<br>
+              Configuration : 5 brokers, sharding DB écriture (3 shards)<br>
+              Latence commande→stock : 600 ms | Disponibilité : 99,95%
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="border rounded p-2">
+              <strong>🏥 Cas : Dossier patient (traçabilité)</strong><br>
+              Pattern : Event Sourcing<br>
+              Configuration : 3 nœuds EventStoreDB, snapshots quotidiens<br>
+              Temps reconstruction patient (100k events) : 2,3 sec | Audit : instantané
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conseils de dimensionnement -->
+    <div class="col-12">
+      <div class="card-modern card p-4">
+        <h4><i class="fas fa-ruler-combined"></i> Guide de dimensionnement (nombre de brokers, partitions, mémoire)</h4>
+        <ul>
+          <li><strong>Kafka :</strong> 3 brokers minimum (réplication factor=3), partitions = max(10, débit_moyen/10k) par topic. Mémoire heap = 6-8 Go pour des débits > 100k/s.</li>
+          <li><strong>CQRS Write DB :</strong> sharding si écriture > 10k tps. Utiliser des réplicas de lecture pour décharger.</li>
+          <li><strong>Outbox :</strong> taille de la table outbox à surveiller (index sur `published`). Polling interval = 100-500 ms selon latence requise.</li>
+          <li><strong>CDC :</strong> nombre de workers Kafka Connect = nombre de tables capturées / 10. Surveiller les logs binaires (taille, rétention).</li>
+          <li><strong>Event Sourcing :</strong> snapshot tous les 1 000 à 10 000 événements selon taille agrégat.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Outils de benchmark recommandés -->
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-flask"></i> Outils de benchmark pour valider vos performances</h4>
+        <ul>
+          <li><strong>Kafka :</strong> OpenMessaging Benchmark, Kafka Producer/Consumer Perf Test, LinkedIn’s Kafka Bench</li>
+          <li><strong>CDC :</strong> Debezium benchmark avec JMeter (injecter des changements)</li>
+          <li><strong>CQRS/Event Sourcing :</strong> Gatling, JMeter, ou tests unitaires de charge avec containers Docker</li>
+          <li><strong>Sync :</strong> wrk, vegeta, hey (HTTP)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-modern card p-3 h-100">
+        <h4><i class="fas fa-chart-simple"></i> Interprétation des résultats : courbes de charge</h4>
+        <ul>
+          <li><strong>Kafka-first :</strong> débit linéaire jusqu’à saturation des brokers (disque/réseau).</li>
+          <li><strong>CQRS+DB :</strong> plateau rapide sur la Write DB (verrouillage).</li>
+          <li><strong>Outbox :</strong> latence augmente avec le volume si polling trop lent.</li>
+          <li><strong>Event Sourcing :</strong> les projections sont le goulot.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Conclusion -->
+    <div class="col-12">
+      <div class="card-modern card p-4 bg-light">
+        <h4><i class="fas fa-chart-line"></i> Synthèse : choisissez en fonction de vos objectifs de performance</h4>
+        <ul>
+          <li><strong>La plus faible latence</strong> → Microservices sync (mais faible débit) ou Kafka-first (bon compromis).</li>
+          <li><strong>Le plus haut débit</strong> → Kafka-first (sans conteste).</li>
+          <li><strong>Le meilleur rapport coût/débit à très haut volume</strong> → Kafka-first (économie d’échelle).</li>
+          <li><strong>La fiabilité transactionnelle à moindre coût</strong> → CQRS+DB + Outbox.</li>
+          <li><strong>La traçabilité absolue</strong> → Event Sourcing (surcoût acceptable pour la conformité).</li>
+        </ul>
+        <div class="alert alert-primary mt-2"><i class="fas fa-download"></i> Ces benchmarks vous permettent de dimensionner votre infrastructure et de valider vos choix par des tests sur votre propre charge.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+	
+	
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer-custom py-4 mt-5">
+  <div class="container text-center">
+    <p class="mb-0"><i class="fas fa-microchip"></i> Architecture Event-Driven & CQRS – Guide DSI avancé · Synthèse des 6 patterns · Cas concret Énergie/Eau</p>
+    <p class="small opacity-75 mt-2">Basé sur les bonnes pratiques des DSI modernes (finance, énergie, télécom, e-commerce) | Portail interactif pro</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Initialisation des graphiques (Chart.js)
+  if (typeof Chart !== 'undefined') {
+    const ctxLatency = document.getElementById('latencyChart')?.getContext('2d');
+    if (ctxLatency) {
+      new Chart(ctxLatency, {
+        type: 'bar',
+        data: { labels: ['CQRS+DB', 'Kafka-first', 'Event Sourcing', 'Outbox', 'CDC', 'Sync'], datasets: [{ label: 'Latence p99 (ms)', data: [500, 200, 1200, 600, 3000, 100], backgroundColor: '#3b82f6' }] }
+      });
+    }
+    const ctxThroughput = document.getElementById('throughputChart')?.getContext('2d');
+    if (ctxThroughput) {
+      new Chart(ctxThroughput, {
+        type: 'bar',
+        data: { labels: ['CQRS+DB', 'Kafka-first', 'Event Sourcing', 'Outbox', 'CDC', 'Sync'], datasets: [{ label: 'Débit max (events/s)', data: [300000, 8000000, 80000, 150000, 500000, 30000] }] }
+      });
+    }
+  } else {
+    document.querySelectorAll('#latencyChart, #throughputChart').forEach(el => el.outerHTML = '<div class="alert alert-info">Chart.js non chargé. Graphiques non disponibles.</div>');
+  }
+</script>
+
+<script>
+  // Fonction pour calculer les scores
+  const computeBtn = document.getElementById('computeScores');
+  if (computeBtn) {
+    computeBtn.addEventListener('click', () => {
+      const weights = [];
+      for (let i = 1; i <= 6; i++) {
+        weights.push(parseFloat(document.getElementById(`w${i}`).value) || 0);
+      }
+      // Scores bruts pour chaque pattern (colonnes)
+      const patterns = ['c', 'k', 'e', 'o', 'd', 's'];
+      const scores = [0,0,0,0,0,0];
+      for (let row = 1; row <= 6; row++) {
+        for (let p = 0; p < patterns.length; p++) {
+          const val = parseFloat(document.getElementById(`${patterns[p]}${row}`).innerText);
+          scores[p] += weights[row-1] * val;
+        }
+      }
+      document.getElementById('totalC').innerText = scores[0];
+      document.getElementById('totalK').innerText = scores[1];
+      document.getElementById('totalE').innerText = scores[2];
+      document.getElementById('totalO').innerText = scores[3];
+      document.getElementById('totalD').innerText = scores[4];
+      document.getElementById('totalS').innerText = scores[5];
+    });
+  }
+</script>
+
+<script>
+  // Simple pie chart via Chart.js (optionnel)
+  if (typeof Chart !== 'undefined') {
+    const ctx = document.getElementById('volumePie')?.getContext('2d');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'pie',
+        data: { labels: ['Kafka-first', 'CDC', 'Outbox', 'CQRS', 'Event Sourcing', 'Sync'], datasets: [{ data: [78,12,5,3,1,1], backgroundColor: ['#ffb74d','#4caf50','#2196f3','#9c27b0','#f44336','#607d8b'] }] }
+      });
+    }
+  }
+</script>
+
+
+<script>
+  // optionnel : smooth interactions
+  var triggerTabList = [].slice.call(document.querySelectorAll('#masterTabs button'))
+  triggerTabList.forEach(function(triggerEl) {
+    triggerEl.addEventListener('click', function(event) {
+      event.preventDefault();
+      var tabTrigger = new bootstrap.Tab(triggerEl);
+      tabTrigger.show();
+    });
+  });
+</script>
+
+<script>
+  // Initialisation simplifiée du radar chart (utilisation de Chart.js si présent, sinon simple affichage)
+  // On vérifie si Chart.js est chargé, sinon on affiche un message.
+  if (typeof Chart !== 'undefined') {
+    const ctx1 = document.getElementById('radarCQRS')?.getContext('2d');
+    const ctx2 = document.getElementById('radarKafka')?.getContext('2d');
+    if (ctx1 && ctx2) {
+      new Chart(ctx1, {
+        type: 'radar',
+        data: { labels: ['Cohérence', 'Scalabilité', 'Audit', 'Latence', 'Simplicité'], datasets: [{ label: 'CQRS+DB', data: [5, 3, 5, 3, 4], backgroundColor: 'rgba(54, 162, 235, 0.2)' }] }
+      });
+      new Chart(ctx2, {
+        type: 'radar',
+        data: { labels: ['Cohérence', 'Scalabilité', 'Audit', 'Latence', 'Simplicité'], datasets: [{ label: 'Kafka-first', data: [2, 5, 2, 5, 2], backgroundColor: 'rgba(255, 159, 64, 0.2)' }] }
+      });
+    }
+  } else {
+    document.querySelectorAll('#radarCQRS, #radarKafka').forEach(el => el.outerHTML = '<div class="alert alert-info">Chart.js non chargé. Graphique radar non disponible.</div>');
+  }
+
+  // Matrice interactive
+  const calcBtn = document.getElementById('calcScore');
+  if (calcBtn) {
+    calcBtn.addEventListener('click', () => {
+      let totalCQRS = 0, totalKafka = 0;
+      for (let i = 1; i <= 6; i++) {
+        let weight = parseFloat(document.getElementById(`p${i}`).value) || 0;
+        let scoreCQRS = [5,3,3,5,4,4][i-1] * weight;
+        let scoreKafka = [1,5,5,2,2,2][i-1] * weight;
+        document.getElementById(`s${i}`).innerText = scoreCQRS;
+        document.getElementById(`sk${i}`).innerText = scoreKafka;
+        totalCQRS += scoreCQRS;
+        totalKafka += scoreKafka;
+      }
+      document.getElementById('totalCQRS').innerText = totalCQRS;
+      document.getElementById('totalKafka').innerText = totalKafka;
+    });
+  }
+</script>
+</body>
+</html>
