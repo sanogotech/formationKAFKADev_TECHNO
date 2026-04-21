@@ -1,0 +1,10 @@
+# Kafka Python client (wrapper librdkafka)
+confluent-kafka==2.4.0
+
+# Support Avro + Schema Registry (TP20)
+confluent-kafka[avro]==2.4.0
+
+# Tests
+pytest==8.2.0
+pytest-testcontainers==0.3.1
+testcontainers[kafka]==4.7.1
