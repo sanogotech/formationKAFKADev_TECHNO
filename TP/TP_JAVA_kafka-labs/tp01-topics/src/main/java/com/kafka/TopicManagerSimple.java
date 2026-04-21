@@ -2,31 +2,43 @@ package com.kafka;
 
 // ============================================================
 //  TP SIMPLIFIÉ – Gestion des topics Kafka avec AdminClient
+//  Version : aucune création / suppression programmatique
 // ============================================================
 //
-//  OBJECTIF : Créer, lister, décrire, modifier et supprimer
-//             des topics Kafka via Java.
+//  OBJECTIF : 
+//    - Utiliser AdminClient Java pour lister, décrire et 
+//      modifier la configuration d'un topic existant.
+//    - Les topics doivent être créés manuellement (ligne de commande)
 //
-//  ✅ PRÉREQUIS AVANT DE LANCER :
+//  ✅ PRÉREQUIS AVANT DE LANCER CE PROGRAMME :
 //     1. Java 17+ installé  (java -version)
 //     2. Maven 3.9+ installé (mvn -version)
 //     3. Kafka 3.9+ démarré localement sur localhost:9092
 //        → Commande : bin/kafka-server-start.sh config/kraft/server.properties
-//     4. Aucun topic existant nommé "tp01-commandes", "tp01-notifications"
-//        (vous pouvez les supprimer avec kafka-topics.sh --delete si besoin)
+//     4. CRÉER MANUELLEMENT LES TOPICS (voir commandes ci-dessous)
 //
-//  ▶️ COMMENT LANCER :
+//  ▶️ CRÉATION DES TOPICS (à taper dans un terminal, avant d'exécuter le code) :
+//
+//     Sous Windows (dans le dossier d'installation de Kafka) :
+//        bin\windows\kafka-topics.bat --create --topic tp01-commandes --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1 --config retention.ms=604800000
+//        bin\windows\kafka-topics.bat --create --topic tp01-notifications --bootstrap-server localhost:9092 --partitions 2 --replication-factor 1 --config retention.ms=86400000
+//
+//     Sous Linux / Mac :
+//        bin/kafka-topics.sh --create --topic tp01-commandes --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1 --config retention.ms=604800000
+//        bin/kafka-topics.sh --create --topic tp01-notifications --bootstrap-server localhost:9092 --partitions 2 --replication-factor 1 --config retention.ms=86400000
+//
+//  ▶️ LANCEMENT DU PROGRAMME JAVA :
 //       mvn clean package
-//       mvn exec:java -Dexec.mainClass="com.kafka.lab.TopicManagerSimple"
+//       mvn exec:java -Dexec.mainClass="com.kafka.TopicManagerSimple"
 //
 //  🧹 APRÈS EXÉCUTION :
-//     - Les topics créés restent dans Kafka (sauf "tp01-test-temporaire" qui est supprimé)
-//     - Vous pouvez les réutiliser ou les supprimer manuellement :
-//       bin/kafka-topics.sh --delete --topic tp01-commandes --bootstrap-server localhost:9092
+//     - Les topics restent sur le cluster (aucune suppression)
+//     - Pour les supprimer manuellement :
+//         bin/kafka-topics.sh --delete --topic tp01-commandes --bootstrap-server localhost:9092
+//         bin/kafka-topics.sh --delete --topic tp01-notifications --bootstrap-server localhost:9092
 //
 // ============================================================
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +51,6 @@ import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.config.ConfigResource;
 import org.slf4j.Logger;
@@ -51,66 +62,33 @@ public class TopicManagerSimple {
     private static final String BOOTSTRAP_SERVERS = "localhost:9092";
 
     public static void main(String[] args) {
-        log.info("=== TP SIMPLIFIÉ : Gestion des topics Kafka ===");
+        log.info("=== TP SIMPLIFIÉ : Gestion des topics Kafka (sans création/suppression) ===");
+        log.info("⚠️  Assurez-vous que les topics 'tp01-commandes' et 'tp01-notifications' existent (créés manuellement)");
 
         // 1. Configuration de connexion à Kafka
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
-        props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, "10000"); // timeout 10s
+        props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, "10000");
 
-        // 2. Création de l'AdminClient (fermeture automatique avec try-with-resources)
+        // 2. Création de l'AdminClient (fermeture automatique)
         try (AdminClient admin = AdminClient.create(props)) {
 
             log.info("Connecté à {}", BOOTSTRAP_SERVERS);
 
-            // 3. Création de 3 topics
-            creerTopics(admin);
-
-            // 4. Lister tous les topics
+            // 3. Lister tous les topics (existants)
             listerTopics(admin);
 
-            // 5. Décrire un topic spécifique (partitions, configuration)
+            // 4. Décrire le topic "tp01-commandes"
             decrireTopic(admin, "tp01-commandes");
 
-            // 6. Modifier la rétention d'un topic
-            modifierRetention(admin, "tp01-commandes", 2 * 24 * 60 * 60 * 1000L); // 2 jours
-
-            // 7. Supprimer le topic temporaire
-            supprimerTopic(admin, "tp01-test-temporaire");
+            // 5. Modifier la rétention du topic "tp01-commandes" (2 jours)
+            modifierRetention(admin, "tp01-commandes", 2 * 24 * 60 * 60 * 1000L);
 
             log.info("=== TP TERMINÉ AVEC SUCCÈS ===");
 
         } catch (Exception e) {
             log.error("Erreur inattendue : {}", e.getMessage(), e);
         }
-    }
-
-    // ------------------------------------------------------------------
-    // Création de topics avec configurations simples
-    // ------------------------------------------------------------------
-    private static void creerTopics(AdminClient admin) throws ExecutionException, InterruptedException {
-        log.info("--- Création des topics ---");
-
-        List<NewTopic> topics = new ArrayList<>();
-
-        // Topic 1 : 3 partitions, facteur de réplication 1 (dev)
-        NewTopic commandes = new NewTopic("tp01-commandes", 3, (short) 1);
-        commandes.configs(Map.of("retention.ms", "604800000")); // 7 jours
-        topics.add(commandes);
-
-        // Topic 2 : 2 partitions pour les notifications
-        NewTopic notifs = new NewTopic("tp01-notifications", 2, (short) 1);
-        notifs.configs(Map.of("retention.ms", "86400000")); // 1 jour
-        topics.add(notifs);
-
-        // Topic 3 : temporaire, 1 partition
-        NewTopic temp = new NewTopic("tp01-test-temporaire", 1, (short) 1);
-        topics.add(temp);
-
-        // Envoi de la requête (attente synchrone)
-        admin.createTopics(topics).all().get();
-
-        log.info("✓ Topics créés : commandes(3p), notifications(2p), test-temporaire(1p)");
     }
 
     // ------------------------------------------------------------------
@@ -129,8 +107,7 @@ public class TopicManagerSimple {
     }
 
     // ------------------------------------------------------------------
-    // Décrire un topic : nombre de partitions, réplicas, configuration
-    // (on évite TopicPartitionInfo pour rester simple)
+    // Décrire un topic : nombre de partitions, configuration de rétention
     // ------------------------------------------------------------------
     private static void decrireTopic(AdminClient admin, String topicName)
             throws ExecutionException, InterruptedException {
@@ -159,7 +136,7 @@ public class TopicManagerSimple {
     }
 
     // ------------------------------------------------------------------
-    // Modifier la rétention d'un topic (alterConfigs simple)
+    // Modifier la rétention d'un topic (alterConfigs)
     // ------------------------------------------------------------------
     private static void modifierRetention(AdminClient admin, String topicName, long nouvelleRetentionMs)
             throws ExecutionException, InterruptedException {
@@ -176,16 +153,5 @@ public class TopicManagerSimple {
 
         long jours = nouvelleRetentionMs / (24 * 60 * 60 * 1000L);
         log.info("✓ Rétention modifiée : {} jours", jours);
-    }
-
-    // ------------------------------------------------------------------
-    // Supprimer un topic
-    // ------------------------------------------------------------------
-    private static void supprimerTopic(AdminClient admin, String topicName)
-            throws ExecutionException, InterruptedException {
-
-        log.info("--- Suppression du topic {} ---", topicName);
-        admin.deleteTopics(List.of(topicName)).all().get();
-        log.info("✓ Topic {} supprimé", topicName);
     }
 }
