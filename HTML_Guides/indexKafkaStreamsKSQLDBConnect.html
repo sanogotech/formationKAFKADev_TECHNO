@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide complet Kafka : Streams, ksqlDB, Connect, Debezium</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #1e2a3a;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #0e5a6e;
+            font-size: 2.2rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-style: italic;
+        }
+
+        /* Tabs styling */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            background: #fff;
+            border-radius: 12px 12px 0 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            background: #dee2e6;
+        }
+
+        .tab-btn.active {
+            background: #fff;
+            border-bottom: 3px solid #0e5a6e;
+            color: #0e5a6e;
+        }
+
+        /* Tab content */
+        .tab-content {
+            background: #fff;
+            border-radius: 0 0 12px 12px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        h2 {
+            color: #0e5a6e;
+            border-left: 5px solid #0e5a6e;
+            padding-left: 15px;
+            margin: 20px 0 15px;
+        }
+
+        h3 {
+            color: #2c3e50;
+            margin: 15px 0 10px;
+        }
+
+        pre {
+            background: #2d2f36;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            background: #f1f3f5;
+            padding: 2px 5px;
+            border-radius: 4px;
+            color: #d63384;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #0e5a6e;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .badge {
+            background: #0e5a6e;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #e9ecef;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .tab-btn {
+                padding: 8px 12px;
+                font-size: 0.75rem;
+            }
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📘 Guide complet de l'écosystème Kafka</h1>
+    <div class="subtitle">Streams | ksqlDB | Connect | Debezium | Cas réels & Certifications</div>
+
+    <div class="tabs" id="tabs">
+        <button class="tab-btn active" data-tab="tab1">1. Introduction Kafka</button>
+        <button class="tab-btn" data-tab="tab2">2. Kafka Streams (Java)</button>
+        <button class="tab-btn" data-tab="tab3">3. Kafka Streams (Python)</button>
+        <button class="tab-btn" data-tab="tab4">4. ksqlDB</button>
+        <button class="tab-btn" data-tab="tab5">5. Kafka Connect</button>
+        <button class="tab-btn" data-tab="tab6">6. CDC avec Debezium</button>
+        <button class="tab-btn" data-tab="tab7">7. Cas pratique #1</button>
+        <button class="tab-btn" data-tab="tab8">8. Cas pratique #2</button>
+        <button class="tab-btn" data-tab="tab9">9. Bonnes pratiques</button>
+        <button class="tab-btn" data-tab="tab10">10. Cas réels (Worldflik)</button>
+        <button class="tab-btn" data-tab="tab11">11. Certifications</button>
+        <button class="tab-btn" data-tab="tab12">12. Ressources & Cheatsheet</button>
+    </div>
+
+    <div class="tab-content">
+        <!-- 1. Introduction Kafka -->
+        <div id="tab1" class="tab-pane active">
+            <h2>📌 Apache Kafka – Concepts fondamentaux</h2>
+            <p>Kafka est une plateforme de streaming distribuée. Elle permet de publier, stocker et traiter des flux d'événements en temps réel.</p>
+            <div class="card-grid">
+                <div class="card"><span class="badge">Topic</span> Flux de messages, partitionné et répliqué.</div>
+                <div class="card"><span class="badge">Producer</span> Publie des messages sur un topic.</div>
+                <div class="card"><span class="badge">Consumer</span> Lit les messages d'un topic.</div>
+                <div class="card"><span class="badge">Broker</span> Serveur Kafka (cluster).</div>
+                <div class="card"><span class="badge">Zookeeper/KRaft</span> Coordination et métadonnées.</div>
+                <div class="card"><span class="badge">Streams API</span> Traitement de flux (Java).</div>
+                <div class="card"><span class="badge">ksqlDB</span> Moteur SQL pour streaming.</div>
+                <div class="card"><span class="badge">Kafka Connect</span> Intégration de données.</div>
+            </div>
+            <p><strong>Use case typique :</strong> pipeline de logs, détection de fraude, analytics temps réel, CDC.</p>
+        </div>
+
+        <!-- 2. Kafka Streams (Java) -->
+        <div id="tab2" class="tab-pane">
+            <h2>⚙️ Kafka Streams en Java</h2>
+            <p>Bibliothèque légère pour transformer des flux de données directement dans votre application Java.</p>
+            <h3>Exemple : compteur de mots (WordCount)</h3>
+            <pre><code>// Dépendance Maven : org.apache.kafka:kafka-streams
+Properties props = new Properties();
+props.put(StreamsConfig.APPLICATION_ID_CONFIG, "wordcount-app");
+props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+StreamsBuilder builder = new StreamsBuilder();
+KStream&lt;String, String&gt; textLines = builder.stream("input-topic");
+
+KTable&lt;String, Long&gt; wordCounts = textLines
+    .flatMapValues(line -> Arrays.asList(line.toLowerCase().split("\\W+")))
+    .groupBy((key, word) -> word)
+    .count();
+
+wordCounts.toStream().to("output-topic", Produced.with(Serdes.String(), Serdes.Long()));
+
+KafkaStreams streams = new KafkaStreams(builder.build(), props);
+streams.start();</code></pre>
+            <p><strong>Bonnes pratiques :</strong> Utiliser des Serdes personnalisés, gérer les fenêtres de temps (<code>TimeWindows</code>), activer exactly-once semantics.</p>
+        </div>
+
+        <!-- 3. Kafka Streams (Python avec Faust) -->
+        <div id="tab3" class="tab-pane">
+            <h2>🐍 Kafka Streams en Python (Faust)</h2>
+            <p>Faust est une bibliothèque Python inspirée de Kafka Streams, avec support asynchrone.</p>
+            <h3>Exemple : compteur de mots</h3>
+            <pre><code>import faust
+
+app = faust.App('wordcount', broker='kafka://localhost:9092')
+input_topic = app.topic('input', value_type=str)
+counts = app.Table('wordcount', default=int)
+
+@app.agent(input_topic)
+async def process(stream):
+    async for value in stream:
+        for word in value.lower().split():
+            counts[word] = counts.get(word, 0) + 1
+            print(f"{word}: {counts[word]}")
+
+if __name__ == '__main__':
+    app.main()</code></pre>
+            <p><strong>Avantages :</strong> syntaxe Python, asynchrone, gestion d'état avec RocksDB. Convient pour des prototypages rapides.</p>
+            <p><strong>Limitation :</strong> Moins performant que Java pour les très gros volumes, mais très productif.</p>
+        </div>
+
+        <!-- 4. ksqlDB -->
+        <div id="tab4" class="tab-pane">
+            <h2>📊 ksqlDB – Streaming SQL pour Kafka</h2>
+            <p>ksqlDB est un moteur de traitement de flux basé sur SQL. Permet de faire des requêtes temps réel sans coder.</p>
+            <h3>Installation rapide (Docker)</h3>
+            <pre><code>docker run -d --name ksqldb-server \
+  -e KSQL_BOOTSTRAP_SERVERS=localhost:9092 \
+  confluentinc/ksqldb-server:latest</code></pre>
+            <h3>Exemple : compteur de mots avec ksqlDB</h3>
+            <pre><code>-- Créer un stream à partir du topic
+CREATE STREAM text_input (line VARCHAR) WITH (KAFKA_TOPIC='input', VALUE_FORMAT='JSON');
+
+-- FlatMap et comptage
+CREATE TABLE wordcount AS
+  SELECT EXPLODE(SPLIT(LCASE(line), ' ')) AS word,
+         COUNT(*) AS count
+  FROM text_input
+  GROUP BY EXPLODE(SPLIT(LCASE(line), ' '))
+  EMIT CHANGES;</code></pre>
+            <p><strong>Fonctionnalités :</strong> Jointures de streams, fenêtrage, agrégations, push/pull queries.</p>
+        </div>
+
+        <!-- 5. Kafka Connect -->
+        <div id="tab5" class="tab-pane">
+            <h2>🔌 Kafka Connect – Intégration de données</h2>
+            <p>Framework pour importer/exporter des données entre Kafka et d'autres systèmes (bases de données, S3, etc.).</p>
+            <h3>Exemple : Connecteur source JDBC (PostgreSQL -> Kafka)</h3>
+            <pre><code>{
+  "name": "jdbc-source-connector",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+    "connection.url": "jdbc:postgresql://localhost:5432/mydb",
+    "mode": "incrementing",
+    "incrementing.column.name": "id",
+    "topic.prefix": "db-",
+    "table.whitelist": "users,orders"
+  }
+}</code></pre>
+            <p>Connecteurs populaires : JDBC, Elasticsearch, S3, MongoDB, Debezium (CDC).</p>
+            <p><strong>Bonnes pratiques :</strong> Utiliser le mode distribué, surveiller avec JMX, configurer les conversions (Avro, JSON Schema).</p>
+        </div>
+
+        <!-- 6. CDC avec Debezium -->
+        <div id="tab6" class="tab-pane">
+            <h2>🔄 Debezium – Change Data Capture</h2>
+            <p>Debezium est un ensemble de connecteurs Kafka Connect qui capturent les changements (insert, update, delete) dans les bases de données et les publient dans Kafka.</p>
+            <h3>Exemple : MySQL CDC</h3>
+            <pre><code>{
+  "name": "mysql-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "database.hostname": "localhost",
+    "database.port": "3306",
+    "database.user": "debezium",
+    "database.password": "dbz",
+    "database.server.id": "184054",
+    "topic.prefix": "mysql-server",
+    "table.include.list": "inventory.customers"
+  }
+}</code></pre>
+            <p>Chaque événement contient <code>before</code>, <code>after</code>, <code>op</code> (c/u/d). Les messages sont stockés dans un topic Kafka.</p>
+            <h3>Cas pratique : synchronisation entre microservices</h3>
+            <p>Capture des changements d'une base relationnelle → Kafka → services consommateurs mettent à jour leurs propres stores (CQRS/Event Sourcing).</p>
+        </div>
+
+        <!-- 7. Cas pratique #1 : Analyse de logs temps réel -->
+        <div id="tab7" class="tab-pane">
+            <h2>📋 Cas pratique #1 – Analyse de logs HTTP</h2>
+            <p><strong>Objectif :</strong> Compter les erreurs 404 par IP en temps réel.</p>
+            <h3>Architecture :</h3>
+            <p>Logs → Filebeat → Kafka → Kafka Streams → Table d'état → topic alerte</p>
+            <h3>Code Java (Kafka Streams) :</h3>
+            <pre><code>KStream&lt;String, String&gt; logStream = builder.stream("access-logs");
+KTable&lt;String, Long&gt; errorCount = logStream
+    .filter((k, v) -> v.contains(" 404 "))
+    .map((k, v) -> KeyValue.pair(extractIp(v), 1L))
+    .groupByKey()
+    .count();
+errorCount.toStream().filter((ip, count) -> count > 10)
+    .to("alert-topic");</code></pre>
+            <p><strong>Bonnes pratiques :</strong> Fenêtrage temporel pour éviter des alertes sur des cumuls anciens : <code>TimeWindows.of(Duration.ofMinutes(5))</code>.</p>
+        </div>
+
+        <!-- 8. Cas pratique #2 : Synchronisation BDD via Debezium + ksqlDB -->
+        <div id="tab8" class="tab-pane">
+            <h2>🔄 Cas pratique #2 – Materialized Views avec Debezium + ksqlDB</h2>
+            <p><strong>Contexte :</strong> Une base PostgreSQL, on veut une vue enrichie (jointure entre customers et orders) mise à jour en temps réel.</p>
+            <h3>Étapes :</h3>
+            <ol>
+                <li>Démarrer Debezium PostgreSQL connector → topics <code>dbserver1.public.customers</code> et <code>dbserver1.public.orders</code>.</li>
+                <li>Dans ksqlDB : créer des streams à partir de ces topics.</li>
+                <li>Faire une jointure et matérialiser une table.</li>
+            </ol>
+            <pre><code>CREATE STREAM customers (id INT, name VARCHAR) WITH (KAFKA_TOPIC='...', VALUE_FORMAT='AVRO');
+CREATE STREAM orders (order_id INT, cust_id INT, total DECIMAL) WITH (...);
+
+CREATE TABLE enriched_orders AS
+  SELECT o.order_id, c.name, o.total
+  FROM orders o
+  JOIN customers c ON o.cust_id = c.id
+  EMIT CHANGES;</code></pre>
+            <p>Résultat : une table Kafka qui s’enrichit en continu, consultable via requêtes push/pull.</p>
+        </div>
+
+        <!-- 9. Bonnes pratiques -->
+        <div id="tab9" class="tab-pane">
+            <h2>✅ Bonnes pratiques générales</h2>
+            <div class="card-grid">
+                <div class="card"><strong>Partitionnement</strong> – Choisir une clé de partition pour l'ordre et le parallélisme.</div>
+                <div class="card"><strong>Sérialisation</strong> – Utiliser Avro ou Protobuf avec Schema Registry.</div>
+                <div class="card"><strong>Exactly-once</strong> – Activer les sémantiques exactly-once pour les applications critiques.</div>
+                <div class="card"><strong>Monitoring</strong> – JMX, Prometheus, Grafana pour surveiller latence, débit, état des connecteurs.</div>
+                <div class="card"><strong>Rétention</strong> – Configurer <code>log.retention.hours</code> selon les besoins de rejeu.</div>
+                <div class="card"><strong>Gestion des erreurs</strong> – Dead Letter Queue (DLQ) pour les messages malformés.</div>
+            </div>
+            <h3>Pour les connecteurs :</h3>
+            <ul>
+                <li>Toujours spécifier <code>tasks.max</code> pour le parallélisme.</li>
+                <li>Utiliser <code>transforms</code> pour le routage ou l’enrichissement léger.</li>
+                <li>Surveiller les délais de rebalancement.</li>
+            </ul>
+        </div>
+
+        <!-- 10. Cas réels (Worldflik) -->
+        <div id="tab10" class="tab-pane">
+            <h2>🌍 Cas réels d'entreprise (Worldflik – style Netflix)</h2>
+            <p>Worldflik utilise Kafka pour alimenter son moteur de recommandations, sa détection de fraudes et son monitoring.</p>
+            <div class="card-grid">
+                <div class="card"><strong>Recommandation temps réel</strong> – Flux d’événements "visionnage" → Kafka Streams calcule les similarités entre utilisateurs → met à jour une table Redis.</div>
+                <div class="card"><strong>Fraude aux essais gratuits</strong> – Debezium capture les inscriptions en base → ksqlDB détecte les multi-comptes (même adresse IP ou carte bancaire) → alerte Kafka.</div>
+                <div class="card"><strong>Pipeline analytique</strong> – Kafka Connect S3 sink pour déposer les logs dans un data lake (Parquet).</div>
+                <div class="card"><strong>Monitoring SLAs</strong> – Agrégations par fenêtre tumbling sur les temps de réponse des APIs.</div>
+            </div>
+            <p>Leçons tirées : scalabilité horizontale, exactly-once pour la facturation, gestion des schémas avec Schema Registry.</p>
+        </div>
+
+        <!-- 11. Certifications -->
+        <div id="tab11" class="tab-pane">
+            <h2>🎓 Certifications Kafka – Connaissances requises</h2>
+            <p>Les certifications Confluent (Confluent Certified Developer for Apache Kafka) sont les plus reconnues.</p>
+            <table>
+                <tr><th>Domaine</th><th>Points clés</th></tr>
+                <tr><td>Architecture Kafka</td><td>Partitions, réplication, leader/ISR, acks, min.insync.replicas</td></tr>
+                <tr><td>Producteurs & consommateurs</td><td>Serializers, idempotence, transactions, group management, offset commit</td></tr>
+                <tr><td>Kafka Streams / ksqlDB</td><td>Topologies, état local (RocksDB), fenêtrage (hopping, tumbling, session), KTable vs KStream, exactly-once</td></tr>
+                <tr><td>Kafka Connect</td><td>Connectors source/sink, transformations, modes (standalone/distributed), Dead Letter Queue</td></tr>
+                <tr><td>Admin & monitoring</td><td>Rééquilibrage, déplacement de partitions, configuration des logs, métriques JMX, MirrorMaker 2</td></tr>
+                <tr><td>Sécurité</td><td>SSL, SASL, ACLs, rbac</td></tr>
+            </table>
+            <p><strong>Conseil :</strong> Pratiquer avec des projets concrets (CDC, streaming analytics) et utiliser Confluent Platform en local.</p>
+        </div>
+
+        <!-- 12. Ressources & Cheatsheet -->
+        <div id="tab12" class="tab-pane">
+            <h2>📚 Ressources et Cheatsheet</h2>
+            <h3>Commandes utiles</h3>
+            <pre><code># Créer un topic
+kafka-topics --create --topic mytopic --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1
+
+# Consommer depuis le début
+kafka-console-consumer --topic mytopic --from-beginning --bootstrap-server localhost:9092
+
+# Lister les connecteurs
+curl -s localhost:8083/connectors | jq
+
+# ksqlDB CLI
+ksql http://localhost:8088
+
+# Démarrer un connecteur Debezium
+curl -X POST -H "Content-Type: application/json" --data @mysql-connector.json localhost:8083/connectors</code></pre>
+            <h3>Liens utiles</h3>
+            <ul>
+                <li><a href="https://kafka.apache.org/documentation/streams/" target="_blank">Documentation officielle Kafka Streams</a></li>
+                <li><a href="https://faust.readthedocs.io/" target="_blank">Faust – Python Streams</a></li>
+                <li><a href="https://ksqldb.io/" target="_blank">ksqlDB site officiel</a></li>
+                <li><a href="https://debezium.io/" target="_blank">Debezium – CDC</a></li>
+                <li><a href="https://www.confluent.io/resources/ebook/designing-event-driven-systems/" target="_blank">Designing Event-Driven Systems (Confluent)</a></li>
+            </ul>
+            <p><strong>Cheatsheet PDF :</strong> <a href="#">Télécharger (lien fictif)</a></p>
+        </div>
+    </div>
+    <div class="footer">
+        Guide réalisé pour la formation Kafka – Tous les extraits sont fonctionnels après adaptation des configurations.
+    </div>
+</div>
+
+<script>
+    // Gestion des onglets
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panes = document.querySelectorAll('.tab-pane');
+
+    tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-tab');
+            // Désactiver tous les boutons et panes
+            tabs.forEach(b => b.classList.remove('active'));
+            panes.forEach(p => p.classList.remove('active'));
+            // Activer le bouton et la pane correspondante
+            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+</script>
+</body>
+</html>
