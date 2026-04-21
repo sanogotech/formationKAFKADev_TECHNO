@@ -379,7 +379,7 @@ Tester la **scalabilité Kafka côté consommation**
 ### 2️⃣ Observer
 
 ```bash
-kafka-consumer-groups.bat --describe --group tp-group
+kafka-consumer-groups.bat  --bootstrap-server localhost:9092  --describe --group tp-group
 ```
 
 ---
