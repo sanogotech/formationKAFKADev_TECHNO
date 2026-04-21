@@ -1,0 +1,305 @@
+{
+  "date_generation": "2026-04-21T08:29:51.022463",
+  "config_utilisateur": {
+    "Nombre de brokers dans le cluster": 3,
+    "Nombre de partitions par topic (défaut)": 6,
+    "Nombre de consumers dans le groupe principal": 3,
+    "Durée de rétention des messages (heures)": 168,
+    "Facteur de réplication": 3,
+    "CPU par broker (cœurs)": 8,
+    "RAM par broker (Go)": 16,
+    "Taille moyenne des messages (Ko)": 10,
+    "Débit attendu (messages/seconde)": 100000,
+    "Nombre de topics prévus": 50,
+    "Latence maximale acceptable (ms)": 100,
+    "Budget mensuel (€)": 1000.0,
+    "Niveau de criticité (1-5)": 3,
+    "Type de charge (lecture/ecriture/mixte)": "mixte",
+    "Stratégie de compression": "snappy",
+    "debit_mo_sec": 976.5625,
+    "stockage_journalier_gb": 82397.4609375,
+    "partitions_par_broker": 100.0
+  },
+  "recommandations": [
+    {
+      "id": 1,
+      "categorie": "Système d'exploitation",
+      "recommandation": "Désactiver la swap ou définir vm.swappiness=1",
+      "priorite": "Haute",
+      "impact": "Évite les pauses GC"
+    },
+    {
+      "id": 2,
+      "categorie": "Système d'exploitation",
+      "recommandation": "Ajuster vm.max_map_count à 1048570",
+      "priorite": "Moyenne",
+      "impact": "Permet plus de segments mémoire mappés"
+    },
+    {
+      "id": 3,
+      "categorie": "Système d'exploitation",
+      "recommandation": "Utiliser XFS avec noatime",
+      "priorite": "Haute",
+      "impact": "Meilleures performances E/S"
+    },
+    {
+      "id": 4,
+      "categorie": "JVM",
+      "recommandation": "Allouer 9 Go de heap (-Xms -Xmx)",
+      "priorite": "Haute",
+      "impact": "Optimisation mémoire"
+    },
+    {
+      "id": 5,
+      "categorie": "JVM",
+      "recommandation": "Utiliser G1GC avec -XX:+UseG1GC -XX:MaxGCPauseMillis=20",
+      "priorite": "Haute",
+      "impact": "Réduction pauses GC"
+    },
+    {
+      "id": 6,
+      "categorie": "JVM",
+      "recommandation": "Activer -XX:+DisableExplicitGC",
+      "priorite": "Moyenne",
+      "impact": "Évite les appels System.gc()"
+    },
+    {
+      "id": 7,
+      "categorie": "Broker",
+      "recommandation": "log.retention.hours=168",
+      "priorite": "Haute",
+      "impact": "Contrôle espace disque"
+    },
+    {
+      "id": 8,
+      "categorie": "Broker",
+      "recommandation": "num.replica.fetchers=2",
+      "priorite": "Haute",
+      "impact": "Accélère réplication"
+    },
+    {
+      "id": 9,
+      "categorie": "Broker",
+      "recommandation": "compression.type=snappy",
+      "priorite": "Moyenne",
+      "impact": "Réduction réseau"
+    },
+    {
+      "id": 10,
+      "categorie": "Broker",
+      "recommandation": "default.replication.factor=3",
+      "priorite": "Haute",
+      "impact": "Tolérance pannes"
+    },
+    {
+      "id": 11,
+      "categorie": "Réseau",
+      "recommandation": "socket.send.buffer.bytes=102400",
+      "priorite": "Moyenne",
+      "impact": "Optimisation buffers"
+    },
+    {
+      "id": 12,
+      "categorie": "Réseau",
+      "recommandation": "num.network.threads=8",
+      "priorite": "Moyenne",
+      "impact": "Traitement parallèle"
+    },
+    {
+      "id": 13,
+      "categorie": "Producer",
+      "recommandation": "acks=all pour une haute durabilité",
+      "priorite": "Moyenne",
+      "impact": "Garantie non-perte"
+    },
+    {
+      "id": 14,
+      "categorie": "Producer",
+      "recommandation": "batch.size=16384",
+      "priorite": "Moyenne",
+      "impact": "Optimisation batching"
+    },
+    {
+      "id": 15,
+      "categorie": "Consumer",
+      "recommandation": "max.poll.records=500",
+      "priorite": "Moyenne",
+      "impact": "Équilibre latence/débit"
+    },
+    {
+      "id": 16,
+      "categorie": "Partitions",
+      "recommandation": "Redimensionner les topics à 200 partitions",
+      "priorite": "Haute",
+      "impact": "Meilleure parallélisation"
+    },
+    {
+      "id": 17,
+      "categorie": "Partitions",
+      "recommandation": "Éviter plus de 2000 partitions par broker",
+      "priorite": "Haute",
+      "impact": "Évite surcharge"
+    },
+    {
+      "id": 18,
+      "categorie": "Logs",
+      "recommandation": "log.segment.bytes=3686400000000",
+      "priorite": "Moyenne",
+      "impact": "Optimisation segments"
+    },
+    {
+      "id": 19,
+      "categorie": "Logs",
+      "recommandation": "log.cleaner.threads=4",
+      "priorite": "Moyenne",
+      "impact": "Nettoyage plus rapide"
+    },
+    {
+      "id": 20,
+      "categorie": "Monitoring",
+      "recommandation": "Installer Prometheus + Grafana",
+      "priorite": "Haute",
+      "impact": "Visibilité complète"
+    },
+    {
+      "id": 21,
+      "categorie": "Monitoring",
+      "recommandation": "Configurer JMX",
+      "priorite": "Moyenne",
+      "impact": "Métriques détaillées"
+    },
+    {
+      "id": 22,
+      "categorie": "Sécurité",
+      "recommandation": "Activer SSL/TLS",
+      "priorite": "Haute",
+      "impact": "Sécurisation données"
+    },
+    {
+      "id": 23,
+      "categorie": "Sécurité",
+      "recommandation": "Configurer les ACLs",
+      "priorite": "Moyenne",
+      "impact": "Contrôle accès granulaire"
+    },
+    {
+      "id": 24,
+      "categorie": "Avancé",
+      "recommandation": "Activer rack awareness",
+      "priorite": "Basse",
+      "impact": "Résilience aux pannes de rack"
+    },
+    {
+      "id": 25,
+      "categorie": "Avancé",
+      "recommandation": "Configurer quota.producer.default",
+      "priorite": "Moyenne",
+      "impact": "Évite les producers bruyants"
+    },
+    {
+      "id": 26,
+      "categorie": "Performance",
+      "recommandation": "Désactiver atime sur les partitions disque",
+      "priorite": "Haute",
+      "impact": "Amélioration E/S"
+    },
+    {
+      "id": 27,
+      "categorie": "Performance",
+      "recommandation": "Utiliser RAID 10 pour les données Kafka",
+      "priorite": "Haute",
+      "impact": "Redondance + performance"
+    },
+    {
+      "id": 28,
+      "categorie": "Performance",
+      "recommandation": "Configurer num.io.threads = 8",
+      "priorite": "Moyenne",
+      "impact": "Traitement disque parallèle"
+    },
+    {
+      "id": 29,
+      "categorie": "Réseau",
+      "recommandation": "Isoler le trafic Kafka sur des interfaces dédiées",
+      "priorite": "Haute",
+      "impact": "Réduction latence"
+    },
+    {
+      "id": 30,
+      "categorie": "Mémoire",
+      "recommandation": "Configurer OS page cache = 20-30% RAM",
+      "priorite": "Haute",
+      "impact": "Cache disque optimisé"
+    },
+    {
+      "id": 31,
+      "categorie": "GC",
+      "recommandation": "Utiliser -XX:+ParallelRefProcEnabled",
+      "priorite": "Moyenne",
+      "impact": "GC plus rapide"
+    },
+    {
+      "id": 32,
+      "categorie": "Réplication",
+      "recommandation": "min.insync.replicas = 2",
+      "priorite": "Haute",
+      "impact": "Garantie écriture"
+    },
+    {
+      "id": 33,
+      "categorie": "Réplication",
+      "recommandation": "unclean.leader.election.enable = false",
+      "priorite": "Haute",
+      "impact": "Prévention perte données"
+    },
+    {
+      "id": 34,
+      "categorie": "Tuning",
+      "recommandation": "message.max.bytes = 1MB",
+      "priorite": "Moyenne",
+      "impact": "Taille max message"
+    },
+    {
+      "id": 35,
+      "categorie": "ZooKeeper",
+      "recommandation": "Utiliser ZooKeeper dédié avec 3+ nœuds",
+      "priorite": "Haute",
+      "impact": "Stabilité métadonnées"
+    },
+    {
+      "id": 36,
+      "categorie": "Disque",
+      "recommandation": "Séparer logs Kafka et segments sur disques différents",
+      "priorite": "Moyenne",
+      "impact": "E/S parallèles"
+    },
+    {
+      "id": 37,
+      "categorie": "Consumer",
+      "recommandation": "Enable auto.commit = false",
+      "priorite": "Haute",
+      "impact": "Contrôle des offsets"
+    },
+    {
+      "id": 38,
+      "categorie": "Producer",
+      "recommandation": "max.in.flight.requests.per.connection = 5",
+      "priorite": "Moyenne",
+      "impact": "Pipelining"
+    },
+    {
+      "id": 39,
+      "categorie": "Log",
+      "recommandation": "log.flush.interval.messages = 9223372036854775807",
+      "priorite": "Haute",
+      "impact": "Pas de flush forcé"
+    },
+    {
+      "id": 40,
+      "categorie": "Metrics",
+      "recommandation": "CruiseControl pour l'auto-équilibrage",
+      "priorite": "Moyenne",
+      "impact": "Distribution optimisée"
+    }
+  ]
+}

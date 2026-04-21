@@ -1,0 +1,321 @@
+{
+  "date": "2026-04-21T08:38:30.299858",
+  "config": {
+    "Nombre de brokers dans le cluster": 3,
+    "Nombre de partitions par topic (d\u00e9faut)": 6,
+    "Nombre de consumers (tous groupes confondus)": 10,
+    "Nombre de consumers dans le groupe principal": 3,
+    "Dur\u00e9e de r\u00e9tention des messages (heures)": 168,
+    "Facteur de r\u00e9plication": 3,
+    "CPU par broker (c\u0153urs)": 8,
+    "RAM par broker (Go)": 16,
+    "Taille moyenne des messages (Ko)": 10,
+    "D\u00e9bit attendu (messages/seconde)": 100000,
+    "Nombre de topics pr\u00e9vus": 50,
+    "Latence maximale acceptable (ms)": 100,
+    "Budget mensuel (\u20ac)": 1000.0,
+    "Niveau de criticit\u00e9 (1-5)": 3,
+    "Type de charge (lecture/ecriture/mixte)": "mixte",
+    "Strat\u00e9gie de compression": "snappy",
+    "debit_mo_sec": 976.5625,
+    "stockage_journalier_gb": 82397.4609375,
+    "partitions_par_broker": 100.0,
+    "partitions_total": 300
+  },
+  "recommendations": [
+    {
+      "id": 1,
+      "categorie": "Syst\u00e8me d'exploitation",
+      "recommandation": "D\u00e9sactiver la swap ou vm.swappiness=1",
+      "priorite": "Haute",
+      "impact": "\u00c9vite les pauses GC"
+    },
+    {
+      "id": 2,
+      "categorie": "Syst\u00e8me d'exploitation",
+      "recommandation": "vm.max_map_count=1048570",
+      "priorite": "Moyenne",
+      "impact": "Segments m\u00e9moire mapp\u00e9s"
+    },
+    {
+      "id": 3,
+      "categorie": "Syst\u00e8me d'exploitation",
+      "recommandation": "Filesystem XFS avec noatime",
+      "priorite": "Haute",
+      "impact": "Performances E/S"
+    },
+    {
+      "id": 4,
+      "categorie": "JVM",
+      "recommandation": "Allouer 9 Go de heap (-Xms -Xmx)",
+      "priorite": "Haute",
+      "impact": "Optimisation m\u00e9moire"
+    },
+    {
+      "id": 5,
+      "categorie": "JVM",
+      "recommandation": "G1GC: -XX:+UseG1GC -XX:MaxGCPauseMillis=20",
+      "priorite": "Haute",
+      "impact": "R\u00e9duction pauses GC"
+    },
+    {
+      "id": 6,
+      "categorie": "JVM",
+      "recommandation": "-XX:+DisableExplicitGC",
+      "priorite": "Moyenne",
+      "impact": "\u00c9vite les appels System.gc()"
+    },
+    {
+      "id": 7,
+      "categorie": "Broker",
+      "recommandation": "log.retention.hours=168",
+      "priorite": "Haute",
+      "impact": "Contr\u00f4le espace disque"
+    },
+    {
+      "id": 8,
+      "categorie": "Broker",
+      "recommandation": "num.replica.fetchers=2",
+      "priorite": "Haute",
+      "impact": "Acc\u00e9l\u00e8re r\u00e9plication"
+    },
+    {
+      "id": 9,
+      "categorie": "Broker",
+      "recommandation": "compression.type=snappy",
+      "priorite": "Moyenne",
+      "impact": "R\u00e9duction r\u00e9seau"
+    },
+    {
+      "id": 10,
+      "categorie": "Broker",
+      "recommandation": "default.replication.factor=3",
+      "priorite": "Haute",
+      "impact": "Tol\u00e9rance pannes"
+    },
+    {
+      "id": 11,
+      "categorie": "R\u00e9seau",
+      "recommandation": "socket.send.buffer.bytes=102400",
+      "priorite": "Moyenne",
+      "impact": "Optimisation buffers"
+    },
+    {
+      "id": 12,
+      "categorie": "R\u00e9seau",
+      "recommandation": "num.network.threads=8",
+      "priorite": "Moyenne",
+      "impact": "Traitement parall\u00e8le"
+    },
+    {
+      "id": 13,
+      "categorie": "Producer",
+      "recommandation": "acks=all pour haute durabilit\u00e9",
+      "priorite": "Moyenne",
+      "impact": "Garantie non-perte"
+    },
+    {
+      "id": 14,
+      "categorie": "Producer",
+      "recommandation": "batch.size=16384",
+      "priorite": "Moyenne",
+      "impact": "Optimisation batching"
+    },
+    {
+      "id": 15,
+      "categorie": "Consumer",
+      "recommandation": "max.poll.records=500",
+      "priorite": "Moyenne",
+      "impact": "\u00c9quilibre latence/d\u00e9bit"
+    },
+    {
+      "id": 16,
+      "categorie": "Consumer",
+      "recommandation": "Ajouter des consumers (actuellement 10) pour atteindre pr\u00e8s de 300 partitions",
+      "priorite": "Moyenne",
+      "impact": "Meilleur parall\u00e9lisme"
+    },
+    {
+      "id": 17,
+      "categorie": "Consumer",
+      "recommandation": "session.timeout.ms=30000, heartbeat.interval.ms=10000 (r\u00e9seau variable)",
+      "priorite": "Moyenne",
+      "impact": "\u00c9vite faux rebalancements"
+    },
+    {
+      "id": 18,
+      "categorie": "Consumer",
+      "recommandation": "fetch.min.bytes=10240",
+      "priorite": "Moyenne",
+      "impact": "Optimisation d\u00e9bit vs latence"
+    },
+    {
+      "id": 19,
+      "categorie": "Consumer",
+      "recommandation": "max.partition.fetch.bytes=1048576",
+      "priorite": "Moyenne",
+      "impact": "Taille maximale par partition"
+    },
+    {
+      "id": 20,
+      "categorie": "Consumer",
+      "recommandation": "enable.auto.commit=false (contr\u00f4le manuel des offsets)",
+      "priorite": "Haute",
+      "impact": "\u00c9vite les doubles traitements"
+    },
+    {
+      "id": 21,
+      "categorie": "Partitions",
+      "recommandation": "Redimensionner les topics \u00e0 9 partitions",
+      "priorite": "Haute",
+      "impact": "Meilleure parall\u00e9lisation"
+    },
+    {
+      "id": 22,
+      "categorie": "Partitions",
+      "recommandation": "\u00c9viter plus de 2000 partitions par broker",
+      "priorite": "Haute",
+      "impact": "\u00c9vite surcharge"
+    },
+    {
+      "id": 23,
+      "categorie": "Logs",
+      "recommandation": "log.segment.bytes=3686400000000",
+      "priorite": "Moyenne",
+      "impact": "Optimisation segments"
+    },
+    {
+      "id": 24,
+      "categorie": "Logs",
+      "recommandation": "log.cleaner.threads=4",
+      "priorite": "Moyenne",
+      "impact": "Nettoyage plus rapide"
+    },
+    {
+      "id": 25,
+      "categorie": "Monitoring",
+      "recommandation": "Prometheus + Grafana",
+      "priorite": "Haute",
+      "impact": "Visibilit\u00e9 compl\u00e8te"
+    },
+    {
+      "id": 26,
+      "categorie": "Monitoring",
+      "recommandation": "JMX exporter",
+      "priorite": "Moyenne",
+      "impact": "M\u00e9triques d\u00e9taill\u00e9es"
+    },
+    {
+      "id": 27,
+      "categorie": "S\u00e9curit\u00e9",
+      "recommandation": "Activer SSL/TLS",
+      "priorite": "Haute",
+      "impact": "S\u00e9curisation donn\u00e9es"
+    },
+    {
+      "id": 28,
+      "categorie": "S\u00e9curit\u00e9",
+      "recommandation": "Configurer ACLs",
+      "priorite": "Moyenne",
+      "impact": "Contr\u00f4le acc\u00e8s"
+    },
+    {
+      "id": 29,
+      "categorie": "Avanc\u00e9",
+      "recommandation": "Rack awareness si brokers \u2265 6",
+      "priorite": "Basse",
+      "impact": "R\u00e9silience"
+    },
+    {
+      "id": 30,
+      "categorie": "Avanc\u00e9",
+      "recommandation": "Configurer des quotas (producer/consumer)",
+      "priorite": "Moyenne",
+      "impact": "\u00c9vite les tenants bruyants"
+    },
+    {
+      "id": 31,
+      "categorie": "Performance",
+      "recommandation": "D\u00e9sactiver atime sur disques",
+      "priorite": "Haute",
+      "impact": "Am\u00e9lioration E/S"
+    },
+    {
+      "id": 32,
+      "categorie": "Performance",
+      "recommandation": "RAID 10 pour les donn\u00e9es Kafka",
+      "priorite": "Haute",
+      "impact": "Redondance + performance"
+    },
+    {
+      "id": 33,
+      "categorie": "Performance",
+      "recommandation": "num.io.threads = 8",
+      "priorite": "Moyenne",
+      "impact": "Traitement disque parall\u00e8le"
+    },
+    {
+      "id": 34,
+      "categorie": "R\u00e9seau",
+      "recommandation": "Isoler le trafic Kafka sur des interfaces d\u00e9di\u00e9es",
+      "priorite": "Haute",
+      "impact": "R\u00e9duction latence"
+    },
+    {
+      "id": 35,
+      "categorie": "M\u00e9moire",
+      "recommandation": "Page cache OS = 20-30% RAM",
+      "priorite": "Haute",
+      "impact": "Cache disque optimis\u00e9"
+    },
+    {
+      "id": 36,
+      "categorie": "GC",
+      "recommandation": "-XX:+ParallelRefProcEnabled",
+      "priorite": "Moyenne",
+      "impact": "GC plus rapide"
+    },
+    {
+      "id": 37,
+      "categorie": "R\u00e9plication",
+      "recommandation": "min.insync.replicas = 2",
+      "priorite": "Haute",
+      "impact": "Garantie \u00e9criture"
+    },
+    {
+      "id": 38,
+      "categorie": "R\u00e9plication",
+      "recommandation": "unclean.leader.election.enable = false",
+      "priorite": "Haute",
+      "impact": "Pr\u00e9vention perte donn\u00e9es"
+    },
+    {
+      "id": 39,
+      "categorie": "ZooKeeper",
+      "recommandation": "ZK d\u00e9di\u00e9 avec 3+ n\u0153uds",
+      "priorite": "Haute",
+      "impact": "Stabilit\u00e9 m\u00e9tadonn\u00e9es"
+    },
+    {
+      "id": 40,
+      "categorie": "Disque",
+      "recommandation": "S\u00e9parer logs Kafka et segments sur disques diff\u00e9rents",
+      "priorite": "Moyenne",
+      "impact": "E/S parall\u00e8les"
+    },
+    {
+      "id": 41,
+      "categorie": "Log",
+      "recommandation": "log.flush.interval.messages = Long.MAX_VALUE",
+      "priorite": "Haute",
+      "impact": "Pas de flush forc\u00e9"
+    },
+    {
+      "id": 42,
+      "categorie": "CruiseControl",
+      "recommandation": "Utiliser CruiseControl pour l'auto-\u00e9quilibrage",
+      "priorite": "Moyenne",
+      "impact": "Distribution optimis\u00e9e"
+    }
+  ]
+}
