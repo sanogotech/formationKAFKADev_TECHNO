@@ -19,24 +19,48 @@ package com.kafka.lab;
 //  PRÉREQUIS AVANT CE TP :
 //   ✅ TP06 terminé (Kafka Streams de base compris)
 //   ✅ Topics créés :
-//      kafka-topics.sh --create --topic ventes-stream --partitions 3 ...
-//      kafka-topics.sh --create --topic catalogue-table --partitions 1 ...
-//      kafka-topics.sh --create --topic stats-ventes-1min --partitions 3 ...
+//      kafka-topics.sh --create --topic ventes-stream --partitions 3 \
+//        --bootstrap-server localhost:9092
+//      kafka-topics.sh --create --topic catalogue-table --partitions 1 \
+//        --bootstrap-server localhost:9092
+//      kafka-topics.sh --create --topic stats-ventes-1min --partitions 3 \
+//        --bootstrap-server localhost:9092
+//      kafka-topics.sh --create --topic ventes-enrichies --partitions 3 \
+//        --bootstrap-server localhost:9092
 //
 //  COMMENT LANCER :
 //   Terminal 1 : mvn exec:java -Dexec.mainClass="com.kafka.lab.VentesStreamsApp"
-//   Terminal 2 : Envoyer des ventes dans ventes-stream
+//   Terminal 2 : kafka-console-producer --topic ventes-stream --bootstrap-server localhost:9092
+//                > produit1 {"produit":"LAP-001","montant":1299.99,"qte":1}
+//                > produit2 {"produit":"TAB-002","montant":599.99,"qte":2}
+//   Terminal 3 : kafka-console-consumer --topic stats-ventes-1min --bootstrap-server localhost:9092 \
+//                --property print.key=true --property value.deserializer=org.apache.kafka.common.serialization.StringDeserializer
 // ============================================================
-
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.*;
-import org.apache.kafka.streams.kstream.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Grouped;
+import org.apache.kafka.streams.kstream.Joined;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.SessionWindows;
+import org.apache.kafka.streams.kstream.TimeWindows;
+import org.apache.kafka.streams.kstream.Windowed;
+import org.apache.kafka.streams.processor.WallclockTimestampExtractor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VentesStreamsApp {
 
@@ -45,157 +69,140 @@ public class VentesStreamsApp {
     public static void main(String[] args) {
         log.info("=== TP07 : Kafka Streams — Fenêtres & KTable Joins ===");
 
-        Properties config = new Properties();
-        config.put(StreamsConfig.APPLICATION_ID_CONFIG, "tp07-ventes-streams");
-        config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        config.put(StreamsConfig.STATE_DIR_CONFIG, "/tmp/kafka-streams/tp07");
-        // Timestamp extractor par défaut = utilise le timestamp Kafka du message
-        config.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG,
-                org.apache.kafka.streams.processor.WallclockTimestampExtractor.class);
-
+        Properties config = buildStreamsConfig();
         Topology topology = buildTopology();
         log.info("Topologie :\n{}", topology.describe());
 
-        KafkaStreams streams = new KafkaStreams(topology, config);
-        CountDownLatch latch = new CountDownLatch(1);
+        // Try-with-resources pour fermeture automatique
+        try (KafkaStreams streams = new KafkaStreams(topology, config)) {
+            CountDownLatch latch = new CountDownLatch(1);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            streams.close(Duration.ofSeconds(10));
-            latch.countDown();
-        }));
+            // Shutdown hook pour arrêt propre
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                log.info("Arrêt demandé, fermeture de Kafka Streams...");
+                streams.close(Duration.ofSeconds(10));
+                latch.countDown();
+            }));
 
-        streams.start();
-        log.info("✓ Streams démarré. Envoyez des ventes dans 'ventes-stream'");
-        log.info("  Format attendu : clé=produit-code, valeur={\"produit\":\"LAP-001\",\"montant\":1299.99}");
+            // Gestion des exceptions fatales (StreamsUncaughtExceptionHandler)
+            streams.setUncaughtExceptionHandler(exception -> {
+                log.error("Exception fatale dans Kafka Streams : ", exception);
+                // SHUTDOWN_APPLICATION arrête l'application entièrement
+                return StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION;
+            });
 
-        try { latch.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            streams.start();
+            log.info("✓ Streams démarré. Envoyez des ventes dans 'ventes-stream'");
+            log.info("  Format attendu : clé=produit-code, valeur={\"produit\":\"LAP-001\",\"montant\":1299.99}");
+
+            latch.await();
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.info("Application interrompue");
+        }
+        log.info("=== TP07 terminé ===");
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // -----------------------------------------------------------------
     //  CONSTRUCTION DE LA TOPOLOGIE AVEC FENÊTRES ET JOINTURES
-    // ────────────────────────────────────────────────────────────────────────────
+    // -----------------------------------------------------------------
     public static Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
         // ── Source 1 : flux de ventes ─────────────────────────────────────────
-        // Chaque message = {"produit":"LAP-001","montant":1299.99,"qte":1}
         KStream<String, String> ventes = builder.stream("ventes-stream",
                 Consumed.with(Serdes.String(), Serdes.String()));
 
         // ── Source 2 : table catalogue (référentiel produits) ─────────────────
-        // KTable = vue matérialisée d'un topic, mise à jour par upsert
-        // Un message avec la même clé = mise à jour de la valeur
-        // Un message avec valeur null = suppression (tombstone)
         KTable<String, String> catalogue = builder.table("catalogue-table",
                 Consumed.with(Serdes.String(), Serdes.String()),
-                // Matérialiser = stocker dans un state store interrogeable
                 Materialized.as("catalogue-store"));
 
         // ── Transformation 1 : Extraire le montant de chaque vente ───────────
-        // mapValues() transforme la valeur sans changer la clé
         KStream<String, Double> montants = ventes.mapValues(json -> {
             try {
-                // Parser JSON basique (en prod : utiliser Jackson)
+                // Extraction basique du champ "montant" (JSON simplifié)
                 String valStr = json.replaceAll(".*\"montant\"\\s*:\\s*([0-9.]+).*", "$1");
                 double montant = Double.parseDouble(valStr);
                 log.debug("Vente parsée : {}", montant);
                 return montant;
-            } catch (Exception e) {
-                log.warn("JSON invalide ignoré : {}", json);
+            } catch (NumberFormatException | IllegalStateException e) {
+                log.warn("JSON invalide ignoré : {} - {}", json, e.getMessage());
                 return 0.0;
             }
-        }).filter((cle, montant) -> montant > 0); // Filtrer les erreurs de parsing
+        }).filter((cle, montant) -> montant > 0);
 
         // ── Transformation 2 : TUMBLING WINDOW — stats par minute ────────────
-        // Fenêtre Tumbling : intervalles fixes, non-chevauchants
-        // Ex : [10:00-10:01], [10:01-10:02], [10:02-10:03], ...
-        // → Parfait pour des rapports périodiques (stats par heure, par jour)
+        // Utilisation de Materialized.as() sans spécifier les types génériques
+        // (le compilateur les infère automatiquement)
         KTable<Windowed<String>, Double> statsParMinute = montants
                 .groupByKey(Grouped.with(Serdes.String(), Serdes.Double()))
-                .windowedBy(
-                        // Fenêtre de 60 secondes
-                        // withNoGrace = pas de tolérance pour les messages tardifs
-                        // En prod : TimeWindows.ofSizeAndGrace(60s, 10s) pour les retards
-                        TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(60))
-                )
+                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(60)))
                 .aggregate(
-                        () -> 0.0,                          // Valeur initiale
-                        (produit, montant, total) -> total + montant, // Agréger
-                        Materialized.<String, Double, WindowStore<Bytes, byte[]>>as(
-                                "stats-par-minute")
-                                .withValueSerde(Serdes.Double())
+                        () -> 0.0,
+                        (produit, montant, total) -> total + montant,
+                        Materialized.as("stats-par-minute")
                 );
 
         // Écrire les stats dans le topic de sortie
         statsParMinute.toStream()
                 .peek((windowedKey, total) ->
                         log.info("📊 [TUMBLING 1min] {} → {:.2f}€ | Fenêtre: {} → {}",
-                                windowedKey.key(),
-                                total,
-                                windowedKey.window().startTime(),
-                                windowedKey.window().endTime())
+                                windowedKey.key(), total,
+                                windowedKey.window().startTime(), windowedKey.window().endTime())
                 )
                 .map((windowedKey, total) ->
-                        // Convertir la clé Windowed<String> en String normale
-                        KeyValue.pair(
-                                windowedKey.key() + "@" + windowedKey.window().start(),
-                                String.valueOf(total)
-                        )
+                        KeyValue.pair(windowedKey.key() + "@" + windowedKey.window().start(),
+                                      String.valueOf(total))
                 )
                 .to("stats-ventes-1min", Produced.with(Serdes.String(), Serdes.String()));
 
         // ── Transformation 3 : KStream-KTable JOIN — enrichissement ──────────
-        // Enrichir chaque vente avec les infos du catalogue produit
-        // Join = pour chaque vente, chercher le produit dans la KTable
-        // ATTENTION : les clés doivent être IDENTIQUES des deux côtés !
-        //             KStream key = produit code, KTable key = produit code ✓
-        KStream<String, String> ventesEnrichies = ventes
-                .join(
-                        catalogue,
-                        // ValueJoiner : comment combiner vente + produit
-                        (ventejson, produitjson) -> {
-                            if (produitjson == null) {
-                                // Produit non trouvé dans la KTable
-                                return ventejson + ",\"categorie\":\"INCONNUE\"";
-                            }
-                            // Fusion simple des deux JSON (en prod : Jackson)
-                            String merged = ventejson.replace("}", "")
-                                    + ",\"catalogue\":" + produitjson + "}";
-                            log.info("✓ JOIN vente+catalogue : {}", merged);
-                            return merged;
-                        },
-                        // Joined.with() : sérialiseurs pour le join
-                        Joined.with(Serdes.String(), Serdes.String(), Serdes.String())
-                );
+        KStream<String, String> ventesEnrichies = ventes.join(
+                catalogue,
+                (ventejson, produitjson) -> {
+                    if (produitjson == null) {
+                        return ventejson + ",\"categorie\":\"INCONNUE\"";
+                    }
+                    String merged = ventejson.replace("}", "") + ",\"catalogue\":" + produitjson + "}";
+                    log.info("✓ JOIN vente+catalogue : {}", merged);
+                    return merged;
+                },
+                Joined.with(Serdes.String(), Serdes.String(), Serdes.String())
+        );
 
-        // Publier les ventes enrichies
-        ventesEnrichies.to("ventes-enrichies",
-                Produced.with(Serdes.String(), Serdes.String()));
+        ventesEnrichies.to("ventes-enrichies", Produced.with(Serdes.String(), Serdes.String()));
 
         // ── Transformation 4 : SESSION WINDOW — détecter les rafales ─────────
-        // Session Window : groupe les messages proches dans le temps
-        // Si 2 messages arrivent avec moins de 30s d'écart → même session
-        // Quand plus aucun message pendant 30s → session fermée
-        // → Parfait pour l'analyse comportementale (sessions utilisateurs)
         KTable<Windowed<String>, Long> sessions = montants
                 .groupByKey(Grouped.with(Serdes.String(), Serdes.Double()))
-                .windowedBy(
-                        // Inactivité de 30s = fin de session
-                        SessionWindows.ofInactivityGapWithNoGrace(Duration.ofSeconds(30))
-                )
+                .windowedBy(SessionWindows.ofInactivityGapWithNoGrace(Duration.ofSeconds(30)))
                 .count(Materialized.as("sessions-store"));
 
         sessions.toStream()
-                .peek((windowedKey, count) ->
-                        log.info("🎯 [SESSION] {} → {} ventes en {} secondes",
-                                windowedKey.key(),
-                                count,
-                                (windowedKey.window().endTime().toEpochMilli() -
-                                 windowedKey.window().startTime().toEpochMilli()) / 1000)
-                );
+                .peek((windowedKey, count) -> {
+                    long durationSec = (windowedKey.window().endTime().toEpochMilli() -
+                                        windowedKey.window().startTime().toEpochMilli()) / 1000;
+                    log.info("🎯 [SESSION] {} → {} ventes en {} secondes",
+                            windowedKey.key(), count, durationSec);
+                });
 
         return builder.build();
+    }
+
+    // -----------------------------------------------------------------
+    //  CONFIGURATION DE KAFKA STREAMS
+    // -----------------------------------------------------------------
+    private static Properties buildStreamsConfig() {
+        Properties config = new Properties();
+        config.put(StreamsConfig.APPLICATION_ID_CONFIG, "tp07-ventes-streams");
+        config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        config.put(StreamsConfig.STATE_DIR_CONFIG, "/tmp/kafka-streams/tp07");
+        // Extractor d'horodatage (Wallclock = temps système, à ne pas utiliser en prod)
+        config.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, WallclockTimestampExtractor.class);
+        return config;
     }
 }

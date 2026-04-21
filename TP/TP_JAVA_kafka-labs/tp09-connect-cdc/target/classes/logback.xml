@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Configuration Logback pour les TPs Kafka
+  Niveau INFO pour notre code, WARN pour Kafka interne
+  Les logs s'affichent en console avec timestamp + couleurs
+-->
+<configuration>
+
+    <!-- ─── Appender Console avec couleurs ─── -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan([%logger{30}]) %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ─── Réduire le bruit des logs internes Kafka ─── -->
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.apache.zookeeper" level="WARN"/>
+
+    <!-- ─── Nos classes en DEBUG pour voir tous les détails ─── -->
+    <logger name="com.kafka.lab" level="DEBUG"/>
+
+    <!-- ─── Root logger ─── -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>
