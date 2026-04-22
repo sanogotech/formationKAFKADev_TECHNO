@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Kafka Connect & Debezium | CDC Masterclass – Guide francophone</title>
+    <!-- Bootstrap 5 + Icons + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #f4f7fc; scroll-behavior: smooth; }
+        .hero {
+            background: linear-gradient(135deg, #0b2f3a 0%, #1a4b5e 100%);
+            color: white;
+            padding: 4rem 0 3rem;
+            border-bottom: 4px solid #f4a261;
+        }
+        .hero h1 { font-weight: 700; font-size: 2.8rem; }
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid #f4a261;
+            display: inline-block;
+        }
+        .card-concept {
+            border: none;
+            border-radius: 1.5rem;
+            box-shadow: 0 12px 28px -8px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+            background: white;
+        }
+        .card-concept:hover { transform: translateY(-5px); box-shadow: 0 24px 36px -12px rgba(0,0,0,0.15); }
+        .card-header-concept {
+            background: white;
+            border-bottom: 2px solid #ffe3c2;
+            padding: 1.2rem 1.2rem 0.8rem;
+            font-weight: 800;
+            font-size: 1.4rem;
+            border-radius: 1.5rem 1.5rem 0 0;
+        }
+        .mnemo-badge {
+            background: #fff0db;
+            color: #b85c00;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 40px;
+            padding: 0.3rem 0.9rem;
+            display: inline-block;
+        }
+        .concept-section {
+            margin-top: 0.8rem;
+            border-left: 3px solid #ffe3c2;
+            padding-left: 0.8rem;
+        }
+        .concept-section strong { color: #c4450c; }
+        .table-of-contents {
+            background: white;
+            border-radius: 1.25rem;
+            padding: 1.2rem;
+            position: sticky;
+            top: 1rem;
+        }
+        .toc-link {
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 500;
+            display: block;
+            padding: 0.3rem 0;
+        }
+        .toc-link:hover { color: #f4a261; padding-left: 5px; }
+        footer { background: #0f172a; color: #cbd5e1; }
+        code { background: #eef2ff; padding: 0.2rem 0.4rem; border-radius: 8px; font-size: 0.8rem; }
+        .cdc-demo { background: #e9f5f5; border-left: 6px solid #2a9d8f; }
+        .step-card { background: white; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #f4a261; }
+        @media (max-width: 768px) { .hero h1 { font-size: 2rem; } }
+    </style>
+</head>
+<body>
+
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-light text-dark mb-3"><i class="fas fa-plug me-1"></i> Kafka Connect + Debezium | Change Data Capture</span>
+                <h1 class="display-5 fw-bold">Maîtrisez Kafka Connect<br>et CDC avec Debezium</h1>
+                <p class="lead mt-3">Ingérez vos bases de données en temps réel, synchronisez sans code, et construisez des pipelines événementiels robustes. Analogies, exemples, et astuces pour la production.</p>
+                <div class="mt-4">
+                    <a href="#cas-complet" class="btn btn-warning btn-lg me-2 fw-semibold"><i class="fas fa-project-diagram me-2"></i>Cas complet (end-to-end)</a>
+                    <a href="#concepts" class="btn btn-outline-light btn-lg"><i class="fas fa-cogs me-2"></i>18 concepts clés</a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block text-center">
+                <i class="fas fa-database fa-3x text-warning opacity-70 me-2"></i>
+                <i class="fas fa-arrow-right fa-2x text-light"></i>
+                <i class="fas fa-tasks fa-3x text-light opacity-70 ms-2"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mt-5">
+    <div class="row g-4">
+        <div class="col-lg-3 order-lg-1 order-2">
+            <div class="table-of-contents shadow-sm">
+                <h5 class="mb-3"><i class="fas fa-list-ul me-2 text-warning"></i>Sommaire Connect & Debezium</h5>
+                <a href="#cdc-scenario" class="toc-link"><i class="fas fa-project-diagram me-2 fa-fw"></i> Fil conducteur (catalogue)</a>
+                <a href="#cas-complet" class="toc-link"><i class="fas fa-code-branch me-2 fa-fw"></i> Cas complet end-to-end</a>
+                <a href="#concepts" class="toc-link"><i class="fas fa-cubes me-2 fa-fw"></i> 18 concepts essentiels</a>
+                <a href="#bonnes-pratiques" class="toc-link"><i class="fas fa-check-circle me-2 fa-fw"></i> Bonnes pratiques & certif</a>
+                <hr>
+                <div class="mt-2 small text-muted"><i class="fas fa-chalkboard"></i> De la source DB → Kafka → Sink</div>
+            </div>
+        </div>
+
+        <div class="col-lg-9 order-lg-2 order-1">
+            <!-- SCÉNARIO FIL ROUGE : Catalogue produit avec Debezium -->
+            <div id="cdc-scenario" class="mb-5">
+                <h2 class="section-title"><i class="fas fa-link me-2 text-warning"></i> Fil conducteur : Catalogue e-commerce en temps réel</h2>
+                <div class="card cdc-demo border-0 rounded-4 p-4 shadow-sm">
+                    <p><i class="fas fa-store me-2 text-success"></i> <strong>Cas pratique :</strong> Une marketplace souhaite synchroniser son catalogue produits (PostgreSQL) avec un moteur de recherche Elasticsearch et un cache Redis, <strong>sans réécrire d’application</strong>.</p>
+                    <ol class="mt-2">
+                        <li><strong>Debezium PostgreSQL connector</strong> capture chaque <code>INSERT/UPDATE/DELETE</code> sur la table <code>produits</code>.</li>
+                        <li>Les événements CDC sont poussés dans le topic Kafka <code>catalogue.public.produits</code>.</li>
+                        <li>Un <strong>sink connector Elasticsearch</strong> consomme ce topic et indexe les documents.</li>
+                        <li>Un second sink Redis (via Redis Sink) met à jour le cache.</li>
+                        <li>Les transformations SMT (Single Message Transform) masquent les données sensibles et ajoutent un champ <code>timestamp_index</code>.</li>
+                    </ol>
+                    <div class="alert alert-info mt-2 mb-0"><i class="fas fa-microphone-alt"></i> <strong>Pour l’examen / production :</strong> Ce pattern CDC évite la double écriture, garantit l’ordre et la résilience grâce à Kafka.</div>
+                </div>
+            </div>
+
+            <!-- NOUVEAU : CAS COMPLET END-TO-END AVEC DÉTAILS TECHNIQUES -->
+            <div id="cas-complet" class="mb-5">
+                <h2 class="section-title"><i class="fas fa-code-branch me-2 text-warning"></i> Cas complet : Pipeline CDC de bout en bout</h2>
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <p><strong>Objectif :</strong> Mettre en place un flux de données continu depuis une base PostgreSQL vers Elasticsearch et Redis, avec tolérance aux pannes, monitoring et exactly-once (idempotent). Voici les étapes détaillées d’un projet réel.</p>
+                    
+                    <div class="step-card">
+                        <h5><i class="fas fa-database text-warning me-2"></i>Étape 1 – Préparation de la base source (PostgreSQL)</h5>
+                        <ul>
+                            <li>Activer la réplication logique : <code>wal_level = logical</code> dans <code>postgresql.conf</code>.</li>
+                            <li>Créer un utilisateur dédié : <code>CREATE USER debezium WITH REPLICATION LOGIN PASSWORD 'dbz'</code>.</li>
+                            <li>Donner les droits : <code>GRANT SELECT ON ALL TABLES IN SCHEMA public TO debezium;</code>.</li>
+                        </ul>
+                    </div>
+
+                    <div class="step-card">
+                        <h5><i class="fas fa-plug text-warning me-2"></i>Étape 2 – Déployer Kafka Connect (cluster distribué)</h5>
+                        <ul>
+                            <li>Démarrer 3 workers Kafka Connect (ex: avec Docker Compose). Configuration clé : <code>group.id=connect-cluster</code>, <code>config.storage.topic=connect-configs</code>, <code>offset.storage.topic=connect-offsets</code>, <code>status.storage.topic=connect-status</code>.</li>
+                            <li>Installer le plugin Debezium (JARs) dans <code>plugin.path</code> de chaque worker.</li>
+                            <li>Ajouter le sink Elasticsearch (confluentinc-elasticsearch-connector) et Redis (Redis Sink).</li>
+                        </ul>
+                    </div>
+
+                    <div class="step-card">
+                        <h5><i class="fas fa-camera text-warning me-2"></i>Étape 3 – Créer le connecteur source Debezium (via API REST)</h5>
+                        <pre><code>curl -X POST http://connect:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "catalogue-postgres-connector",
+    "config": {
+      "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+      "database.hostname": "postgres",
+      "database.port": "5432",
+      "database.user": "debezium",
+      "database.password": "dbz",
+      "database.dbname": "catalogue",
+      "database.server.name": "catalogue",
+      "table.include.list": "public.produits",
+      "topic.prefix": "catalogue",
+      "snapshot.mode": "initial",
+      "decimal.handling.mode": "string",
+      "key.converter": "io.confluent.connect.avro.AvroConverter",
+      "value.converter": "io.confluent.connect.avro.AvroConverter",
+      "key.converter.schema.registry.url": "http://schema-registry:8081",
+      "value.converter.schema.registry.url": "http://schema-registry:8081",
+      "transforms": "maskPrice,addTimestamp",
+      "transforms.maskPrice.type": "org.apache.kafka.connect.transforms.MaskField$Value",
+      "transforms.maskPrice.fields": "prix_achat",
+      "transforms.addTimestamp.type": "org.apache.kafka.connect.transforms.InsertField$Value",
+      "transforms.addTimestamp.timestamp.field": "capture_timestamp"
+    }
+  }'</code></pre>
+                        <p class="mt-2"><i class="fas fa-info-circle"></i> Le connecteur va d’abord faire un snapshot complet de la table <code>produits</code>, puis passer en streaming des changements (insert/update/delete).</p>
+                    </div>
+
+                    <div class="step-card">
+                        <h5><i class="fas fa-search text-warning me-2"></i>Étape 4 – Créer le sink Elasticsearch</h5>
+                        <pre><code>curl -X POST http://connect:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "elasticsearch-sink",
+    "config": {
+      "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+      "connection.url": "http://elasticsearch:9200",
+      "type.name": "_doc",
+      "topics": "catalogue.public.produits",
+      "key.ignore": "false",
+      "schema.ignore": "false",
+      "behavior.on.null.values": "delete",
+      "write.method": "upsert",
+      "transforms": "extractKey",
+      "transforms.extractKey.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
+      "transforms.extractKey.field": "id"
+    }
+  }'</code></pre>
+                        <p>Ici, on utilise <code>upsert</code> pour garantir l’idempotence : si le même document est réindexé plusieurs fois, Elasticsearch ne crée pas de doublon.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <h5><i class="fas fa-memory text-warning me-2"></i>Étape 5 – Créer le sink Redis pour le cache</h5>
+                        <pre><code>curl -X POST http://connect:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "redis-sink",
+    "config": {
+      "connector.class": "com.github.jcustenborder.kafka.connect.redis.RedisSinkConnector",
+      "redis.host": "redis",
+      "redis.port": "6379",
+      "topics": "catalogue.public.produits",
+      "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+      "value.converter": "io.confluent.connect.avro.AvroConverter",
+      "value.converter.schema.registry.url": "http://schema-registry:8081",
+      "redis.command": "HSET",
+      "redis.key.format": "product:{{key}}",
+      "redis.field.format": "data"
+    }
+  }'</code></pre>
+                        <p>Redis stocke chaque produit sous forme de hash <code>product:&lt;id&gt;</code>. En cas de suppression (<code>op</code> = <code>d</code>), on peut ajouter une SMT pour envoyer une commande <code>DEL</code>.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <h5><i class="fas fa-chart-line text-warning me-2"></i>Étape 6 – Vérifier le flux et surveiller</h5>
+                        <ul>
+                            <li><strong>Consulter les topics :</strong> <code>kafka-console-consumer --bootstrap-server localhost:9092 --topic catalogue.public.produits --from-beginning</code> (avec Avro, utiliser <code>kafka-avro-console-consumer</code>).</li>
+                            <li><strong>Surveiller les métriques :</strong> API REST <code>/connectors/catalogue-postgres-connector/status</code>, <code>/connectors/elasticsearch-sink/status</code>.</li>
+                            <li><strong>Vérifier le lag :</strong> <code>kafka-consumer-groups --bootstrap-server localhost:9092 --group connect-cluster --describe</code>.</li>
+                            <li><strong>Simuler une modification :</strong> <code>UPDATE produits SET prix = 19.99 WHERE id = 42;</code> → constater l’indexation quasi instantanée dans Elasticsearch et Redis.</li>
+                        </ul>
+                    </div>
+
+                    <div class="step-card">
+                        <h5><i class="fas fa-exclamation-triangle text-warning me-2"></i>Étape 7 – Gérer les erreurs et la reprise</h5>
+                        <ul>
+                            <li><strong>Dead Letter Queue (DLQ) :</strong> configurer <code>errors.tolerance=all</code> et <code>errors.deadletterqueue.topic.name=catalogue-dlq</code> sur les connecteurs sink.</li>
+                            <li><strong>Redémarrage après crash :</strong> Les offsets sont stockés dans Kafka, le connecteur Debezium reprend exactement là où il s’était arrêté.</li>
+                            <li><strong>Réinitialisation du snapshot :</strong> Modifier <code>snapshot.mode=never</code> après le premier run, ou utiliser <code>incremental snapshot</code> via Debezium.</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-success mt-3">
+                        <i class="fas fa-check-circle"></i> <strong>Résultat :</strong> Un pipeline entièrement découplé, scalable, tolérant aux pannes. Aucune ligne de code métier n’a été écrite pour la synchronisation – uniquement de la configuration.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 18 CONCEPTS KAFKA CONNECT + DEBEZIUM -->
+            <div id="concepts">
+                <h2 class="section-title"><i class="fas fa-puzzle-piece me-2 text-warning"></i> 18 concepts Kafka Connect & Debezium – version immersive</h2>
+                <p class="mb-4">Analogies métier, extraits techniques, et liens avec le fil conducteur (catalogue produit).</p>
+                <div class="row g-4" id="conceptsGrid">
+                    
+                    <!-- 1. Connect Worker -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-hard-hat me-2 text-warning"></i>Connect Worker</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Ouvrier polyvalent</span><div class="concept-section"><strong>📦 Analogie :</strong> Un ouvrier dans un atelier (cluster Connect). Chaque worker exécute des tâches (tasks) et gère la configuration.</div><div class="concept-section"><strong>💡 Technique :</strong> Workers distribués (mode distribué) ou standalone. Le leader coordonne la répartition des tâches via le topic de configuration interne <code>connect-configs</code>.</div><div class="concept-section"><strong>🔑 Dans l’exemple :</strong> 3 workers distribuent les tâches source (Debezium) et sink (Elasticsearch).</div></div></div></div>
+                    
+                    <!-- 2. Connector (Source / Sink) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-plug me-2 text-warning"></i>Connector</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Adaptateur source ou puit</span><div class="concept-section"><strong>📦 Analogie :</strong> Une prise électrique européenne vers américaine : le connector transforme le protocole externe en format Kafka.</div><div class="concept-section"><strong>💡 Examen :</strong> Source connector = lit depuis une source externe (DB, fichier). Sink connector = écrit vers un système externe. <code>connector.class</code> définit l’implémentation.</div><div class="concept-section"><strong>🔑 Notre pipeline :</strong> DebeziumPostgresConnector (source) + ElasticsearchSinkConnector.</div></div></div></div>
+                    
+                    <!-- 3. Task -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-tasks me-2 text-warning"></i>Task</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Tâche parallèle</span><div class="concept-section"><strong>📦 Analogie :</strong> Un ouvrier peut gérer plusieurs chaînes en parallèle. Une task = une unité de travail exécutée par un worker.</div><div class="concept-section"><strong>💡 Technique :</strong> <code>tasks.max</code> définit le parallélisme. Pour Debezium, une task par table surveillée (ou partitionnement manuel).</div><div class="concept-section"><strong>🔑 Bonne pratique :</strong> Augmenter <code>tasks.max</code> si le volume de changements est élevé, mais Debezium est souvent monothread par table (garantie d’ordre).</div></div></div></div>
+                    
+                    <!-- 4. Converter (Avro / JSON / Protobuf) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-exchange-alt me-2 text-warning"></i>Converter</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Traducteur de données</span><div class="concept-section"><strong>📦 Analogie :</strong> Un interprète qui traduit le dialecte PostgreSQL (format interne) en JSON ou Avro avant de l’envoyer dans Kafka.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>key.converter</code> et <code>value.converter</code>. Avec Schema Registry, on utilise <code>io.confluent.connect.avro.AvroConverter</code>.</div><div class="concept-section"><strong>🔑 Dans le catalogue :</strong> Converter Avro + Schema Registry pour gérer l’évolution du schéma produit.</div></div></div></div>
+                    
+                    <!-- 5. Single Message Transform (SMT) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-magic me-2 text-warning"></i>SMT (Transformations)</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Petite modification locale</span><div class="concept-section"><strong>📦 Analogie :</strong> Un tampon encreur qui ajoute une mention "Confidentiel" sur chaque document avant de l’archiver.</div><div class="concept-section"><strong>💡 Exemples :</strong> <code>MaskField</code> (cacher email), <code>InsertField</code> (ajouter timestamp), <code>DropHeaders</code>, <code>RegexRouter</code> (renommer topic).</div><div class="concept-section"><strong>🔑 Dans notre flux :</strong> SMT <code>MaskField$Value</code> pour masquer le champ <code>prix_achat</code> interne.</div></div></div></div>
+                    
+                    <!-- 6. Debezium : CDC -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-eye me-2 text-warning"></i>Debezium (CDC)</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Œil permanent sur la base</span><div class="concept-section"><strong>📦 Analogie :</strong> Un notaire qui enregistre chaque modification dans un registre (binlog/WAL) et les rédige en messages Kafka.</div><div class="concept-section"><strong>💡 Fonctionnement :</strong> Se connecte au mécanisme de réplication native (PostgreSQL logical decoding, MySQL binlog, MongoDB oplog). Pas de polling, événementiel pur.</div><div class="concept-section"><strong>🔑 Avantage :</strong> Faible impact sur la source, capture <code>before/after</code>, opération <code>c</code>,<code>u</code>,<code>d</code>,<code>r</code>.</div></div></div></div>
+                    
+                    <!-- 7. Debezium : Topic naming & structure -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-tag me-2 text-warning"></i>Nommage des topics</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Serveur.base.table</span><div class="concept-section"><strong>📦 Analogie :</strong> Adresse postale : <code>serveur.schema.table</code>. Exemple : <code>postgres.catalogue.produits</code>.</div><div class="concept-section"><strong>💡 Configuration :</strong> <code>topic.prefix</code> ou <code>database.server.name</code>. Le message contient l’enveloppe <code>before</code>/<code>after</code>, <code>op</code>, <code>ts_ms</code>.</div><div class="concept-section"><strong>🔑 Filtre :</strong> <code>table.include.list</code> pour ne capturer que certaines tables.</div></div></div></div>
+                    
+                    <!-- 8. Debezium : Snapshots et incremental -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-camera me-2 text-warning"></i>Snapshot initial</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Photo de la base au démarrage</span><div class="concept-section"><strong>📦 Analogie :</strong> Avant de noter les changements, on recopie l’état complet de la base (première photographie).</div><div class="concept-section"><strong>💡 Paramètre :</strong> <code>snapshot.mode=initial</code> (par défaut) prend un snapshot puis passe en streaming. <code>never</code> pour démarrer sans snapshot.</div><div class="concept-section"><strong>🔑 Incremental snapshot :</strong> Permet de re-snapshotter des tables sans arrêter le connecteur (Debezium 1.6+).</div></div></div></div>
+                    
+                    <!-- 9. Debezium : Offset Storage & Internal topics -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-database me-2 text-warning"></i>Offsets Debezium</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Marque-page du binlog</span><div class="concept-section"><strong>📦 Analogie :</strong> Un signet qui indique la dernière ligne lue dans le journal de modifications (WAL).</div><div class="concept-section"><strong>💡 Technique :</strong> Les offsets sont stockés dans un topic Kafka interne <code>connect-offsets</code> ou un fichier (standalone). Permet de reprendre après redémarrage exactement là où on s’était arrêté.</div><div class="concept-section"><strong>🔑 Danger :</strong> Si on supprime ce topic, le connecteur refait un snapshot complet.</div></div></div></div>
+                    
+                    <!-- 10. Dead Letter Queue (DLQ) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-skull me-2 text-warning"></i>Dead Letter Queue</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Poubelle des erreurs</span><div class="concept-section"><strong>📦 Analogie :</strong> Un bac à rebuts où l’on met les documents illisibles au lieu de bloquer toute la chaîne.</div><div class="concept-section"><strong>💡 Connect :</strong> <code>errors.tolerance=all</code> et <code>errors.deadletterqueue.topic.name=my-dlq</code>. Les messages en erreur (désérialisation, transformation) y sont déposés.</div><div class="concept-section"><strong>🔑 Dans notre pipeline :</strong> Si Elasticsearch rejette un document, il atterrit dans DLQ pour analyse.</div></div></div></div>
+                    
+                    <!-- 11. Connector Configuration (JSON) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-sliders-h me-2 text-warning"></i>Configuration JSON</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Recette du connector</span><div class="concept-section"><strong>📦 Analogie :</strong> Une fiche de réglage qui indique à l’ouvrier quel adaptateur utiliser, avec quels paramètres.</div><div class="concept-section"><strong>💡 Exemple Debezium :</strong> <code>{"name": "catalogue-connector", "config": {"connector.class": "io.debezium.connector.postgresql.PostgresConnector", "database.hostname": "postgres", ...}}</code></div><div class="concept-section"><strong>🔑 API REST :</strong> <code>POST /connectors</code> pour créer, <code>PUT /connectors/.../config</code> pour mettre à jour.</div></div></div></div>
+                    
+                    <!-- 12. REST API & Monitoring -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-chart-simple me-2 text-warning"></i>API REST & JMX</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Console de pilotage</span><div class="concept-section"><strong>📦 Analogie :</strong> Un panneau de commande central pour voir l’état des ouvriers, démarrer/arrêter des chaînes.</div><div class="concept-section"><strong>💡 Endpoints utiles :</strong> <code>/connectors</code>, <code>/connectors/{name}/status</code>, <code>/connectors/{name}/tasks</code>. JMX expose métriques (taux d’erreur, temps de traitement).</div><div class="concept-section"><strong>🔑 Supervision :</strong> Surveiller le statut <code>RUNNING</code> / <code>FAILED</code> et le lag du connecteur source.</div></div></div></div>
+                    
+                    <!-- 13. Sink Connector (Elasticsearch, JDBC, S3) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-download me-2 text-warning"></i>Sink Connector</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Puit de données</span><div class="concept-section"><strong>📦 Analogie :</strong> Un entonnoir qui récupère les messages Kafka et les verse dans un lac (Elasticsearch, S3).</div><div class="concept-section"><strong>💡 Exemple :</strong> <code>ElasticsearchSinkConnector</code> : indexe chaque message avec <code>key</code> = ID document. Supporte upsert.</div><div class="concept-section"><strong>🔑 Dans le catalogue :</strong> Sink Elasticsearch pour rendre les produits recherchables instantanément après modification.</div></div></div></div>
+                    
+                    <!-- 14. Transformations Single Message (avancées) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-code-branch me-2 text-warning"></i>SMT Avancées</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Modif à la volée</span><div class="concept-section"><strong>📦 Analogie :</strong> Un tampon qui ajoute automatiquement la date et l’expéditeur sur chaque enveloppe.</div><div class="concept-section"><strong>💡 SMT courantes :</strong> <code>ExtractTopic$Key</code>, <code>ReplaceField</code>, <code>TimestampConverter</code>, <code>ValueToKey</code>.</div><div class="concept-section"><strong>🔑 Bonne pratique :</strong> Chaîner plusieurs SMT (<code>transforms=addTS,maskCard</code>). L’ordre compte.</div></div></div></div>
+                    
+                    <!-- 15. Schema Evolution & Compatibility -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-project-diagram me-2 text-warning"></i>Évolution de schéma</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Agrandir le formulaire</span><div class="concept-section"><strong>📦 Analogie :</strong> On ajoute une colonne "couleur" au formulaire produit. Les anciens lecteurs continuent de fonctionner (compatibilité backward).</div><div class="concept-section"><strong>💡 Avec Schema Registry :</strong> Le converter Avro vérifie la compatibilité. Debezium gère l’ajout/suppression de colonnes sans interruption.</div><div class="concept-section"><strong>🔑 Conseil certif :</strong> Toujours définir une stratégie de compatibilité (<code>BACKWARD</code>, <code>FULL</code>) pour éviter les ruptures.</div></div></div></div>
+                    
+                    <!-- 16. Rebalancing & Tasks distribution -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-arrows-spin me-2 text-warning"></i>Rebalance des tasks</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Répartition dynamique</span><div class="concept-section"><strong>📦 Analogie :</strong> Si un ouvrier quitte l’atelier, le chef réaffecte ses tâches aux autres automatiquement.</div><div class="concept-section"><strong>💡 Connect :</strong> Lorsqu’un worker rejoint/quitte le groupe, les tâches sont rééquilibrées. Les connecteurs source/sink peuvent être redémarrés sur d’autres workers.</div><div class="concept-section"><strong>🔑 Pour Debezium :</strong> Une task par table ne peut pas être rééquilibrée en cours de snapshot – mieux vaut éviter les rebalances fréquentes.</div></div></div></div>
+                    
+                    <!-- 17. Exactly-Once avec Connect ? -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-check-double me-2 text-warning"></i>Exactly-once dans Connect</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Au moins une fois par défaut</span><div class="concept-section"><strong>📦 Analogie :</strong> Un facteur peut livrer deux fois le même colis (at-least-once). Pour exactement une fois, il faut un sink idempotent.</div><div class="concept-section"><strong>💡 Connect source :</strong> Les offsets sont commités périodiquement, possible doublon en cas de crash. Sink idempotent (ex: upsert sur clé primaire) permet d’absorber les doublons.</div><div class="concept-section"><strong>🔑 Debezium :</strong> Les messages contiennent des métadonnées <code>lsn</code> (PostgreSQL) et peuvent être dédupliqués à la consommation.</div></div></div></div>
+                    
+                    <!-- 18. Monitoring & Alerting (Connect & Debezium) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-heartbeat me-2 text-warning"></i>Monitoring & santé</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Tableau de bord vital</span><div class="concept-section"><strong>📦 Analogie :</strong> Un ECG qui surveille le rythme cardiaque de l’atelier.</div><div class="concept-section"><strong>💡 Métriques clés :</strong> <code>source-record-poll-rate</code> (Debezium), <code>sink-record-send-rate</code>, <code>task-errors-total</code>, <code>lag</code> du connecteur source (différence entre dernière écriture Kafka et dernière transaction DB).</div><div class="concept-section"><strong>🔑 Outils :</strong> Prometheus + JMX Exporter, Confluent Control Center, ou API REST.</div></div></div></div>
+                </div>
+            </div>
+
+            <!-- BONNES PRATIQUES ET CONSEILS CERTIFICATION -->
+            <div id="bonnes-pratiques" class="mt-5">
+                <h2 class="section-title"><i class="fas fa-medal me-2 text-warning"></i> Bonnes pratiques & réussite projet</h2>
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <h5><i class="fas fa-check-circle text-success me-2"></i>Pour Debezium en production :</h5>
+                    <ul>
+                        <li><strong>Droits spécifiques</strong> : créer un utilisateur dédié avec les privilèges de réplication (ex: <code>REPLICATION</code> pour PostgreSQL).</li>
+                        <li><strong>Gérer le snapshot</strong> : planifier le snapshot initial sur des heures creuses ou utiliser <code>snapshot.mode=never</code> si la base est déjà préchargée.</li>
+                        <li><strong>Surveiller le lag</strong> : <code>io.debezium.connector.common.CdcSourceTask</code> expose la métrique <code>MilliSecondsBehindSource</code>.</li>
+                        <li><strong>Taille des messages</strong> : éviter les lignes trop larges (ajuster <code>max.request.size</code>).</li>
+                        <li><strong>Topic compaction</strong> : activer la compaction pour les tables de référence (KTable).</li>
+                    </ul>
+                    <h5 class="mt-3"><i class="fas fa-cog text-warning me-2"></i>Kafka Connect – astuces avancées</h5>
+                    <ul>
+                        <li><strong>Configurations clés</strong> : <code>offset.flush.interval.ms</code>, <code>task.shutdown.graceful.timeout.ms</code>, <code>consumer.auto.offset.reset</code> pour les sinks.</li>
+                        <li><strong>Isolation des connecteurs</strong> : utiliser <code>connector.client.config.override.policy=All</code> avec prudence.</li>
+                        <li><strong>Déploiement des plugins</strong> : placez les JARs Debezium dans <code>plugin.path</code> sur chaque worker (ou partage NFS).</li>
+                        <li><strong>REST API pour CI/CD</strong> : versionnez les configurations JSON, utilisez <code>curl</code> pour déployer automatiquement.</li>
+                        <li><strong>Transformations SMT</strong> : préférez plusieurs petites transformations à une seule complexe pour la maintenabilité.</li>
+                    </ul>
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>Pour la certification Confluent (CCDAK / confluent developer) :</strong> Les sujets Connect incluent la différence entre source/sink, le rôle des workers, la configuration des convertisseurs, les SMT, et les patterns de tolérance aux pannes. Debezium est abordé via le CDC et la capture des changements sans perte.
+                    </div>
+                    <p class="mt-2"><i class="fas fa-graduation-cap"></i> <strong>Mémorisez :</strong> “Worker + Task + Connector = pipeline ; Debezium = binlog → Kafka ; SMT = petite touche magique ; Schema Registry = l’arme de l’évolution.”</p>
+                </div>
+            </div>
+            <div class="mt-4 text-center mb-4">
+                <a href="#" class="btn btn-outline-secondary"><i class="fas fa-arrow-up"></i> Haut de page</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="mt-5 pt-4 pb-3">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <i class="fas fa-plug me-1"></i> Kafka Connect & Debezium – Masterclass CDC
+                <br><small>Guide francophone – analogies, exemples réels, astuces pour la certification.</small>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <span class="text-white-50">© 2025 — inspirez-vous, construisez des pipelines temps réel</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('.toc-link, a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if(href && href !== "#" && href.startsWith('#')) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+</script>
+</body>
+</html>

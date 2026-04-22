@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Certification Confluent Kafka Developer | 24 concepts clés + Kafka Streams | Guide francophone</title>
+    <!-- Bootstrap 5 CSS + Icons + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #f8fafc; scroll-behavior: smooth; }
+        .hero {
+            background: linear-gradient(135deg, #0b2b26 0%, #1e3a3a 100%);
+            color: white;
+            padding: 4rem 0 3rem;
+            border-bottom: 4px solid #ffb347;
+        }
+        .hero h1 { font-weight: 700; font-size: 2.8rem; }
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid #ffb347;
+            display: inline-block;
+        }
+        .card-concept {
+            border: none;
+            border-radius: 1.5rem;
+            box-shadow: 0 12px 28px -8px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-concept:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 24px 36px -12px rgba(0,0,0,0.15);
+        }
+        .card-header-concept {
+            background: white;
+            border-bottom: 2px solid #ffedd5;
+            padding: 1.2rem 1.2rem 0.8rem;
+            font-weight: 800;
+            font-size: 1.4rem;
+            border-radius: 1.5rem 1.5rem 0 0;
+        }
+        .mnemo-badge {
+            background: #fef9c3;
+            color: #854d0e;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 40px;
+            padding: 0.3rem 0.9rem;
+            display: inline-block;
+            letter-spacing: 0.3px;
+        }
+        .concept-section {
+            margin-top: 0.8rem;
+            border-left: 3px solid #ffedd5;
+            padding-left: 0.8rem;
+        }
+        .concept-section strong {
+            color: #c2410c;
+        }
+        .card-body {
+            flex: 1;
+            padding: 1.2rem 1.2rem 1.5rem;
+        }
+        .certif-card {
+            background: linear-gradient(145deg, #fff9eb, #fff3e0);
+            border-radius: 1.5rem;
+            padding: 1.8rem;
+            border: 1px solid #ffe0a3;
+        }
+        footer {
+            background: #0f172a;
+            color: #cbd5e1;
+        }
+        .table-of-contents {
+            background: white;
+            border-radius: 1.25rem;
+            padding: 1.2rem;
+            position: sticky;
+            top: 1rem;
+        }
+        .toc-link {
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 500;
+            display: block;
+            padding: 0.3rem 0;
+        }
+        .toc-link:hover { color: #ffb347; padding-left: 5px; }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+        }
+        code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+        .badge-exam {
+            background: #1e3a3a;
+            color: #ffd966;
+        }
+    </style>
+</head>
+<body>
+
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-light text-dark mb-3"><i class="fab fa-confluence me-1"></i> Confluent Certified Developer for Apache Kafka (CCDAK)</span>
+                <h1 class="display-5 fw-bold">Réussissez la certification<br>Kafka Developer</h1>
+                <p class="lead mt-3"><strong class="text-warning">24 concepts essentiels</strong> illustrés avec un fil conducteur <strong class="text-warning">“Détection de fraude bancaire”</strong>. Analogies, exemples concrets, et astuces pour décrocher le certificat – 100% francophone.</p>
+                <div class="mt-4">
+                    <a href="#concepts" class="btn btn-warning btn-lg me-2 fw-semibold"><i class="fas fa-cubes me-2"></i>24 concepts clés</a>
+                    <a href="#certif-success" class="btn btn-outline-light btn-lg"><i class="fas fa-certificate me-2"></i>Stratégie certification</a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block text-center">
+                <i class="fas fa-chalkboard-user fa-4x text-warning opacity-70"></i>
+                <i class="fas fa-stream fa-3x ms-3 text-light opacity-50"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mt-5">
+    <div class="row g-4">
+        <!-- Sommaire latéral -->
+        <div class="col-lg-3 order-lg-1 order-2">
+            <div class="table-of-contents shadow-sm">
+                <h5 class="mb-3"><i class="fas fa-list-ul me-2 text-warning"></i>Parcours certif</h5>
+                <a href="#fil-rouge" class="toc-link"><i class="fas fa-link me-2 fa-fw"></i> Fil conducteur (end‑to‑end)</a>
+                <a href="#concepts" class="toc-link"><i class="fas fa-cubes me-2 fa-fw"></i> 24 concepts CCDAK</a>
+                <a href="#certif-success" class="toc-link"><i class="fas fa-medal me-2 fa-fw"></i> Réussir l'examen</a>
+                <hr>
+                <div class="mt-2 small text-muted"><i class="fas fa-lightbulb"></i> 90% des sujets d'examen couverts</div>
+            </div>
+        </div>
+
+        <div class="col-lg-9 order-lg-2 order-1">
+            <!-- FIL CONDUCTEUR END-TO-END DÉTAILLÉ -->
+            <div id="fil-rouge" class="mb-5">
+                <h2 class="section-title"><i class="fas fa-sitemap me-2 text-warning"></i> Fil conducteur : Pipeline complet de détection de fraude</h2>
+                <div class="card shadow-sm border-0 rounded-4 p-4" style="background: #eef2ff;">
+                    <p><i class="fas fa-credit-card me-2 text-danger"></i> <strong>Scénario réel :</strong> Une banque veut détecter les transactions suspectes en temps réel (ex: plus de 1000€ cumulés en moins de 2 minutes sur la même carte).</p>
+                    <ol class="mt-2">
+                        <li><strong>Producteur</strong> : Chaque transaction (montant, carte, horodatage) est envoyée vers le topic <code>transactions-raw</code> avec la clé = <code>numéroCarte</code>.</li>
+                        <li><strong>Kafka Streams – Filtrage</strong> : On ne garde que les transactions > 50€ (éliminer les micro-paiements).</li>
+                        <li><strong>GroupByKey</strong> : On regroupe par carte (la clé est déjà la carte).</li>
+                        <li><strong>Fenêtrage (Windowing)</strong> : Fenêtre glissante de 2 minutes avec <code>TimeWindows.of(Duration.ofMinutes(2)).grace(Duration.ofSeconds(10))</code>.</li>
+                        <li><strong>Aggrégation</strong> : On somme les montants par carte dans la fenêtre via <code>aggregate(...)</code> (state store RocksDB).</li>
+                        <li><strong>Filtrage final</strong> : On ne garde que les agrégats dont la somme dépasse 1000€.</li>
+                        <li><strong>Production</strong> : L’alerte est envoyée dans le topic <code>alertes-fraude</code> avec exactly‑once semantics.</li>
+                    </ol>
+                    <div class="alert alert-warning mt-2 mb-0"><i class="fas fa-graduation-cap"></i> Ce pipeline utilise <strong>filter, groupBy, windowing, aggregation, state store et EOS</strong> – des sujets incontournables de l’examen CCDAK.</div>
+                </div>
+                <div class="mt-3 p-3 bg-white rounded-4 shadow-sm">
+                    <h6><i class="fab fa-java me-2 text-warning"></i>Extrait de code (Kafka Streams DSL) :</h6>
+                    <pre style="background:#f4f4f4; padding:0.8rem; border-radius:12px;"><code>KStream&lt;String, Transaction&gt; transactions = builder.stream("transactions-raw");
+transactions
+    .filter((key, tx) -> tx.getMontant() > 50)   // 🔹 FILTRE
+    .groupByKey()                                 // 🔹 GROUP BY
+    .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(2)))
+    .aggregate(
+        () -> 0.0,
+        (key, tx, somme) -> somme + tx.getMontant(),
+        Materialized.&lt;String, Double, WindowStore&lt;Bytes, byte[]&gt;&gt;as("sommestore")
+    )
+    .toStream()
+    .filter((windowedKey, somme) -> somme > 1000)
+    .map((windowedKey, somme) -> KeyValue.pair(windowedKey.key(), new Alerte(...)))
+    .to("alertes-fraude", Produced.with(Serdes.String(), new AlertSerde()));</code></pre>
+                </div>
+            </div>
+
+            <!-- 24 CONCEPTS POUR LA CERTIFICATION -->
+            <div id="concepts">
+                <h2 class="section-title"><i class="fas fa-microchip me-2 text-warning"></i> 24 concepts Kafka – Version Certification Developer</h2>
+                <p class="mb-4">Chaque carte = analogie puissante + extrait technique CCDAK + lien avec notre fil rouge "fraude".</p>
+                <div class="row g-4 mt-1" id="conceptsGrid">
+                    
+                    <!-- 1. Topic & Partition -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-folder-tree me-2 text-warning"></i>Topic & Partition</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Classeur + sous-dossiers</span><div class="concept-section"><strong>📌 Analogie :</strong> Le topic est un classeur “Transactions”, ses partitions (ex: 6 sous-dossiers) stockent les relevés dans l’ordre. Kafka garantit l’ordre <strong>dans une partition</strong>.</div><div class="concept-section"><strong>💡 Examen :</strong> Le parallélisme max d’un consumer group = nombre de partitions. Pour le fil rouge, <code>transactions-raw</code> a 12 partitions pour supporter 12 consommateurs simultanés.</div><div class="concept-section"><strong>🔑 Astuce certif :</strong> Toujours dimensionner partitions en fonction du débit cible. Augmenter partitions n’est pas réversible sans recréer le topic.</div></div></div></div>
+                    
+                    <!-- 2. Producer & idempotence -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-pen-fancy me-2 text-warning"></i>Producer (idempotent)</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Écrivain fiable</span><div class="concept-section"><strong>📌 Analogie :</strong> Guichetier qui enregistre les transactions. Avec <code>enable.idempotence=true</code>, il note un numéro unique sur chaque bordereau → pas de doublon.</div><div class="concept-section"><strong>💡 Examen :</strong> Pour exactly-once, il faut <code>acks=all</code>, <code>retries=MAX_INT</code>, <code>max.in.flight=5</code> et idempotence.</div><div class="concept-section"><strong>🔑 Dans notre fraude :</strong> Les producteurs évitent les doublons lors des pics réseau.</div></div></div></div>
+                    
+                    <!-- 3. Consumer & Consumer Group -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-users me-2 text-warning"></i>Consumer Group</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Équipe de lecteurs</span><div class="concept-section"><strong>📌 Analogie :</strong> 3 analystes lisent les sous-dossiers (partitions) : chacun sa partition, le travail est réparti. Si un analyste tombe malade, ses dossiers sont réattribués (rebalance).</div><div class="concept-section"><strong>💡 Examen :</strong> Rebalance peut stopper la consommation. Utiliser <code>partition.assignment.strategy</code> (Cooperative Sticky) pour réduire les rééquilibrages.</div><div class="concept-section"><strong>🔑 Notre Streams :</strong> Kafka Streams crée automatiquement des consumers groups pour le sous-traitement.</div></div></div></div>
+                    
+                    <!-- 4. Broker / ISR -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-server me-2 text-warning"></i>Broker / ISR</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Étagère + réplicas synchrones</span><div class="concept-section"><strong>📌 Analogie :</strong> Chaque étagère (broker) stocke des copies des dossiers. ISR = les assistants qui ont reçu la dernière version.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>min.insync.replicas=2</code> avec réplication 3 → garantit qu’au moins 2 brokers ont le message avant d’accuser réception.</div></div></div></div>
+                    
+                    <!-- 5. Leader / Follower -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-crown me-2 text-warning"></i>Leader/Follower</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Chef & adjoints</span><div class="concept-section"><strong>📌 Analogie :</strong> Chef de rayon (leader) gère les écritures/lectures. Les adjoints (followers) copient simplement.</div><div class="concept-section"><strong>💡 Examen :</strong> Les followers ne servent pas les clients, uniquement la réplication. <code>unclean.leader.election=false</code> évite la perte de données.</div></div></div></div>
+                    
+                    <!-- 6. Clé & Headers -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-tags me-2 text-warning"></i>Clé & Headers</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Étiquette de tri</span><div class="concept-section"><strong>📌 Analogie :</strong> Chaque transaction a une clé = <code>numéroCarte</code>. Toutes les transactions d’une même carte vont dans la même partition → ordre garanti.</div><div class="concept-section"><strong>💡 Examen :</strong> Les headers (paires clé/valeur) servent à du routage ou métadonnées sans toucher au body.</div></div></div></div>
+                    
+                    <!-- 7. Sérialisation & Schema Registry -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-code-branch me-2 text-warning"></i>Schema Registry</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Bibliothèque des formulaires</span><div class="concept-section"><strong>📌 Analogie :</strong> Tous les producteurs doivent utiliser le même formulaire (Avro) pour la transaction. Le Schema Registry stocke la version du formulaire.</div><div class="concept-section"><strong>💡 Examen :</strong> Avro + Schema Registry = évolution de schéma sans rupture (compatibilité backward/forward).</div></div></div></div>
+                    
+                    <!-- 8. Offset & Commit Log -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-sort-numeric-down-alt me-2 text-warning"></i>Offset / Commit Log</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Numéro de page immuable</span><div class="concept-section"><strong>📌 Analogie :</strong> Chaque message a un offset (numéro de page) qui ne change jamais. C’est un journal append-only.</div><div class="concept-section"><strong>💡 Examen :</strong> Le consommateur commit son offset dans le topic interne <code>__consumer_offsets</code>. Maîtriser commit automatique vs manuel.</div></div></div></div>
+                    
+                    <!-- 9. Rétention & Compaction -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-trash-alt me-2 text-warning"></i>Rétention / Compaction</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Nettoyage ou archivage</span><div class="concept-section"><strong>📌 Analogie :</strong> Delete = jeter les fiches après 7 jours. Compaction = ne garder que la dernière valeur par clé.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>log.cleanup.policy=compact</code> pour les tables de référence (KTable).</div></div></div></div>
+                    
+                    <!-- 10. Exactly-Once Semantics (EOS) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-check-double me-2 text-warning"></i>Exactly-Once (EOS)</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Une et une seule fois</span><div class="concept-section"><strong>📌 Analogie :</strong> Transfert bancaire parfait : ni perte, ni double. Kafka combine idempotence + transactions atomiques.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>processing.guarantee=exactly_once_v2</code> dans Kafka Streams. Les transactions permettent de committer offsets et messages produits ensemble.</div><div class="concept-section"><strong>🔑 Dans la fraude :</strong> L’alerte est générée exactement une fois même en cas de panne.</div></div></div></div>
+                    
+                    <!-- 11. KStream vs KTable -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-chart-line me-2 text-warning"></i>KStream / KTable</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Flux vs Photo</span><div class="concept-section"><strong>📌 Analogie :</strong> KStream = flux continu d’événements (transactions). KTable = un instantané mutable (ex: solde courant).</div><div class="concept-section"><strong>💡 Examen :</strong> KTable est un changelog compacté. La jointure KStream-KTable est très courante.</div></div></div></div>
+                    
+                    <!-- 12. State Stores (RocksDB) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-database me-2 text-warning"></i>State Store</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Mémoire persistante locale</span><div class="concept-section"><strong>📌 Analogie :</strong> Un tableau blanc sur lequel chaque analyste note les compteurs intermédiaires (somme par carte).</div><div class="concept-section"><strong>💡 Examen :</strong> State stores sont basés sur RocksDB et sauvegardés dans un topic de changelog. Essentiel pour les opérations avec état.</div><div class="concept-section"><strong>🔑 Dans le fil rouge :</strong> Stockage de la somme des montants par carte sur la fenêtre courante.</div></div></div></div>
+                    
+                    <!-- 13. Windowing -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-hourglass-half me-2 text-warning"></i>Windowing</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Découpage temporel</span><div class="concept-section"><strong>📌 Analogie :</strong> Détection de fraude : on regarde les 2 dernières minutes (fenêtre glissante) pour chaque carte.</div><div class="concept-section"><strong>💡 Examen :</strong> Tumbling, Hopping, Session windows. <code>grace()</code> gère les événements en retard.</div><div class="concept-section"><strong>🔑 Code :</strong> <code>windowedBy(TimeWindows.of(Duration.ofMinutes(2)))</code>.</div></div></div></div>
+                    
+                    <!-- 14. Joins & co-partitioning -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-link me-2 text-warning"></i>Joins & co-partitioning</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Fusion de flux</span><div class="concept-section"><strong>📌 Analogie :</strong> Pour joindre deux classeurs, ils doivent avoir le même nombre de sous-dossiers et la même répartition.</div><div class="concept-section"><strong>💡 Examen :</strong> Co-partitioning = même nombre de partitions + même partitionneur. Kafka Streams peut faire un <code>repartition</code> automatique (coût).</div></div></div></div>
+                    
+                    <!-- 15. Interactive Queries -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-search me-2 text-warning"></i>Interactive Queries</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Interroger l’état</span><div class="concept-section"><strong>📌 Analogie :</strong> Dashboard qui affiche en direct le compteur de fraude par carte en allant chercher l’info dans chaque state store distribué.</div><div class="concept-section"><strong>💡 Examen :</strong> Exposer une API REST pour interroger l’état d’une application Streams (KTable, fenêtres).</div></div></div></div>
+                    
+                    <!-- 16. Processor API -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-microchip me-2 text-warning"></i>Processor API</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Low-level contrôle</span><div class="concept-section"><strong>📌 Analogie :</strong> DSL = assemblage de Lego prêts à l’emploi. Processor API = pièces brutes pour construire des traitements sur-mesure.</div><div class="concept-section"><strong>💡 Examen :</strong> Utiliser Processor API pour une gestion fine des événements ou horloge événementielle.</div></div></div></div>
+                    
+                    <!-- 17. Kafka Transactions -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-file-invoice-dollar me-2 text-warning"></i>Transactions</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Atomicité read-process-write</span><div class="concept-section"><strong>📌 Analogie :</strong> Un chèque de banque : soit tout est validé (consommation + production + commit offset), soit rien.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>initTransaction()</code>, <code>beginTransaction()</code>, <code>sendOffsetsToTransaction()</code>.</div></div></div></div>
+                    
+                    <!-- 18. Kafka Connect -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-plug me-2 text-warning"></i>Kafka Connect</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Adaptateur universel</span><div class="concept-section"><strong>📌 Analogie :</strong> Passerelle qui importe automatiquement les données d’une base Oracle vers Kafka (Debezium).</div><div class="concept-section"><strong>💡 Examen :</strong> Connecteurs JDBC, S3, Elastic. Architecture workers distribués, transformations simples (SMT).</div></div></div></div>
+                    
+                    <!-- 19. KRaft -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-robot me-2 text-warning"></i>KRaft</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Pas de ZooKeeper</span><div class="concept-section"><strong>📌 Analogie :</strong> Avant : un secrétaire externe (ZK) gérait les métadonnées. Maintenant : le cluster gère lui-même ses métadonnées (Raft).</div><div class="concept-section"><strong>💡 Examen :</strong> Kafka 3.x+ sans ZooKeeper. KRaft supporte plus de 200k partitions.</div></div></div></div>
+                    
+                    <!-- 20. Monitoring & Lag -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-chart-simple me-2 text-warning"></i>Monitoring / Lag</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Retard de lecture</span><div class="concept-section"><strong>📌 Analogie :</strong> Le lag = nombre de pages non encore lues par l’analyste. S’il prend du retard, l’alerte fraude risque d’arriver trop tard.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>kafka-consumer-groups --describe</code>. Métriques JMX.</div></div></div></div>
+                    
+                    <!-- 21. Sécurité & Quotas -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-shield-alt me-2 text-warning"></i>Sécurité & Quotas</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Contrôle d’accès</span><div class="concept-section"><strong>📌 Analogie :</strong> Badge d’accès : seuls certains employés peuvent écrire dans le topic transactions. Quotas limitent le débit.</div><div class="concept-section"><strong>💡 Examen :</strong> ACL, SASL/SCRAM, mTLS. Quotas de production/consommation.</div></div></div></div>
+
+                    <!-- ========== NOUVEAUX CONCEPTS : FILTER, GROUPBY, AGGREGATION ========== -->
+                    <!-- 22. Filter (Prédicat) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-filter me-2 text-warning"></i>Filter (Prédicat)</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Tamis</span><div class="concept-section"><strong>📌 Analogie :</strong> Un tamis qui ne laisse passer que les grains plus gros qu’un seuil. En Streams, on ne garde que les événements satisfaisant une condition.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>filter()</code> et <code>filterNot()</code> sont des opérations <strong>sans état</strong> (stateless). Elles ne nécessitent pas de state store.</div><div class="concept-section"><strong>🔑 Dans notre fraude :</strong> On filtre d’abord les transactions > 50€ pour éliminer les micropaiements avant agrégation.</div><div class="concept-section"><strong>💻 Code :</strong> <code>.filter((key, tx) -> tx.getMontant() > 50)</code>.</div></div></div></div>
+
+                    <!-- 23. GroupBy / GroupByKey -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-object-group me-2 text-warning"></i>GroupBy / GroupByKey</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Rassemblement par étiquette</span><div class="concept-section"><strong>📌 Analogie :</strong> Toutes les fiches portant la même couleur (clé) sont mises dans le même paquet avant de les compter ou de les additionner.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>groupByKey()</code> utilise la clé existante du message. <code>groupBy()</code> permet de changer la clé (provoque un <strong>repartition</strong>). L’opération est <strong>avec état</strong> et nécessite un groupé avant une agrégation.</div><div class="concept-section"><strong>🔑 Notre pipeline :</strong> On groupe par carte (clé) avant d’appliquer la fenêtre et la somme.</div></div></div></div>
+
+                    <!-- 24. Aggregations (count, reduce, aggregate) -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-chart-pie me-2 text-warning"></i>Aggregations</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Additionneur automatique</span><div class="concept-section"><strong>📌 Analogie :</strong> Un comptable qui tient un registre des sommes par catégorie. Chaque nouvel événement met à jour le total (state store).</div><div class="concept-section"><strong>💡 Examen :</strong> <code>count()</code> (nombre d’événements), <code>reduce()</code> (combine deux valeurs), <code>aggregate()</code> (général). Toutes sont <strong>stateful</strong> et utilisent RocksDB.</div><div class="concept-section"><strong>🔑 Dans la fraude :</strong> <code>aggregate( () -> 0.0, (key, tx, sum) -> sum + tx.getMontant() )</code> calcule la somme par carte sur la fenêtre.</div><div class="concept-section"><strong>💡 Conseil certif :</strong> Attention à la sérialisation des objets d’état ; ils doivent être immutables ou bien gérés.</div></div></div></div>
+                </div>
+            </div>
+
+            <!-- SECTION RÉUSSIR LA CERTIFICATION -->
+            <div id="certif-success" class="mt-5">
+                <h2 class="section-title"><i class="fas fa-certificate me-2 text-warning"></i> Stratégie gagnante : Certification Confluent Kafka Developer (CCDAK)</h2>
+                <div class="certif-card shadow-sm">
+                    <h5><i class="fas fa-list-check me-2"></i>Domaines officiels couverts par notre guide</h5>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Kafka Core</strong> : producers, consumers, brokers, réplication, ISR, offsets</li>
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Kafka Streams</strong> : KStream/KTable, windowing, state stores, exactly-once, joins</li>
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Opérations Streams</strong> : filter, groupBy, aggregation, reduce, count</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Schema Registry & Avro</strong> : évolution de schéma, sérialisation</li>
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Kafka Connect</strong> : sources, sinks, SMT</li>
+                                <li><i class="fas fa-check-circle text-success"></i> <strong>Administration & sécurité</strong> : KRaft, ACL, quotas, monitoring lag</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr>
+                    <h5><i class="fas fa-lightbulb me-2"></i>Nos conseils pour décrocher l'examen (version francophone)</h5>
+                    <ul>
+                        <li><strong>Pratiquez avec Docker</strong> : montez un cluster KRaft + Kafka Streams en Java, implémentez le pipeline de détection de fraude ci-dessus.</li>
+                        <li><strong>Maîtrisez les CLI</strong> : <code>kafka-topics</code>, <code>kafka-consumer-groups</code>, <code>kafka-producer-perf-test</code>.</li>
+                        <li><strong>Comprenez les configurations critiques</strong> : <code>acks</code>, <code>min.insync.replicas</code>, <code>enable.idempotence</code>, <code>processing.guarantee</code>.</li>
+                        <li><strong>Révisez les pièges</strong> : rebalance, ordre des messages, co-partitioning, état global vs local, gestion des fenêtres et <code>grace()</code>.</li>
+                        <li><strong>Ressources recommandées</strong> : documentation officielle Confluent, <strong>Kafka: The Definitive Guide</strong>, et les <em>practice exams</em> (Udemy, ExamTopics).</li>
+                    </ul>
+                    <div class="alert alert-dark mt-3">
+                        <i class="fab fa-confluence me-2"></i> <strong>Mémo final pour l’exam :</strong> “Un topic partitionné, un consumer group lié, exactly-once avec transaction, state store pour mémoire, interactive queries pour briller. <br> Et surtout : <strong>filter, groupBy, aggregate</strong> sont les trois piliers des transformations stateful/stateless.”
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 text-center">
+                <a href="#" class="btn btn-outline-secondary"><i class="fas fa-arrow-up"></i> Retour haut de page</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="mt-5 pt-4 pb-3">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <i class="fab fa-apache me-1"></i> <strong>Formation Certif Kafka Developer</strong> · 24 concepts & Streams pour francophones
+                <br><small>Basé sur les objectifs CCDAK 2025 – analogies, fil conducteur "détection de fraude", prêt pour l’examen.</small>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <span class="text-white-50">© 2025 — Guide libre pour la communauté Kafka francophone</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('.toc-link, a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if(href && href !== "#" && href.startsWith('#')) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+</script>
+</body>
+</html>

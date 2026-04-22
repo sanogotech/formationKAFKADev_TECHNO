@@ -213,153 +213,1421 @@
 
     <div class="tab-content">
         <!-- 1. Introduction Kafka -->
-        <div id="tab1" class="tab-pane active">
-            <h2>📌 Apache Kafka – Concepts fondamentaux</h2>
-            <p>Kafka est une plateforme de streaming distribuée. Elle permet de publier, stocker et traiter des flux d'événements en temps réel.</p>
-            <div class="card-grid">
-                <div class="card"><span class="badge">Topic</span> Flux de messages, partitionné et répliqué.</div>
-                <div class="card"><span class="badge">Producer</span> Publie des messages sur un topic.</div>
-                <div class="card"><span class="badge">Consumer</span> Lit les messages d'un topic.</div>
-                <div class="card"><span class="badge">Broker</span> Serveur Kafka (cluster).</div>
-                <div class="card"><span class="badge">Zookeeper/KRaft</span> Coordination et métadonnées.</div>
-                <div class="card"><span class="badge">Streams API</span> Traitement de flux (Java).</div>
-                <div class="card"><span class="badge">ksqlDB</span> Moteur SQL pour streaming.</div>
-                <div class="card"><span class="badge">Kafka Connect</span> Intégration de données.</div>
-            </div>
-            <p><strong>Use case typique :</strong> pipeline de logs, détection de fraude, analytics temps réel, CDC.</p>
-        </div>
+ <div id="tab1" class="tab-pane active">
+    <h2>📌 Introduction à Apache Kafka – Guide complet pour débutant</h2>
+    <p>Apache Kafka est une plateforme de streaming distribuée open-source. Elle permet de publier, stocker, traiter et consommer des flux d'événements en temps réel, à grande échelle.</p>
+
+    <h3>🎯 Pourquoi Kafka ? – Problèmes résolus</h3>
+    <p>Avant Kafka, les applications communiquaient souvent via des API synchrones (REST, RPC) ou des files de messages classiques (RabbitMQ, ActiveMQ). Ces approches montrent leurs limites quand :</p>
+    <ul>
+        <li>Le volume de données explose (millions de messages par seconde).</li>
+        <li>Plusieurs consommateurs doivent lire les mêmes données sans se ralentir mutuellement.</li>
+        <li>On a besoin de rejouer des messages historiques.</li>
+        <li>Il faut intégrer des données hétérogènes (logs, BDD, IoT) dans un seul pipeline.</li>
+    </ul>
+    <p>Kafka résout ces problèmes grâce à une approche <strong>log structuré</strong> et <strong>persistant</strong>.</p>
+
+    <h3>🏗️ Architecture de Kafka – Les composants clés</h3>
+    <div class="card-grid">
+        <div class="card"><strong>📦 Topic</strong><br>C'est un flux de messages, comparable à une table de base de données ou un dossier. Chaque topic est divisé en partitions (unités de parallélisme).</div>
+        <div class="card"><strong>✍️ Producteur (Producer)</strong><br>Une application qui publie des messages sur un topic. Elle choisit la partition (par défaut round-robin ou via une clé).</div>
+        <div class="card"><strong>📖 Consommateur (Consumer)</strong><br>Lit les messages d’un topic. Il peut faire partie d’un groupe de consommateurs pour se répartir les partitions.</div>
+        <div class="card"><strong>🖥️ Broker</strong><br>Un serveur Kafka. Un cluster est composé de plusieurs brokers. Chaque partition est répliquée sur plusieurs brokers (tolérance aux pannes).</div>
+        <div class="card"><strong>🧩 Zookeeper / KRaft</strong><br>Zookeeper (ancien) gère les métadonnées du cluster. Depuis Kafka 3.x, KRaft (Kafka Raft) remplace Zookeeper pour simplifier l’opération.</div>
+        <div class="card"><strong>🧠 Streams API</strong><br>Librairie Java pour transformer des flux (filtres, agrégations, jointures) directement dans votre application.</div>
+        <div class="card"><strong>🧬 ksqlDB</strong><br>Moteur SQL pour streaming. Permet d’écrire des requêtes temps réel sans coder.</div>
+        <div class="card"><strong>🔌 Kafka Connect</strong><br>Framework pour importer/exporter des données (bases de données, S3, etc.) de manière fiable.</div>
+    </div>
+
+    <h3>🔁 Flow des messages – Étape par étape</h3>
+    <ol>
+        <li>Un <strong>producteur</strong> envoie un message à un <strong>topic</strong>. Il peut spécifier une clé (key) ; la même clé va toujours dans la même partition.</li>
+        <li>Le message est écrit dans une <strong>partition</strong> du topic. Chaque message a un offset unique dans la partition.</li>
+        <li>Le message est répliqué sur plusieurs <strong>brokers</strong> (selon le facteur de réplication). Le leader de la partition gère les écritures/lectures, les followers copient passivement.</li>
+        <li>Un <strong>consommateur</strong> (d’un groupe) se connecte et lit les messages. Il commit son offset (position de lecture) pour ne pas relire les mêmes messages.</li>
+        <li>Plusieurs groupes de consommateurs peuvent lire indépendamment le même topic. Kafka conserve les messages selon une politique de rétention (durée ou taille).</li>
+    </ol>
+
+    <h3>⚙️ Installation de Kafka – Premiers pas (pas à pas)</h3>
+    <p><strong>Prérequis :</strong> Java 8 ou 11 installé, accès à un terminal (Linux/Mac/WSL).</p>
+    <pre><code># 1. Télécharger Kafka (exemple version 3.6.0)
+wget https://downloads.apache.org/kafka/3.6.0/kafka_2.13-3.6.0.tgz
+tar -xzf kafka_2.13-3.6.0.tgz
+cd kafka_2.13-3.6.0
+
+# 2. Démarrer Zookeeper (si vous utilisez l’ancien mode)
+bin/zookeeper-server-start.sh config/zookeeper.properties
+# Dans un nouveau terminal :
+bin/kafka-server-start.sh config/server.properties
+
+# 3. Ou démarrer avec KRaft (Kafka sans Zookeeper) – recommandé
+# Générer un UUID pour le cluster
+bin/kafka-storage.sh random-uuid
+# Formater les logs du broker
+bin/kafka-storage.sh format -t &lt;UUID&gt; -c config/kraft/server.properties
+# Démarrer le broker
+bin/kafka-server-start.sh config/kraft/server.properties
+</code></pre>
+
+    <h3>📂 Premier topic – Lire et écrire des messages</h3>
+    <pre><code># Créer un topic nommé "test" avec 3 partitions, facteur de réplication 1
+bin/kafka-topics.sh --create --topic test --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1
+
+# Lister les topics
+bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+# Démarrer un producteur en ligne de commande (tapez vos messages)
+bin/kafka-console-producer.sh --topic test --bootstrap-server localhost:9092
+> Hello Kafka
+> Ceci est un test
+
+# Démarrer un consommateur (dans un autre terminal)
+bin/kafka-console-consumer.sh --topic test --from-beginning --bootstrap-server localhost:9092
+# Vous verrez les messages s’afficher en temps réel.
+</code></pre>
+
+    <h3>📈 Cas d’usage typiques de Kafka en entreprise</h3>
+    <ul>
+        <li><strong>Pipeline de logs et métriques</strong> : collecte centralisée des logs d’applications → Kafka → Elasticsearch / Splunk.</li>
+        <li><strong>Change Data Capture (CDC)</strong> : capture des modifications de bases de données (via Debezium) → propagation en temps réel vers des caches, data lakes, ou microservices.</li>
+        <li><strong>Messagerie orientée événements</strong> : communication asynchrone entre microservices (découplage, résilience).</li>
+        <li><strong>Analytique en temps réel</strong> : agrégations, fenêtres glissantes pour détection de fraudes, recommandations, monitoring IoT.</li>
+        <li><strong>Event Sourcing / CQRS</strong> : stockage de l’historique complet des événements d’un domaine.</li>
+    </ul>
+
+    <h3>🧪 Première application Python (producteur/consommateur simple)</h3>
+    <p>Installez d’abord <code>kafka-python</code> : <code>pip install kafka-python</code>.</p>
+    <pre><code># producer.py
+from kafka import KafkaProducer
+producer = KafkaProducer(bootstrap_servers='localhost:9092',
+                         value_serializer=lambda v: v.encode('utf-8'))
+producer.send('test', value='Hello depuis Python')
+producer.flush()
+print("Message envoyé")
+
+# consumer.py
+from kafka import KafkaConsumer
+consumer = KafkaConsumer('test', bootstrap_servers='localhost:9092',
+                         auto_offset_reset='earliest',
+                         value_deserializer=lambda v: v.decode('utf-8'))
+for msg in consumer:
+    print(f"Reçu : {msg.value}")</code></pre>
+
+    <h3>📚 Concepts avancés (pour comprendre la suite)</h3>
+    <ul>
+        <li><strong>Offset</strong> : position unique d’un message dans une partition. Le consommateur commit son offset pour ne pas tout relire au redémarrage.</li>
+        <li><strong>Groupe de consommateurs</strong> : plusieurs consommateurs partagent la charge des partitions (chaque partition est assignée à un seul consommateur du groupe).</li>
+        <li><strong>Réplication</strong> : chaque partition a un leader et des followers. Si le leader tombe, un follower devient leader (assure la haute disponibilité).</li>
+        <li><strong>acks</strong> : paramètre du producteur (0, 1, all) qui contrôle la garantie de persistance.</li>
+        <li><strong>Rétention</strong> : les messages ne sont pas supprimés après consommation. Kafka conserve par défaut 7 jours (configurable).</li>
+    </ul>
+
+    <h3>✅ Bonnes pratiques pour débuter</h3>
+    <ul>
+        <li>Commencez avec un seul broker en local pour apprendre, puis passez en cluster.</li>
+        <li>Utilisez des noms de topics explicites (ex: <code>order.created</code>, <code>user.logins</code>).</li>
+        <li>Préférez <strong>Avro</strong> ou <strong>Protobuf</strong> avec Schema Registry pour l’évolution des schémas.</li>
+        <li>Surveillez la taille des partitions (ne pas dépasser quelques Go par partition).</li>
+        <li>Testez la résilience en tuant un broker (si réplication > 1).</li>
+    </ul>
+
+    <h3>🔗 Ressources pour aller plus loin</h3>
+    <ul>
+        <li><a href="https://kafka.apache.org/documentation/" target="_blank">Documentation officielle Apache Kafka</a></li>
+        <li><a href="https://www.confluent.io/resources/kafka-the-definitive-guide/" target="_blank">Kafka: The Definitive Guide (O'Reilly)</a></li>
+        <li><a href="https://developer.confluent.io/courses/" target="_blank">Cours gratuits Confluent Developer</a></li>
+    </ul>
+</div>
 
         <!-- 2. Kafka Streams (Java) -->
-        <div id="tab2" class="tab-pane">
-            <h2>⚙️ Kafka Streams en Java</h2>
-            <p>Bibliothèque légère pour transformer des flux de données directement dans votre application Java.</p>
-            <h3>Exemple : compteur de mots (WordCount)</h3>
-            <pre><code>// Dépendance Maven : org.apache.kafka:kafka-streams
+ <div id="tab2" class="tab-pane">
+    <h2>⚙️ Kafka Streams en Java – Guide complet pas à pas</h2>
+    <p>Kafka Streams est une bibliothèque Java légère (pas de cluster externe) pour construire des applications de traitement de flux en temps réel. Elle s’appuie directement sur Kafka comme source et sink.</p>
+
+    <h3>🎯 Pourquoi Kafka Streams ?</h3>
+    <ul>
+        <li><strong>Intégration native</strong> : utilise les topics Kafka comme source et destination, sans système externe.</li>
+        <li><strong>État local</strong> : les agrégations (compteurs, jointures) sont stockées dans des stores RocksDB intégrés, ce qui est très performant.</li>
+        <li><strong>Exactly-once semantics</strong> : garantie que chaque message est traité une seule fois, même en cas de panne.</li>
+        <li><strong>Fenêtrage</strong> : support des fenêtres glissantes, tumbling, hopping, session.</li>
+        <li><strong>Scalabilité</strong> : parallélisme automatique via les partitions Kafka.</li>
+    </ul>
+
+    <h3>📦 Prérequis et configuration du projet (Maven)</h3>
+    <p>Créez un projet Java avec Maven. Ajoutez la dépendance suivante dans <code>pom.xml</code> :</p>
+    <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.kafka&lt;/groupId&gt;
+    &lt;artifactId&gt;kafka-streams&lt;/artifactId&gt;
+    &lt;version&gt;3.6.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+    &lt;artifactId&gt;slf4j-simple&lt;/artifactId&gt;
+    &lt;version&gt;2.0.9&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+    <p>Assurez-vous que Kafka tourne sur <code>localhost:9092</code> et que le topic <code>input-topic</code> existe (ou sera créé automatiquement).</p>
+
+    <h3>📝 Premier exemple : compteur de mots (WordCount) – étape par étape</h3>
+    <p>Nous allons lire un topic contenant des phrases, extraire les mots, et compter leurs occurrences dans une table (KTable).</p>
+    
+    <h4>Étape 1 : Configuration des propriétés</h4>
+    <pre><code>import org.apache.kafka.streams.StreamsConfig;
+import java.util.Properties;
+
 Properties props = new Properties();
-props.put(StreamsConfig.APPLICATION_ID_CONFIG, "wordcount-app");
+props.put(StreamsConfig.APPLICATION_ID_CONFIG, "wordcount-app"); // Identifiant unique de l'application
 props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+// Option exactly-once (depuis Kafka 3.0)
+props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE_V2);</code></pre>
+
+    <h4>Étape 2 : Créer le builder et le stream source</h4>
+    <pre><code>import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.kstream.KStream;
 
 StreamsBuilder builder = new StreamsBuilder();
-KStream&lt;String, String&gt; textLines = builder.stream("input-topic");
+KStream&lt;String, String&gt; textLines = builder.stream("input-topic");</code></pre>
 
-KTable&lt;String, Long&gt; wordCounts = textLines
-    .flatMapValues(line -> Arrays.asList(line.toLowerCase().split("\\W+")))
+    <h4>Étape 3 : Transformation flatMap – éclater chaque phrase en mots</h4>
+    <pre><code>import org.apache.kafka.streams.kstream.ValueMapper;
+import java.util.Arrays;
+
+KStream&lt;String, String&gt; words = textLines.flatMapValues(
+    line -> Arrays.asList(line.toLowerCase().split("\\W+"))
+);</code></pre>
+
+    <h4>Étape 4 : GroupBy et comptage (agrégation avec état)</h4>
+    <pre><code>import org.apache.kafka.streams.kstream.Grouped;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.state.KeyValueStore;
+
+KTable&lt;String, Long&gt; wordCounts = words
+    .groupBy((key, word) -> word, Grouped.with(Serdes.String(), Serdes.String()))
+    .count(Materialized.&lt;String, Long, KeyValueStore&lt;org.apache.kafka.common.utils.Bytes&gt;&gt;as("counts-store"));</code></pre>
+
+    <h4>Étape 5 : Envoyer les résultats dans un topic de sortie</h4>
+    <pre><code>wordCounts.toStream().to("output-topic", Produced.with(Serdes.String(), Serdes.Long()));</code></pre>
+
+    <h4>Étape 6 : Lancer l'application</h4>
+    <pre><code>import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.Topology;
+
+Topology topology = builder.build();
+KafkaStreams streams = new KafkaStreams(topology, props);
+streams.start();
+
+// Ajoutez un hook d'arrêt gracieux
+Runtime.getRuntime().addShutdownHook(new Thread(streams::close));</code></pre>
+
+    <h3>🧪 Tester l'application</h3>
+    <p>Démarrez l'application Java, puis dans un terminal, produisez des messages :</p>
+    <pre><code>bin/kafka-console-producer.sh --topic input-topic --bootstrap-server localhost:9092
+> hello world
+> hello kafka streams</code></pre>
+    <p>Consommez le topic de sortie :</p>
+    <pre><code>bin/kafka-console-consumer.sh --topic output-topic --from-beginning --bootstrap-server localhost:9092 --property print.key=true --property key.separator=" : "</code></pre>
+    <p>Vous verrez : <code>hello : 1</code>, <code>world : 1</code>, puis <code>hello : 2</code>, etc.</p>
+
+    <h3>⏱️ Fenêtrage temporel – Compter les mots par minute</h3>
+    <p>Au lieu d’un compteur global, on veut le nombre d’occurrences par fenêtre de 1 minute (tumbling window).</p>
+    <pre><code>import org.apache.kafka.streams.kstream.TimeWindows;
+import java.time.Duration;
+
+KTable&lt;Windowed&lt;String&gt;, Long&gt; windowedCounts = words
     .groupBy((key, word) -> word)
+    .windowedBy(TimeWindows.of(Duration.ofMinutes(1)))
     .count();
 
-wordCounts.toStream().to("output-topic", Produced.with(Serdes.String(), Serdes.Long()));
+// Pour envoyer dans un topic, il faut un Serde pour Windowed&lt;String&gt;
+windowedCounts.toStream().to("windowed-output", Produced.with(WindowedSerdes.timeWindowedSerdeFrom(String.class), Serdes.Long()));</code></pre>
 
-KafkaStreams streams = new KafkaStreams(builder.build(), props);
-streams.start();</code></pre>
-            <p><strong>Bonnes pratiques :</strong> Utiliser des Serdes personnalisés, gérer les fenêtres de temps (<code>TimeWindows</code>), activer exactly-once semantics.</p>
-        </div>
+    <h3>🔗 Jointure entre deux flux (exemple : enrichir des clics avec des profils utilisateurs)</h3>
+    <pre><code>KStream&lt;String, Click&gt; clicks = builder.stream("clicks", Consumed.with(Serdes.String(), clickSerde));
+KTable&lt;String, UserProfile&gt; profiles = builder.table("user-profiles", Consumed.with(Serdes.String(), profileSerde));
+KStream&lt;String, EnrichedClick&gt; enriched = clicks.join(profiles,
+    (click, profile) -> new EnrichedClick(click, profile),
+    Joined.with(Serdes.String(), clickSerde, profileSerde));</code></pre>
+
+    <h3>🧠 Concepts avancés – Topologie, Stores, Serdes personnalisés</h3>
+    <ul>
+        <li><strong>Topologie</strong> : graphe de nœuds (sources, processeurs, sinks). Visualisable via <code>topology.describe()</code>.</li>
+        <li><strong>State Store</strong> : stockage local (RocksDB) pour les tables. Peut être persisté sur disque et sauvegardé dans un topic changelog.</li>
+        <li><strong>Serdes personnalisés</strong> : pour vos classes métier, implémentez <code>Serializer&lt;T&gt;</code> / <code>Deserializer&lt;T&gt;</code> ou utilisez Avro.</li>
+        <li><strong>Transformers</strong> : accès bas niveau aux stores et horloge.</li>
+    </ul>
+
+    <h3>✅ Bonnes pratiques pour Kafka Streams en production</h3>
+    <ul>
+        <li>Définissez <code>num.stream.threads</code> pour utiliser plusieurs threads dans une même instance.</li>
+        <li>Surveillez les métriques (JMX) : taux de traitement, taille des stores, temps de commit.</li>
+        <li>Configurez <code>commit.interval.ms</code> pour équilibrer latence et performance.</li>
+        <li>Utilisez <code>exactly-once</code> pour les cas critiques (paiements, inventaire).</li>
+        <li>Testez la résilience : tuez une instance et vérifiez la reprise (rebalancement).</li>
+        <li>Ne mettez pas trop de données par clé (évitez les "hot keys").</li>
+    </ul>
+
+    <h3>📊 Monitoring avec Kafka Streams</h3>
+    <p>Exposez les métriques via JMX, par exemple :</p>
+    <pre><code>props.put(StreamsConfig.METRICS_RECORDING_LEVEL_CONFIG, "INFO");
+// Puis activez un collecteur comme Prometheus JMX exporter.</code></pre>
+    <p>Métriques clés : <code>kafka.streams:type=stream-metrics</code> (taux de messages), <code>kafka.streams:type=processor-node</code> (latence), <code>kafka.streams:type=rocksdb</code> (utilisation disque).</p>
+
+    <h3>🔧 Dépannage fréquent</h3>
+    <ul>
+        <li><strong>Erreur de sérialisation</strong> : vérifiez les Serdes (clé/valeur).</li>
+        <li><strong>Rebalancement trop long</strong> : ajustez <code>session.timeout.ms</code> et <code>max.poll.interval.ms</code>.</li>
+        <li><strong>State store corrompu</strong> : supprimez le répertoire local (par défaut <code>/tmp/kafka-streams</code>) et redémarrez.</li>
+        <li><strong>Messages ignorés</strong> : activez un <code>DeserializationExceptionHandler</code> personnalisé.</li>
+    </ul>
+
+    <h3>📚 Ressources et code source complet</h3>
+    <p>Un exemple de projet complet est disponible sur <a href="https://github.com/confluentinc/kafka-streams-examples" target="_blank">Confluent Kafka Streams Examples</a>. Pour aller plus loin, lisez le chapitre "Kafka Streams" de <em>Kafka: The Definitive Guide</em>.</p>
+</div>
 
         <!-- 3. Kafka Streams (Python avec Faust) -->
-        <div id="tab3" class="tab-pane">
-            <h2>🐍 Kafka Streams en Python (Faust)</h2>
-            <p>Faust est une bibliothèque Python inspirée de Kafka Streams, avec support asynchrone.</p>
-            <h3>Exemple : compteur de mots</h3>
-            <pre><code>import faust
+   <div id="tab3" class="tab-pane">
+    <h2>🐍 Kafka Streams en Python avec Faust – Guide complet</h2>
+    <p>Faust est une bibliothèque Python pour le traitement de flux, inspirée de Kafka Streams (Java). Elle est asynchrone (basée sur <code>async/await</code>) et permet de construire des applications de streaming robustes avec un état persistant.</p>
 
-app = faust.App('wordcount', broker='kafka://localhost:9092')
-input_topic = app.topic('input', value_type=str)
-counts = app.Table('wordcount', default=int)
+    <h3>🎯 Pourquoi Faust plutôt que Kafka Streams Java ?</h3>
+    <ul>
+        <li><strong>Productivité Python</strong> : syntaxe simple, pas besoin de compiler.</li>
+        <li><strong>Asynchrone par nature</strong> : idéal pour l'I/O (Kafka, bases de données, HTTP).</li>
+        <li><strong>Intégration facile</strong> : avec FastAPI, SQLAlchemy, etc.</li>
+        <li><strong>État persistant</strong> : utilise RocksDB localement, avec changelog dans Kafka.</li>
+        <li><strong>Support des fenêtres</strong> (tumbling, hopping, session).</li>
+        <li><strong>Moins performant que Java pour les très gros volumes</strong> (mais largement suffisant pour la plupart des cas).</li>
+    </ul>
+
+    <h3>📦 Installation et prérequis</h3>
+    <p>Python 3.8+ requis. Kafka doit tourner sur <code>localhost:9092</code>.</p>
+    <pre><code># Créer un environnement virtuel (recommandé)
+python -m venv faust-env
+source faust-env/bin/activate  # ou .\faust-env\Scripts\activate sur Windows
+
+# Installer Faust et kafka-python
+pip install faust kafka-python</code></pre>
+    <p>Vérifiez l'installation : <code>faust --version</code>.</p>
+
+    <h3>🏗️ Concepts Faust – Analogie avec Kafka Streams</h3>
+    <table>
+        <tr><th>Kafka Streams</th><th>Faust</th></tr>
+        <tr><td>KStream</td><td><code>faust.Stream</code> (agent)</td></tr>
+        <tr><td>KTable</td><td><code>faust.Table</code></td></tr>
+        <tr><td>Topology</td><td>App Faust + décorateurs <code>@app.agent</code>, <code>@app.timer</code></td></tr>
+        <tr><td>State store (RocksDB)</td><td>Intégré dans <code>Table</code></td></tr>
+        <tr><td>Processor</td><td>Fonction asynchrone itérant sur le stream</td></tr>
+    </table>
+
+    <h3>📝 Premier exemple : compteur de mots (WordCount) – étape par étape</h3>
+    <p>Créez un fichier <code>wordcount_faust.py</code>.</p>
+
+    <h4>Étape 1 : Imports et configuration de l'application</h4>
+    <pre><code>import faust
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = faust.App(
+    'wordcount-app',                    # Identifiant unique
+    broker='kafka://localhost:9092',    # Serveur Kafka
+    value_serializer='raw',             # Pas de sérialisation JSON
+    store='rocksdb://',                 # Stockage local
+    topic_partitions=3,                 # Parallélisme
+    topic_replication_factor=1,
+)</code></pre>
+
+    <h4>Étape 2 : Définir le topic source et la table de comptage</h4>
+    <pre><code>input_topic = app.topic('input-topic', value_type=str)
+counts_table = app.Table('wordcount', default=int)</code></pre>
+
+    <h4>Étape 3 : Créer l'agent (le processeur de flux)</h4>
+    <pre><code>@app.agent(input_topic)
+async def process(stream):
+    """Pour chaque phrase, extrait les mots et incrémente la table."""
+    async for value in stream:
+        words = value.lower().split()
+        for word in words:
+            current = counts_table[word]
+            counts_table[word] = current + 1
+            logger.info(f"{word} : {counts_table[word]}")</code></pre>
+
+    <h4>Étape 4 : Lancer l'application</h4>
+    <pre><code>if __name__ == '__main__':
+    app.main()</code></pre>
+
+    <p>Pour exécuter : <code>python wordcount_faust.py worker -l info</code></p>
+
+    <h3>🧪 Tester avec un producteur Python</h3>
+    <p>Créez un fichier <code>producer.py</code> :</p>
+    <pre><code>from kafka import KafkaProducer
+import sys
+
+producer = KafkaProducer(bootstrap_servers='localhost:9092',
+                         value_serializer=lambda v: v.encode('utf-8'))
+if len(sys.argv) > 1:
+    message = ' '.join(sys.argv[1:])
+else:
+    message = "Hello Faust world"
+producer.send('input-topic', message)
+producer.flush()
+print(f"Envoyé : {message}")</code></pre>
+    <p>Exécutez : <code>python producer.py "Bonjour Kafka Streams"</code>. Observez les logs de Faust.</p>
+
+    <h3>⏱️ Fenêtrage temporel – Compter les mots par minute</h3>
+    <p>Faust supporte les fenêtres via <code>Table</code> avec paramètre <code>window</code>. Exemple : fenêtre tumbling de 60 secondes.</p>
+    <pre><code>from faust.windows import TumblingWindow
+
+# Table avec fenêtre de 60 secondes
+counts_windowed = app.Table(
+    'wordcount_windowed',
+    default=int,
+    window=TumblingWindow(60, 10),  # taille 60s, avancement 10s (hopping)
+    help="Comptage par fenêtre"
+)
 
 @app.agent(input_topic)
-async def process(stream):
+async def process_windowed(stream):
     async for value in stream:
-        for word in value.lower().split():
-            counts[word] = counts.get(word, 0) + 1
-            print(f"{word}: {counts[word]}")
+        words = value.lower().split()
+        for word in words:
+            # La clé devient (word, window_start)
+            current = counts_windowed[word] or 0
+            counts_windowed[word] = current + 1
+            logger.info(f"{word} (window): {counts_windowed[word]}")</code></pre>
 
-if __name__ == '__main__':
-    app.main()</code></pre>
-            <p><strong>Avantages :</strong> syntaxe Python, asynchrone, gestion d'état avec RocksDB. Convient pour des prototypages rapides.</p>
-            <p><strong>Limitation :</strong> Moins performant que Java pour les très gros volumes, mais très productif.</p>
-        </div>
+    <h3>🔗 Jointure entre un stream et une table (exemple : enrichir des événements)</h3>
+    <p>Supposons un topic <code>user-events</code> (stream) et une table <code>user-profiles</code> (table).</p>
+    <pre><code>events_topic = app.topic('user-events', value_type=dict)
+profiles_table = app.Table('user-profiles', default=dict)
+
+@app.agent(events_topic)
+async def enrich(stream):
+    async for event in stream:
+        user_id = event['user_id']
+        profile = profiles_table.get(user_id, {})
+        enriched = {**event, 'profile': profile}
+        logger.info(f"Enriched event: {enriched}")</code></pre>
+    <p>Pour alimenter la table, un autre agent peut lire un topic de mise à jour des profils.</p>
+
+    <h3>🕒 Timers et traitements périodiques</h3>
+    <pre><code>@app.timer(interval=30.0)
+async def report_stats():
+    """Affiche le nombre total de mots distincts suivis."""
+    # Note : itérer sur toutes les clés d'une Table n'est pas trivial,
+    # mais on peut maintenir un compteur séparé.
+    logger.info("Statistiques périodiques...")</code></pre>
+
+    <h3>🧠 Concepts avancés Faust</h3>
+    <ul>
+        <li><strong>Agents multiples</strong> : vous pouvez chaîner les agents en utilisant <code>app.agent(autre_topic)</code>.</li>
+        <li><strong>Stateful vs stateless</strong> : une table rend l'agent stateful. Faust gère la restauration de l'état après redémarrage.</li>
+        <li><strong>Partitionnement</strong> : les clés des tables doivent correspondre au partitionnement du topic source. Utilisez <code>key_type</code> et <code>value_type</code> dans la table.</li>
+        <li><strong>Exactly-once</strong> : Faust ne le supporte pas nativement, mais avec Kafka idempotent et des commits adaptés, on peut approcher "au moins une fois". Pour exactly-once, préférez Kafka Streams Java.</li>
+    </ul>
+
+    <h3>✅ Bonnes pratiques pour Faust en production</h3>
+    <ul>
+        <li>Utilisez <code>rocksdb://</code> comme store (par défaut). Évitez <code>memory://</code> pour des volumes importants.</li>
+        <li>Configurez le nombre de partitions du topic source en fonction du parallélisme souhaité.</li>
+        <li>Surveillez la taille du dossier RocksDB (<code>faust-env/var/</code>).</li>
+        <li>Activez les logs détaillés (<code>faust --debug</code>) pour le débogage.</li>
+        <li>Utilisez <code>app.conf.table_cleanup_interval</code> pour nettoyer les vieilles entrées des fenêtres.</li>
+        <li>Déployez avec des process managers (systemd, supervisord) car Faust ne tourne pas en daemon par défaut.</li>
+    </ul>
+
+    <h3>📊 Monitoring et debugging</h3>
+    <p>Faust expose une interface web sur le port 6066 (par défaut) : <a href="http://localhost:6066">http://localhost:6066</a>. Vous y verrez les agents, tables, et métriques de base.</p>
+    <p>Pour activer les métriques Prometheus :</p>
+    <pre><code>app = faust.App(..., web_port=6066, web_bind='0.0.0.0')
+# Ensuite, configurez Prometheus pour scraper /metrics</code></pre>
+
+    <h3>🔧 Dépannage fréquent</h3>
+    <ul>
+        <li><strong>Erreur de connexion à Kafka</strong> : vérifiez que Kafka tourne et que <code>broker</code> est correct.</li>
+        <li><strong>Table vide après redémarrage</strong> : le topic changelog interne a été supprimé. Ne supprimez pas les topics commençant par <code>wordcount-app-</code>.</li>
+        <li><strong>Agent ne consomme pas</strong> : vérifiez les permissions des topics, et que le groupe de consommateurs n'est pas en état "rebalancing" trop longtemps.</li>
+        <li><strong>Performance lente</strong> : augmentez <code>topic_partitions</code> et lancez plusieurs workers (chaque worker utilise un sous-ensemble des partitions).</li>
+    </ul>
+
+    <h3>📦 Exemple complet avec Docker Compose</h3>
+    <p>Un fichier <code>docker-compose.yml</code> pour démarrer Kafka, Faust, et un producteur de test :</p>
+    <pre><code>version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+    ports:
+      - "9092:9092"
+  faust-worker:
+    build: .
+    command: python wordcount_faust.py worker -l info
+    depends_on:
+      - kafka</code></pre>
+
+    <h3>📚 Ressources utiles</h3>
+    <ul>
+        <li><a href="https://faust.readthedocs.io/" target="_blank">Documentation officielle Faust</a></li>
+        <li><a href="https://github.com/faust-streaming/faust" target="_blank">GitHub Faust</a></li>
+        <li><a href="https://rocksdb.org/" target="_blank">RocksDB – stockage embarqué</a></li>
+        <li><a href="https://kafka-python.readthedocs.io/" target="_blank">kafka-python – producteur/consommateur bas niveau</a></li>
+    </ul>
+
+    <h3>🎯 Quand utiliser Faust plutôt qu'autre chose ?</h3>
+    <ul>
+        <li>Votre équipe maîtrise Python et veut du streaming sans apprendre Java.</li>
+        <li>Vous avez besoin d'intégrations asynchrones (API, bases de données).</li>
+        <li>Le volume de messages est modéré (quelques milliers par seconde).</li>
+        <li>Vous voulez prototyper rapidement avant de passer à Kafka Streams Java pour la production.</li>
+    </ul>
+</div>
 
         <!-- 4. ksqlDB -->
-        <div id="tab4" class="tab-pane">
-            <h2>📊 ksqlDB – Streaming SQL pour Kafka</h2>
-            <p>ksqlDB est un moteur de traitement de flux basé sur SQL. Permet de faire des requêtes temps réel sans coder.</p>
-            <h3>Installation rapide (Docker)</h3>
-            <pre><code>docker run -d --name ksqldb-server \
-  -e KSQL_BOOTSTRAP_SERVERS=localhost:9092 \
-  confluentinc/ksqldb-server:latest</code></pre>
-            <h3>Exemple : compteur de mots avec ksqlDB</h3>
-            <pre><code>-- Créer un stream à partir du topic
-CREATE STREAM text_input (line VARCHAR) WITH (KAFKA_TOPIC='input', VALUE_FORMAT='JSON');
+      <div id="tab4" class="tab-pane">
+    <h2>📊 ksqlDB – Le moteur SQL pour Kafka Streaming</h2>
+    <p>ksqlDB est une plateforme de traitement de flux temps réel construite sur Kafka. Elle permet d’écrire des requêtes SQL sur des flux de données, sans avoir à coder en Java ou Python. C’est un outil puissant pour l’analyse en continu, la transformation, l’agrégation et la jointure de données.</p>
 
--- FlatMap et comptage
-CREATE TABLE wordcount AS
-  SELECT EXPLODE(SPLIT(LCASE(line), ' ')) AS word,
-         COUNT(*) AS count
-  FROM text_input
-  GROUP BY EXPLODE(SPLIT(LCASE(line), ' '))
-  EMIT CHANGES;</code></pre>
-            <p><strong>Fonctionnalités :</strong> Jointures de streams, fenêtrage, agrégations, push/pull queries.</p>
-        </div>
+    <h3>🎯 Pourquoi ksqlDB ?</h3>
+    <ul>
+        <li><strong>Déclaratif</strong> : écrivez du SQL, pas du code impératif.</li>
+        <li><strong>Temps réel</strong> : les résultats sont mis à jour à chaque nouvel événement.</li>
+        <li><strong>Intégration native</strong> : utilise directement les topics Kafka comme sources et sinks.</li>
+        <li><strong>Fenêtrage</strong> : support de fenêtres tumbling, hopping, session.</li>
+        <li><strong>Jointures</strong> : entre streams, entre streams et tables, entre tables.</li>
+        <li><strong>Scalabilité</strong> : s’exécute en cluster, parallélise automatiquement.</li>
+        <li><strong>Cas d’usage</strong> : tableaux de bord temps réel, détection de fraudes, monitoring IoT, enrichissement de données.</li>
+    </ul>
+
+    <h3>📦 Installation de ksqlDB (Docker) – Pas à pas</h3>
+    <p>Le moyen le plus simple est d’utiliser Docker Compose avec Confluent Platform.</p>
+    <pre><code># Créez un fichier docker-compose.yml
+version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+  ksqldb-server:
+    image: confluentinc/ksqldb-server:latest
+    depends_on:
+      - kafka
+    environment:
+      KSQL_BOOTSTRAP_SERVERS: kafka:9092
+      KSQL_LISTENERS: http://0.0.0.0:8088
+    ports:
+      - "8088:8088"
+  ksqldb-cli:
+    image: confluentinc/ksqldb-cli:latest
+    depends_on:
+      - ksqldb-server
+    entrypoint: /bin/sh
+    stdin_open: true
+    tty: true</code></pre>
+    <p>Démarrez : <code>docker-compose up -d</code>. Connectez-vous au CLI : <code>docker exec -it &lt;ksqldb-cli-container&gt; ksql http://ksqldb-server:8088</code>.</p>
+    <p>Vous pouvez aussi utiliser l’interface web Confluent Control Center ou l’API REST.</p>
+
+    <h3>📝 Concepts de base : STREAM vs TABLE</h3>
+    <ul>
+        <li><strong>STREAM</strong> : flux immuable d’événements. Chaque ligne est un événement. Supporte les opérations de filtrage, projection, flatMap.</li>
+        <li><strong>TABLE</strong> : vue matérialisée d’un flux (équivalent d’une KTable). Représente l’état le plus récent d’une clé. Supporte les mises à jour (UPSERT).</li>
+        <li><strong>Changelog</strong> : les tables sont soutenues par des topics Kafka (compacts).</li>
+    </ul>
+
+    <h3>📋 Première requête – Créer un STREAM à partir d’un topic</h3>
+    <p>Supposons un topic Kafka <code>pageviews</code> contenant des lignes au format CSV : <code>user,page,ts</code>.</p>
+    <pre><code>-- Créer un stream en spécifiant le topic et le format
+CREATE STREAM pageviews (
+    user VARCHAR,
+    page VARCHAR,
+    ts BIGINT
+) WITH (
+    KAFKA_TOPIC = 'pageviews',
+    VALUE_FORMAT = 'DELIMITED',  -- CSV (ou JSON, AVRO)
+    KEY_FORMAT = 'NONE'
+);
+
+-- Afficher les 10 derniers événements (push query)
+SELECT * FROM pageviews EMIT CHANGES LIMIT 10;
+
+-- Filtre : ne garder que les vues de la page 'home'
+CREATE STREAM home_views AS
+    SELECT user, ts
+    FROM pageviews
+    WHERE page = 'home'
+    EMIT CHANGES;</code></pre>
+
+    <h3>📊 Comptage simple – Grouper par utilisateur (Table)</h3>
+    <pre><code>-- Compter le nombre de vues par utilisateur (table mise à jour en continu)
+CREATE TABLE view_counts AS
+    SELECT user,
+           COUNT(*) AS views
+    FROM pageviews
+    GROUP BY user
+    EMIT CHANGES;
+
+-- Interroger la table (pull query)
+SELECT * FROM view_counts WHERE user = 'alice';</code></pre>
+    <p>Les changements sont propagés dans un topic interne <code>VIEW_COUNTS</code>.</p>
+
+    <h3>⏱️ Fenêtrage temporel – Fenêtres tumbling (par minute)</h3>
+    <pre><code>-- Fenêtre tumbling de 1 minute
+CREATE TABLE views_per_minute AS
+    SELECT user,
+           COUNT(*) AS views,
+           WINDOWSTART AS window_start,
+           WINDOWEND AS window_end
+    FROM pageviews
+    WINDOW TUMBLING (SIZE 1 MINUTE)
+    GROUP BY user
+    EMIT CHANGES;</code></pre>
+    <p>Autres types de fenêtres : <code>HOPPING</code> (glissante), <code>SESSION</code> (basée sur inactivité).</p>
+
+    <h3>🔗 Jointures : Stream-Stream, Stream-Table, Table-Table</h3>
+    <p>Exemple : enrichir un flux de clics avec une table de profils utilisateurs.</p>
+    <pre><code>-- Table des profils (topic "user_profiles" clé=user)
+CREATE TABLE user_profiles (
+    user VARCHAR PRIMARY KEY,
+    name VARCHAR,
+    region VARCHAR
+) WITH (KAFKA_TOPIC='user_profiles', VALUE_FORMAT='JSON');
+
+-- Jointure entre le stream pageviews et la table
+CREATE STREAM enriched_views AS
+    SELECT pv.user, up.name, up.region, pv.page, pv.ts
+    FROM pageviews pv
+    LEFT JOIN user_profiles up ON pv.user = up.user
+    EMIT CHANGES;</code></pre>
+
+    <h3>🔄 Insertion dans un nouveau topic (sink)</h3>
+    <p>Par défaut, chaque <code>CREATE STREAM ... AS</code> ou <code>CREATE TABLE ... AS</code> crée un topic de sortie. Vous pouvez spécifier le nom du topic :</p>
+    <pre><code>CREATE STREAM enriched_views
+    WITH (KAFKA_TOPIC='enriched-pageviews', VALUE_FORMAT='JSON') AS
+    SELECT ... ;</code></pre>
+
+    <h3>🧠 Fonctions avancées et UDF</h3>
+    <ul>
+        <li><strong>Fonctions scalaires</strong> : <code>UCASE</code>, <code>LCASE</code>, <code>CONCAT</code>, <code>SUBSTRING</code>, <code>EXTRACTJSONFIELD</code>, etc.</li>
+        <li><strong>Fonctions d’agrégation</strong> : <code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>TOPKDISTINCT</code>, <code>EARLIEST_BY_OFFSET</code>.</li>
+        <li><strong>UDF</strong> : vous pouvez écrire vos propres fonctions en Java (ou via le SDK ksqlDB).</li>
+    </ul>
+
+    <h3>📡 Push queries vs Pull queries</h3>
+    <ul>
+        <li><strong>Push query</strong> : <code>SELECT ... EMIT CHANGES</code> → flux continu de résultats (comme une souscription).</li>
+        <li><strong>Pull query</strong> : <code>SELECT ... WHERE key = ...</code> → requête ponctuelle sur une table (state lookup).</li>
+    </ul>
+    <p>Exemple : pour obtenir la vue actuelle d’un utilisateur, utilisez une pull query.</p>
+
+    <h3>✅ Bonnes pratiques pour ksqlDB en production</h3>
+    <ul>
+        <li>Définissez des <strong>propriétés de streaming</strong> : <code>SET 'auto.offset.reset' = 'earliest';</code></li>
+        <li>Utilisez <strong>Avro</strong> ou <strong>JSON Schema</strong> avec Schema Registry pour gérer l’évolution des données.</li>
+        <li>Surveillez les performances avec les métriques JMX de ksqlDB.</li>
+        <li>Pour les grandes tables, utilisez le <strong>tombstone</strong> pour supprimer des clés (envoyer null).</li>
+        <li>Séparez les requêtes longues et les requêtes courtes (différents clusters ksqlDB si besoin).</li>
+        <li>Activez la <strong>persistance des requêtes</strong> pour qu’elles redémarrent automatiquement après un crash.</li>
+    </ul>
+
+    <h3>📊 Monitoring et gestion des erreurs</h3>
+    <ul>
+        <li>Commandes utiles : <code>SHOW STREAMS;</code>, <code>SHOW TABLES;</code>, <code>SHOW QUERIES;</code>, <code>DESCRIBE &lt;nom&gt;;</code></li>
+        <li>Terminer une requête : <code>TERMINATE &lt;query_id&gt;;</code></li>
+        <li>Visualiser le plan d’exécution : <code>EXPLAIN &lt;query_id&gt;;</code></li>
+        <li>Surveiller les erreurs de désérialisation : configurer <code>ksql.streams.processing.guarantee=exactly_once_v2</code> et des <code>deserialization.exception.handler</code>.</li>
+    </ul>
+
+    <h3>🔧 Dépannage fréquent</h3>
+    <ul>
+        <li><strong>Erreur "Topic does not exist"</strong> : ksqlDB peut auto-créer les topics si la propriété <code>ksql.topic.auto.create</code> est vraie (par défaut oui). Sinon, créez-les manuellement.</li>
+        <li><strong>Requête qui ne produit rien</strong> : vérifiez que le topic source a bien des données et que le format de valeur correspond (JSON, DELIMITED, etc.).</li>
+        <li><strong>Jointure qui ne retourne rien</strong> : assurez-vous que les clés de jointure sont correctement définies (dans un stream, la clé est <code>ROWKEY</code>).</li>
+        <li><strong>Performance lente</strong> : augmentez le nombre de threads (<code>ksql.streams.num.stream.threads</code>) et le nombre de partitions des topics sources.</li>
+    </ul>
+
+    <h3>📦 Exemple concret : Détection de clics suspects (fraude)</h3>
+    <p>Objectif : déclencher une alerte si un même utilisateur clique plus de 10 fois en 5 secondes.</p>
+    <pre><code>-- Fenêtre hopping de 5 secondes
+CREATE TABLE suspicious_clicks AS
+    SELECT user,
+           COUNT(*) AS clicks
+    FROM pageviews
+    WINDOW HOPPING (SIZE 5 SECONDS, ADVANCE BY 1 SECOND)
+    GROUP BY user
+    HAVING COUNT(*) > 10
+    EMIT CHANGES;
+
+-- Créer un stream d'alertes vers un topic 'alerts'
+CREATE STREAM alerts AS
+    SELECT user, clicks, WINDOWSTART, WINDOWEND
+    FROM suspicious_clicks
+    EMIT CHANGES;</code></pre>
+
+    <h3>📚 Ressources et liens utiles</h3>
+    <ul>
+        <li><a href="https://ksqldb.io/" target="_blank">Site officiel ksqlDB</a></li>
+        <li><a href="https://docs.ksqldb.io/en/latest/" target="_blank">Documentation officielle</a></li>
+        <li><a href="https://www.confluent.io/resources/ksqldb-101/" target="_blank">ksqlDB 101 – cours interactif</a></li>
+        <li><a href="https://github.com/confluentinc/ksql" target="_blank">GitHub ksqlDB</a></li>
+    </ul>
+
+    <h3>🎯 ksqlDB vs Kafka Streams vs Faust – Quand choisir ?</h3>
+    <ul>
+        <li><strong>ksqlDB</strong> : idéal pour les équipes data qui maîtrisent SQL, pour des pipelines de transformation simples à modérés, sans développement Java.</li>
+        <li><strong>Kafka Streams</strong> : pour des traitements complexes, des transformations sur mesure, ou quand on a besoin d’un contrôle fin (temps réel, exactement une fois).</li>
+        <li><strong>Faust (Python)</strong> : pour prototyper rapidement ou intégrer dans un écosystème Python, mais sans garanties exactly-once.</li>
+    </ul>
+</div>
 
         <!-- 5. Kafka Connect -->
-        <div id="tab5" class="tab-pane">
-            <h2>🔌 Kafka Connect – Intégration de données</h2>
-            <p>Framework pour importer/exporter des données entre Kafka et d'autres systèmes (bases de données, S3, etc.).</p>
-            <h3>Exemple : Connecteur source JDBC (PostgreSQL -> Kafka)</h3>
-            <pre><code>{
-  "name": "jdbc-source-connector",
+ <div id="tab5" class="tab-pane">
+    <h2>🔌 Kafka Connect – Intégration de données sans code</h2>
+    <p>Kafka Connect est un framework intégré à Apache Kafka pour importer (source) et exporter (sink) des données entre Kafka et d’autres systèmes (bases de données, fichiers, cloud, etc.). Il permet de construire des pipelines de données fiables et scalables sans écrire une ligne de code.</p>
+
+    <h3>🎯 Pourquoi Kafka Connect ?</h3>
+    <ul>
+        <li><strong>Simplifie l’intégration</strong> : plus besoin d’écrire des producteurs/consommateurs personnalisés.</li>
+        <li><strong>Scalabilité</strong> : les connecteurs s’exécutent dans des workers, parallélisables via les tâches (tasks).</li>
+        <li><strong>Fault-tolerance</strong> : reprise automatique, rééquilibrage des tâches en cas de panne.</li>
+        <li><strong>Transformations (SMT)</strong> : modifiez les données à la volée (filtrage, masquage, routage).</li>
+        <li><strong>Écosystème riche</strong> : des centaines de connecteurs prêts à l’emploi (JDBC, S3, Elasticsearch, MongoDB, Debezium, etc.).</li>
+    </ul>
+
+    <h3>🏗️ Architecture de Kafka Connect</h3>
+    <ul>
+        <li><strong>Worker</strong> : processus JVM qui exécute les connecteurs et leurs tâches. Peut fonctionner en mode <strong>standalone</strong> (un seul worker) ou <strong>distribué</strong> (cluster).</li>
+        <li><strong>Connector</strong> : instance d’un connecteur (ex: <code>jdbc-source</code>). Chaque connector a une configuration.</li>
+        <li><strong>Task</strong> : unité de travail d’un connector. Un connector peut avoir plusieurs tâches pour paralléliser le traitement.</li>
+        <li><strong>Converter</strong> : sérialise/désérialise les données (JSON, Avro, Protobuf).</li>
+        <li><strong>Transformation (SMT)</strong> : étape de manipulation des messages (ex: renommer un champ, ajouter un timestamp).</li>
+        <li><strong>Offset</strong> : stocke la position de lecture (source) ou d’écriture (sink) pour éviter de traiter deux fois les données.</li>
+    </ul>
+
+    <h3>📦 Installation et démarrage (standalone) – Pas à pas</h3>
+    <p>Kafka Connect est inclus dans la distribution Kafka. Après avoir démarré Kafka et Zookeeper (ou KRaft) :</p>
+    <pre><code># Démarrer Kafka Connect en mode standalone (avec connecteur file source)
+bin/connect-standalone.sh config/connect-standalone.properties config/connect-file-source.properties config/connect-file-sink.properties</code></pre>
+    <p>Le fichier <code>connect-standalone.properties</code> contient la configuration de base (brokers, conversion, etc.). Exemple minimal :</p>
+    <pre><code>bootstrap.servers=localhost:9092
+key.converter=org.apache.kafka.connect.json.JsonConverter
+value.converter=org.apache.kafka.connect.json.JsonConverter
+key.converter.schemas.enable=false
+value.converter.schemas.enable=false
+offset.storage.file.filename=/tmp/connect.offsets</code></pre>
+    <p>Le fichier <code>connect-file-source.properties</code> :</p>
+    <pre><code>name=file-source
+connector.class=FileStreamSource
+tasks.max=1
+file=/tmp/test.txt
+topic=connect-test</code></pre>
+    <p>Placez des lignes dans <code>/tmp/test.txt</code> et consommez le topic <code>connect-test</code> pour les voir.</p>
+
+    <h3>🌐 Mode distribué (pour la production)</h3>
+    <p>Le mode distribué permet d’exécuter plusieurs workers, d’équilibrer la charge, d’assurer la tolérance aux pannes.</p>
+    <pre><code># Démarrer un premier worker
+bin/connect-distributed.sh config/connect-distributed.properties
+# Démarrer un second worker (même configuration, sur un autre port)
+bin/connect-distributed.sh config/connect-distributed-2.properties</code></pre>
+    <p>Configuration typique (<code>connect-distributed.properties</code>) :</p>
+    <pre><code>bootstrap.servers=localhost:9092
+group.id=connect-cluster
+key.converter=org.apache.kafka.connect.json.JsonConverter
+value.converter=org.apache.kafka.connect.json.JsonConverter
+config.storage.topic=connect-configs
+offset.storage.topic=connect-offsets
+status.storage.topic=connect-status
+offset.storage.partitions=25
+status.storage.partitions=5</code></pre>
+    <p>Les topics de configuration, offsets et status sont créés automatiquement (avec facteur de réplication par défaut 3).</p>
+
+    <h3>📡 API REST de Kafka Connect</h3>
+    <p>Le worker expose une API REST sur le port 8083 (par défaut) pour administrer les connecteurs.</p>
+    <pre><code># Lister les connecteurs
+curl -s localhost:8083/connectors
+
+# Créer un connecteur source (ex: PostgreSQL)
+curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "postgres-source",
   "config": {
     "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
     "connection.url": "jdbc:postgresql://localhost:5432/mydb",
     "mode": "incrementing",
     "incrementing.column.name": "id",
-    "topic.prefix": "db-",
+    "topic.prefix": "postgres-",
     "table.whitelist": "users,orders"
   }
+}' http://localhost:8083/connectors
+
+# Modifier un connecteur (PUT)
+curl -X PUT -H "Content-Type: application/json" --data '{ ... }' http://localhost:8083/connectors/postgres-source/config
+
+# Supprimer un connecteur
+curl -X DELETE http://localhost:8083/connectors/postgres-source
+
+# Voir le statut d’un connecteur
+curl -s localhost:8083/connectors/postgres-source/status
+
+# Redémarrer un connecteur
+curl -X POST http://localhost:8083/connectors/postgres-source/restart
+
+# Redémarrer une tâche spécifique
+curl -X POST http://localhost:8083/connectors/postgres-source/tasks/0/restart</code></pre>
+
+    <h3>📋 Connecteurs sources populaires</h3>
+    <ul>
+        <li><strong>JDBC Source</strong> : importe des tables relationnelles (mode incrementing, timestamp, bulk).</li>
+        <li><strong>Debezium</strong> : CDC (Change Data Capture) pour MySQL, PostgreSQL, MongoDB, etc.</li>
+        <li><strong>FileStream Source</strong> : lit des fichiers texte (démonstration).</li>
+        <li><strong>MongoDB Source</strong> : capture les changements dans MongoDB.</li>
+        <li><strong>JMS Source</strong> : lit des queues JMS.</li>
+    </ul>
+    <p>Exemple JDBC Source complet (mode timestamp) :</p>
+    <pre><code>{
+  "name": "postgres-timestamp",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+    "connection.url": "jdbc:postgresql://localhost:5432/mydb",
+    "connection.user": "postgres",
+    "connection.password": "postgres",
+    "mode": "timestamp",
+    "timestamp.column.name": "last_modified",
+    "topic.prefix": "postgres-",
+    "table.whitelist": "products",
+    "poll.interval.ms": 1000,
+    "batch.max.rows": 100
+  }
 }</code></pre>
-            <p>Connecteurs populaires : JDBC, Elasticsearch, S3, MongoDB, Debezium (CDC).</p>
-            <p><strong>Bonnes pratiques :</strong> Utiliser le mode distribué, surveiller avec JMX, configurer les conversions (Avro, JSON Schema).</p>
-        </div>
+
+    <h3>📥 Connecteurs sinks populaires</h3>
+    <ul>
+        <li><strong>JDBC Sink</strong> : écrit les messages Kafka dans une base de données (insert/update/delete).</li>
+        <li><strong>Elasticsearch Sink</strong> : indexe les données dans Elasticsearch.</li>
+        <li><strong>S3 Sink</strong> : écrit des fichiers Parquet/JSON sur Amazon S3 (ou GCS, Azure).</li>
+        <li><strong>HDFS Sink</strong> : écrit dans Hadoop HDFS.</li>
+        <li><strong>HTTP Sink</strong> : envoie les messages vers une API REST.</li>
+    </ul>
+    <p>Exemple Elasticsearch Sink :</p>
+    <pre><code>{
+  "name": "elastic-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+    "connection.url": "http://localhost:9200",
+    "type.name": "_doc",
+    "topics": "postgres-users",
+    "key.ignore": false,
+    "schema.ignore": false,
+    "batch.size": 2000,
+    "write.method": "upsert"
+  }
+}</code></pre>
+
+    <h3>🔄 Single Message Transforms (SMT) – Modifier les données à la volée</h3>
+    <p>Les SMT permettent de transformer chaque message avant de l’écrire dans Kafka (source) ou avant de l’envoyer au système externe (sink).</p>
+    <pre><code>{
+  "config": {
+    "transforms": "renameField,addPrefix",
+    "transforms.renameField.type": "org.apache.kafka.connect.transforms.ReplaceField$Value",
+    "transforms.renameField.renames": "oldName:newName",
+    "transforms.addPrefix.type": "org.apache.kafka.connect.transforms.InsertField$Value",
+    "transforms.addPrefix.topic.field": "source_topic",
+    "transforms.addPrefix.static.field": "pipeline_id",
+    "transforms.addPrefix.static.value": "my_pipeline"
+  }
+}</code></pre>
+    <p>SMT courants : <code>RegexRouter</code> (renommer topic), <code>TimestampRouter</code>, <code>MaskField</code>, <code>DropHeaders</code>, <code>InsertField</code>, <code>ValueToKey</code>, <code>ExtractKey</code>.</p>
+
+    <h3>📦 Exemple concret : importer une table MySQL dans Kafka (JDBC)</h3>
+    <p>Prérequis : télécharger le connecteur JDBC (Confluent Hub) : <code>confluent-hub install confluentinc/kafka-connect-jdbc:latest</code>.</p>
+    <p>Configurer un connecteur source :</p>
+    <pre><code>curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "mysql-orders",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+    "connection.url": "jdbc:mysql://localhost:3306/shop",
+    "connection.user": "root",
+    "connection.password": "secret",
+    "mode": "incrementing",
+    "incrementing.column.name": "order_id",
+    "topic.prefix": "mysql-",
+    "table.whitelist": "orders",
+    "poll.interval.ms": 5000
+  }
+}' http://localhost:8083/connectors</code></pre>
+    <p>Les messages sont publiés dans le topic <code>mysql-orders</code>. Chaque ligne est un message JSON contenant tous les champs.</p>
+
+    <h3>✅ Bonnes pratiques pour Kafka Connect en production</h3>
+    <ul>
+        <li><strong>Utilisez le mode distribué</strong> avec au moins 2 workers pour la tolérance aux pannes.</li>
+        <li><strong>Définissez un <code>tasks.max</code> approprié</strong> : généralement égal au nombre de partitions du topic source (pour les sinks) ou au nombre de tables/partitions (pour les sources).</li>
+        <li><strong>Surveillez les métriques</strong> : taux de messages, temps de traitement, état des tâches, erreurs de conversion.</li>
+        <li><strong>Utilisez des convertisseurs Avro avec Schema Registry</strong> pour garantir l’évolution des schémas.</li>
+        <li><strong>Activez la journalisation des erreurs</strong> : <code>errors.tolerance=all</code> ou <code>errors.deadletterqueue.topic.name</code> pour rediriger les messages problématiques.</li>
+        <li><strong>Testez la reprise après panne</strong> : tuez un worker et vérifiez le rééquilibrage.</li>
+        <li><strong>Configurez les délais d’expiration</strong> (<code>consumer.max.poll.interval.ms</code>) pour éviter les rebalances intempestives.</li>
+        <li><strong>Utilisez <code>offset.flush.interval.ms</code></strong> pour contrôler la fréquence de commit des offsets.</li>
+    </ul>
+
+    <h3>📊 Monitoring et métriques</h3>
+    <p>Kafka Connect expose des métriques JMX. Les plus importantes :</p>
+    <ul>
+        <li><code>kafka.connect:type=connector-metrics,connector="{name}"</code> : nombre d’enregistrements traités, durée moyenne des tâches.</li>
+        <li><code>kafka.connect:type=source-task-metrics,task="{id}"</code> : débit source, temps de poll.</li>
+        <li><code>kafka.connect:type=sink-task-metrics,task="{id}"</code> : débit sink, temps d’écriture.</li>
+        <li><code>kafka.consumer:type=consumer-fetch-manager-metrics</code> (pour les sinks) : détail sur la consommation.</li>
+    </ul>
+    <p>Vous pouvez aussi utiliser l’API REST <code>/connectors/{name}/status</code> et <code>/connectors/{name}/tasks/{id}/status</code>.</p>
+
+    <h3>🔧 Dépannage fréquent</h3>
+    <ul>
+        <li><strong>Le connecteur reste en state "RUNNING" mais aucune donnée</strong> : vérifiez les logs du worker. Souvent un problème de permissions, de requête SQL, ou de topic inexistant.</li>
+        <li><strong>Erreur de conversion de schéma</strong> : désactivez <code>schemas.enable</code> ou utilisez Avro.</li>
+        <li><strong>Tasks échouent avec "Task is being killed"</strong> : augmentez <code>task.timeout.ms</code> ou réduisez le nombre de tâches.</li>
+        <li><strong>Rebalancement perpétuel</strong> : vérifiez les délais de session (<code>session.timeout.ms</code>).</li>
+        <li><strong>Topic de configuration introuvable</strong> : créez-le manuellement avec <code>--config cleanup.policy=compact</code>.</li>
+        <li><strong>Conflit de versions de connecteurs</strong> : utilisez le répertoire <code>plugin.path</code> séparément pour chaque connecteur.</li>
+    </ul>
+
+    <h3>📦 Plugin path et installation de connecteurs supplémentaires</h3>
+    <p>Pour ajouter un connecteur (ex: Debezium), téléchargez le JAR et placez-le dans un répertoire. Définissez <code>plugin.path</code> dans la configuration du worker :</p>
+    <pre><code>plugin.path=/usr/share/java,/usr/local/share/kafka/plugins</code></pre>
+    <p>Utilisez Confluent Hub pour faciliter l’installation :</p>
+    <pre><code>confluent-hub install debezium/debezium-connector-mysql:latest
+# Puis redémarrez les workers</code></pre>
+
+    <h3>🔐 Sécurité</h3>
+    <ul>
+        <li>Utilisez SSL/TLS pour les connexions à Kafka (<code>security.protocol=SASL_SSL</code>).</li>
+        <li>Authentification avec SASL (PLAIN, SCRAM).</li>
+        <li>Contrôle d’accès via ACLs : les workers ont besoin de permissions sur les topics de configuration, offsets, status, et sur les topics de données.</li>
+        <li>Pour les connecteurs sources, gérez les secrets via <code>ExternalConfigProvider</code> (ex: Vault).</li>
+    </ul>
+
+    <h3>📚 Ressources et liens utiles</h3>
+    <ul>
+        <li><a href="https://kafka.apache.org/documentation/#connect" target="_blank">Documentation Kafka Connect officielle</a></li>
+        <li><a href="https://www.confluent.io/product/connectors/" target="_blank">Confluent Hub – catalogue de connecteurs</a></li>
+        <li><a href="https://debezium.io/" target="_blank">Debezium – CDC</a></li>
+        <li><a href="https://docs.confluent.io/platform/current/connect/index.html" target="_blank">Guide Confluent Connect</a></li>
+    </ul>
+
+    <h3>🎯 Cas d’usage typiques</h3>
+    <ul>
+        <li><strong>Ingestion de données</strong> : importer des tables de bases de données relationnelles dans Kafka.</li>
+        <li><strong>Data lake</strong> : envoyer les données de Kafka vers S3/HDFS pour l’analyse batch.</li>
+        <li><strong>Recherche temps réel</strong> : indexer les événements Kafka dans Elasticsearch.</li>
+        <li><strong>Migration de données</strong> : copier des données d’une base à une autre via Kafka (source + sink).</li>
+        <li><strong>CDC (Change Data Capture)</strong> : capturer les modifications de base de données pour alimenter des caches, des microservices ou des data warehouses.</li>
+    </ul>
+</div>
 
         <!-- 6. CDC avec Debezium -->
-        <div id="tab6" class="tab-pane">
-            <h2>🔄 Debezium – Change Data Capture</h2>
-            <p>Debezium est un ensemble de connecteurs Kafka Connect qui capturent les changements (insert, update, delete) dans les bases de données et les publient dans Kafka.</p>
-            <h3>Exemple : MySQL CDC</h3>
-            <pre><code>{
+      <div id="tab6" class="tab-pane">
+    <h2>🔄 Debezium – Change Data Capture (CDC) pour Kafka</h2>
+    <p>Debezium est une plateforme open-source de Change Data Capture (CDC) basée sur Kafka Connect. Elle capture les modifications (insert, update, delete) dans les bases de données (MySQL, PostgreSQL, MongoDB, SQL Server, etc.) et les publie en temps réel dans des topics Kafka.</p>
+
+    <h3>🎯 Pourquoi Debezium ?</h3>
+    <ul>
+        <li><strong>Capture en temps réel</strong> : chaque changement est détecté immédiatement, sans polling.</li>
+        <li><strong>Non intrusif</strong> : utilise les journaux de transaction (binlog, WAL, oplog) de la base de données.</li>
+        <li><strong>Exactly-once</strong> : grâce à Kafka Connect et aux offsets, chaque événement est livré une seule fois.</li>
+        <li><strong>Structure riche</strong> : chaque événement contient les valeurs avant/après, l’opération, les métadonnées.</li>
+        <li><strong>Cas d’usage</strong> : synchronisation de microservices, mise à jour de caches, analyse en temps réel, event sourcing, data lake.</li>
+    </ul>
+
+    <h3>🏗️ Architecture Debezium</h3>
+    <ul>
+        <li><strong>Connector Debezium</strong> : un connecteur source Kafka Connect spécifique à une base de données.</li>
+        <li><strong>Kafka Connect Worker</strong> : exécute le connecteur et ses tâches (distribué recommandé).</li>
+        <li><strong>Topic Kafka</strong> : chaque table capturée a son propre topic (ou un topic par base).</li>
+        <li><strong>Database log</strong> : Debezium se connecte au binlog (MySQL), WAL (PostgreSQL), etc. pour lire les changements.</li>
+        <li><strong>Snapshot initial</strong> : Debezium peut d’abord prendre un snapshot de l’état existant de la table avant de capturer les changements en continu.</li>
+    </ul>
+
+    <h3>📦 Prérequis et installation</h3>
+    <p>Debezium est distribué sous forme de connecteurs Kafka Connect. La manière la plus simple est d’utiliser Docker.</p>
+    <pre><code># docker-compose.yml pour Debezium + Kafka + Zookeeper + PostgreSQL (exemple)
+version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+    ports:
+      - "9092:9092"
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: inventory
+    ports:
+      - "5432:5432"
+    command: ["postgres", "-c", "wal_level=logical"]  # Nécessaire pour CDC
+  connect:
+    image: debezium/connect:latest
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect-configs
+      OFFSET_STORAGE_TOPIC: connect-offsets
+      STATUS_STORAGE_TOPIC: connect-status
+    ports:
+      - "8083:8083"</code></pre>
+    <p>Démarrez : <code>docker-compose up -d</code>.</p>
+    <p>Vous pouvez aussi installer le connecteur manuellement via Confluent Hub : <code>confluent-hub install debezium/debezium-connector-mysql:latest</code>.</p>
+
+    <h3>📝 Exemple complet avec PostgreSQL – Pas à pas</h3>
+    <h4>Étape 1 : Créer une table et insérer des données</h4>
+    <pre><code>docker exec -it postgres psql -U postgres -d inventory
+CREATE TABLE customers (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    email VARCHAR(255) UNIQUE
+);
+INSERT INTO customers (first_name, last_name, email) VALUES
+('John', 'Doe', 'john@example.com'),
+('Jane', 'Smith', 'jane@example.com');</code></pre>
+
+    <h4>Étape 2 : Configurer le connecteur Debezium PostgreSQL via l’API REST</h4>
+    <pre><code>curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "postgres-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "postgres",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.dbname": "inventory",
+    "database.server.name": "dbserver1",
+    "table.include.list": "public.customers",
+    "plugin.name": "pgoutput",
+    "publication.autocreate.mode": "filtered",
+    "snapshot.mode": "initial"
+  }
+}' http://localhost:8083/connectors</code></pre>
+
+    <h4>Étape 3 : Observer les événements dans Kafka</h4>
+    <p>Debezium crée un topic <code>dbserver1.public.customers</code>. Consommez-le :</p>
+    <pre><code>docker exec -it kafka kafka-console-consumer --bootstrap-server kafka:9092 \
+  --topic dbserver1.public.customers --from-beginning</code></pre>
+    <p>Vous verrez les événements du snapshot initial (les deux lignes existantes) au format JSON (ou Avro selon configuration). Exemple d’événement :</p>
+    <pre><code>{
+  "schema": {...},
+  "payload": {
+    "before": null,
+    "after": {"id": 1, "first_name": "John", "last_name": "Doe", "email": "john@example.com"},
+    "source": {"db": "inventory", "table": "customers", "ts_ms": 1712345678901, ...},
+    "op": "c",
+    "ts_ms": 1712345678901
+  }
+}</code></pre>
+
+    <h4>Étape 4 : Effectuer des modifications et voir les événements CDC</h4>
+    <pre><code>-- Dans PostgreSQL
+INSERT INTO customers (first_name, last_name, email) VALUES ('Alice', 'Brown', 'alice@example.com');
+UPDATE customers SET email = 'john.doe@example.com' WHERE id = 1;
+DELETE FROM customers WHERE id = 2;</code></pre>
+    <p>Les événements correspondants apparaîtront dans le topic :</p>
+    <ul>
+        <li><code>"op": "c"</code> pour insert</li>
+        <li><code>"op": "u"</code> pour update (avec <code>before</code> et <code>after</code>)</li>
+        <li><code>"op": "d"</code> pour delete (seul <code>before</code> est présent)</li>
+    </ul>
+
+    <h3>📊 Structure d’un événement Debezium</h3>
+    <p>Chaque message Kafka contient une clé (généralement la clé primaire de la ligne) et une valeur complexe :</p>
+    <ul>
+        <li><code>before</code> : l’état de la ligne avant la modification (null pour insert).</li>
+        <li><code>after</code> : l’état après modification (null pour delete).</li>
+        <li><code>source</code> : métadonnées (nom de la base, table, timestamp, position dans le log, etc.).</li>
+        <li><code>op</code> : type d’opération : <code>c</code> (create), <code>u</code> (update), <code>d</code> (delete), <code>r</code> (read, lors du snapshot initial).</li>
+        <li><code>ts_ms</code> : timestamp de l’événement dans Debezium.</li>
+    </ul>
+
+    <h3>🔧 Configuration avancée de Debezium</h3>
+    <ul>
+        <li><strong>snapshot.mode</strong> : <code>initial</code> (prend un snapshot puis CDC), <code>never</code> (pas de snapshot), <code>when_needed</code>, etc.</li>
+        <li><strong>table.include.list</strong> / <strong>table.exclude.list</strong> : filtrer les tables à capturer.</li>
+        <li><strong>column.include.list</strong> : capturer uniquement certaines colonnes.</li>
+        <li><strong>decimal.handling.mode</strong> : comment sérialiser les décimaux (string, double, precise).</li>
+        <li><strong>tombstones.on.delete</strong> : envoyer un message tombstone (valeur null) après un delete pour indiquer la suppression dans les tables compactées.</li>
+        <li><strong>key.converter</strong> / <strong>value.converter</strong> : utiliser Avro avec Schema Registry pour une meilleure gestion des schémas.</li>
+    </ul>
+    <p>Exemple de configuration enrichie :</p>
+    <pre><code>{
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "snapshot.mode": "initial",
+    "decimal.handling.mode": "string",
+    "tombstones.on.delete": "true",
+    "key.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "key.converter.schema.registry.url": "http://schema-registry:8081",
+    "value.converter.schema.registry.url": "http://schema-registry:8081"
+  }
+}</code></pre>
+
+    <h3>🔄 Intégration avec d’autres systèmes (via Kafka Connect)</h3>
+    <p>Les événements Debezium peuvent être consommés par n’importe quel client Kafka, mais aussi être directement envoyés vers des sinks :</p>
+    <ul>
+        <li><strong>Elasticsearch</strong> : pour indexer les données en temps réel.</li>
+        <li><strong>JDBC Sink</strong> : pour répliquer les données vers une autre base.</li>
+        <li><strong>Redis Sink</strong> : pour maintenir un cache à jour.</li>
+        <li><strong>S3 Sink</strong> : pour archiver les changements dans un data lake.</li>
+    </ul>
+    <p>Exemple de sink Elasticsearch qui lit le topic Debezium :</p>
+    <pre><code>curl -X POST http://localhost:8083/connectors -H "Content-Type: application/json" -d '{
+  "name": "elastic-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+    "topics": "dbserver1.public.customers",
+    "connection.url": "http://elasticsearch:9200",
+    "key.ignore": false,
+    "schema.ignore": true,
+    "write.method": "upsert"
+  }
+}'</code></pre>
+
+    <h3>✅ Bonnes pratiques pour Debezium en production</h3>
+    <ul>
+        <li><strong>Utilisez Kafka Connect distribué</strong> avec au moins 3 workers pour la tolérance aux pannes.</li>
+        <li><strong>Surveillez la latence</strong> : Debezium ajoute un champ <code>source.ts_ms</code> ; comparez-le avec <code>ts_ms</code> pour détecter les retards.</li>
+        <li><strong>Gérez les schémas évolutifs</strong> : utilisez Avro + Schema Registry pour que les consommateurs puissent gérer les changements de colonnes.</li>
+        <li><strong>Configurez la rétention des topics Debezium</strong> : ils peuvent devenir très grands (toutes les modifications). Utilisez <code>log.retention.bytes</code> ou <code>log.retention.hours</code>.</li>
+        <li><strong>Activez les transformations SMT</strong> pour filtrer ou masquer des données sensibles avant de les publier.</li>
+        <li><strong>Testez la reprise après panne de la base</strong> : Debezium reprend la lecture au dernier offset connu.</li>
+        <li><strong>Utilisez une base de données dédiée pour les locks de snapshot</strong> si vous avez une forte activité.</li>
+        <li><strong>Surveillez l’espace disque</strong> sur les workers (offsets, status, etc.).</li>
+    </ul>
+
+    <h3>📊 Monitoring Debezium</h3>
+    <p>Debezium expose des métriques JMX via Kafka Connect. Les plus importantes :</p>
+    <ul>
+        <li><code>debezium.postgres.connector:type=connector-metrics</code> : nombre d’événements lus, temps moyen de traitement.</li>
+        <li><code>debezium.postgres.connector:type=snapshot-metrics</code> : progression du snapshot initial.</li>
+        <li><code>debezium.postgres.connector:type=streaming-metrics</code> : latence entre la base et Debezium, nombre d’événements streamés.</li>
+    </ul>
+    <p>Utilisez l’API REST pour vérifier l’état : <code>curl localhost:8083/connectors/postgres-connector/status</code>.</p>
+
+    <h3>🔧 Dépannage fréquent</h3>
+    <ul>
+        <li><strong>Le connecteur ne démarre pas</strong> : vérifiez que la base est accessible et que l’utilisateur a les droits (REPLICATION, SELECT sur pg_catalog pour PostgreSQL).</li>
+        <li><strong>Erreur "wal_level is not logical" (PostgreSQL)</strong> : modifiez <code>wal_level=logical</code> dans postgresql.conf et redémarrez.</li>
+        <li><strong>Snapshot trop long</strong> : augmentez <code>snapshot.fetch.size</code> et <code>snapshot.max.threads</code>.</li>
+        <li><strong>Messages manquants</strong> : vérifiez que <code>table.include.list</code> est correcte et que la base conserve les logs assez longtemps (<code>binlog retention</code> pour MySQL).</li>
+        <li><strong>Les événements arrivent en double</strong> : assurez-vous que <code>exactly-once</code> est activé et que le connecteur a le bon <code>offset.flush.interval.ms</code>.</li>
+        <li><strong>Erreur de désérialisation</strong> : passez en Avro ou utilisez <code>value.converter.schemas.enable=false</code> pour du JSON simple (non recommandé en production).</li>
+    </ul>
+
+    <h3>📦 Debezium pour MySQL – Exemple rapide</h3>
+    <p>Pour MySQL, activez le binlog :</p>
+    <pre><code>[mysqld]
+server-id = 223344
+log_bin = mysql-bin
+binlog_format = ROW
+binlog_row_image = FULL</code></pre>
+    <p>Connecteur :</p>
+    <pre><code>{
   "name": "mysql-connector",
   "config": {
     "connector.class": "io.debezium.connector.mysql.MySqlConnector",
-    "database.hostname": "localhost",
+    "database.hostname": "mysql",
     "database.port": "3306",
     "database.user": "debezium",
     "database.password": "dbz",
     "database.server.id": "184054",
-    "topic.prefix": "mysql-server",
+    "topic.prefix": "dbserver1",
     "table.include.list": "inventory.customers"
   }
 }</code></pre>
-            <p>Chaque événement contient <code>before</code>, <code>after</code>, <code>op</code> (c/u/d). Les messages sont stockés dans un topic Kafka.</p>
-            <h3>Cas pratique : synchronisation entre microservices</h3>
-            <p>Capture des changements d'une base relationnelle → Kafka → services consommateurs mettent à jour leurs propres stores (CQRS/Event Sourcing).</p>
-        </div>
+
+    <h3>🎯 Cas d’usage réels avec Debezium</h3>
+    <ul>
+        <li><strong>Synchronisation de microservices</strong> : chaque microservice possède sa propre vue des données (CQRS). Debezium capture les changements du "service maître" et les propage aux autres.</li>
+        <li><strong>Mise à jour de cache (Redis)</strong> : un consommateur Kafka lit les événements Debezium et met à jour Redis en temps réel.</li>
+        <li><strong>Data Lake en temps réel</strong> : envoyer les changements vers S3 ou HDFS via Kafka Connect S3 sink.</li>
+        <li><strong>Migration sans temps d’arrêt</strong> : capturer les modifications de l’ancienne base pendant la migration vers une nouvelle base.</li>
+        <li><strong>Audit et historisation</strong> : journaliser toutes les modifications de tables critiques dans Kafka pour rejouer plus tard.</li>
+    </ul>
+
+    <h3>📚 Ressources et liens utiles</h3>
+    <ul>
+        <li><a href="https://debezium.io/" target="_blank">Site officiel Debezium</a></li>
+        <li><a href="https://debezium.io/documentation/reference/stable/index.html" target="_blank">Documentation officielle</a></li>
+        <li><a href="https://github.com/debezium/debezium-examples" target="_blank">Exemples Debezium sur GitHub</a></li>
+        <li><a href="https://www.confluent.io/blog/debezium-kafka-cdc/" target="_blank">Blog Confluent sur Debezium</a></li>
+    </ul>
+
+    <h3>🎓 Conclusion</h3>
+    <p>Debezium est un outil incontournable pour intégrer des bases de données transactionnelles dans un écosystème Kafka. Il permet de réagir en temps réel aux changements, d’alimenter des microservices, des caches ou des data lakes, tout en étant non intrusif et scalable.</p>
+</div>
 
         <!-- 7. Cas pratique #1 : Analyse de logs temps réel -->
-        <div id="tab7" class="tab-pane">
-            <h2>📋 Cas pratique #1 – Analyse de logs HTTP</h2>
-            <p><strong>Objectif :</strong> Compter les erreurs 404 par IP en temps réel.</p>
-            <h3>Architecture :</h3>
-            <p>Logs → Filebeat → Kafka → Kafka Streams → Table d'état → topic alerte</p>
-            <h3>Code Java (Kafka Streams) :</h3>
-            <pre><code>KStream&lt;String, String&gt; logStream = builder.stream("access-logs");
-KTable&lt;String, Long&gt; errorCount = logStream
-    .filter((k, v) -> v.contains(" 404 "))
-    .map((k, v) -> KeyValue.pair(extractIp(v), 1L))
-    .groupByKey()
-    .count();
-errorCount.toStream().filter((ip, count) -> count > 10)
-    .to("alert-topic");</code></pre>
-            <p><strong>Bonnes pratiques :</strong> Fenêtrage temporel pour éviter des alertes sur des cumuls anciens : <code>TimeWindows.of(Duration.ofMinutes(5))</code>.</p>
-        </div>
+   <div id="tab7" class="tab-pane">
+    <h2>📋 Cas pratique #1 – Analyse de logs HTTP en temps réel</h2>
+    <p>Ce cas pratique vous guide dans la construction d’un pipeline de traitement de logs (par exemple, les accès à un serveur web Nginx/Apache) pour détecter les erreurs, compter les requêtes par IP, et déclencher des alertes en temps réel – le tout avec Kafka, Kafka Streams (Java) et ksqlDB.</p>
+
+    <h3>🎯 Objectifs pédagogiques</h3>
+    <ul>
+        <li>Comprendre comment ingérer des logs dans Kafka (producteur).</li>
+        <li>Appliquer des transformations de flux (filtrage, extraction, comptage).</li>
+        <li>Utiliser les fenêtres temporelles pour des agrégations glissantes.</li>
+        <li>Détecter des comportements suspects (ex: IP avec trop d’erreurs 404).</li>
+        <li>Produire des alertes dans un topic dédié.</li>
+    </ul>
+
+    <h3>🏗️ Architecture du pipeline</h3>
+    <p>Nous allons simuler des logs d’accès HTTP et les traiter en temps réel.</p>
+    <pre><code>Source de logs (fichier ou générateur) → Producteur Kafka → Topic "raw-logs"
+→ Kafka Streams / ksqlDB (traitement) → Topic "alerts" → Consommateur d’alertes</code></pre>
+    <p>Composants :</p>
+    <ul>
+        <li><strong>Producteur</strong> : envoie chaque ligne de log dans Kafka.</li>
+        <li><strong>Topic <code>raw-logs</code></strong> : stocke les logs bruts (format texte).</li>
+        <li><strong>Application de streaming</strong> : lit, parse, filtre, agrège.</li>
+        <li><strong>Topic <code>alerts</code></strong> : reçoit les événements suspects (ex: IP avec >10 erreurs 404 en 5 minutes).</li>
+        <li><strong>Consommateur d’alertes</strong> : affiche ou envoie des notifications.</li>
+    </ul>
+
+    <h3>📦 Étape 1 – Génération de logs simulés (producteur)</h3>
+    <p>Créez un script Python qui produit des lignes de log au format Common Log Format (CLF) dans Kafka.</p>
+    <pre><code># log_producer.py
+import random
+import time
+import json
+from kafka import KafkaProducer
+
+producer = KafkaProducer(bootstrap_servers='localhost:9092',
+                         value_serializer=lambda v: v.encode('utf-8'))
+
+ips = ['192.168.1.1', '10.0.0.2', '172.16.0.3', '8.8.8.8']
+pages = ['/index.html', '/about', '/contact', '/login', '/admin']
+status_codes = [200, 200, 200, 404, 500, 302]  # 200 fréquent, 404/500 plus rares
+
+while True:
+    ip = random.choice(ips)
+    page = random.choice(pages)
+    status = random.choices(status_codes, weights=[0.7, 0.1, 0.1, 0.05, 0.03, 0.02])[0]
+    log_line = f'{ip} - - [{time.strftime("%d/%b/%Y:%H:%M:%S %z")}] "GET {page} HTTP/1.1" {status} 1024'
+    producer.send('raw-logs', log_line)
+    print(f'Produit : {log_line}')
+    time.sleep(random.uniform(0.1, 0.5))</code></pre>
+
+    <h3>📝 Étape 2 – Traitement avec Kafka Streams (Java)</h3>
+    <p>Nous allons implémenter un pipeline Kafka Streams qui parse les logs, filtre les erreurs 4xx/5xx, et compte par IP sur une fenêtre glissante de 5 minutes, puis alerte si le seuil dépasse 10.</p>
+    <h4>Dépendances Maven</h4>
+    <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.kafka&lt;/groupId&gt;
+    &lt;artifactId&gt;kafka-streams&lt;/artifactId&gt;
+    &lt;version&gt;3.6.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;
+    &lt;artifactId&gt;jackson-core&lt;/artifactId&gt;
+    &lt;version&gt;2.15.2&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+    <h4>Code complet</h4>
+    <pre><code>import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.kstream.*;
+import java.time.Duration;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class LogAnalysisStream {
+    public static void main(String[] args) {
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "log-analyzer");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+
+        StreamsBuilder builder = new StreamsBuilder();
+        KStream&lt;String, String&gt; rawLogs = builder.stream("raw-logs");
+
+        // 1. Parse la ligne de log pour extraire IP, status, etc.
+        Pattern logPattern = Pattern.compile("^(\\S+) .+ \\[(.+)\\] \"\\w+ (\\S+) .+\" (\\d+) \\d+$");
+        KStream&lt;String, LogEntry&gt; parsed = rawLogs
+            .filter((k, v) -> v != null &amp;&amp; !v.isEmpty())
+            .mapValues(value -> {
+                Matcher m = logPattern.matcher(value);
+                if (m.find()) {
+                    return new LogEntry(m.group(1), m.group(2), m.group(3), Integer.parseInt(m.group(4)));
+                }
+                return null;
+            })
+            .filter((k, v) -> v != null);
+
+        // 2. Ne garder que les erreurs (status >= 400)
+        KStream&lt;String, LogEntry&gt; errors = parsed.filter((k, v) -> v.status >= 400);
+
+        // 3. Compter les erreurs par IP sur une fenêtre tumbling de 5 minutes
+        KTable&lt;Windowed&lt;String&gt;, Long&gt; errorCounts = errors
+            .groupBy((k, v) -> v.ip, Grouped.with(Serdes.String(), customSerde(LogEntry.class)))
+            .windowedBy(TimeWindows.of(Duration.ofMinutes(5)))
+            .count();
+
+        // 4. Alerter si le compteur dépasse 10 (ex: IP suspecte)
+        KStream&lt;String, String&gt; alerts = errorCounts
+            .toStream()
+            .filter((windowedIp, count) -> count != null &amp;&amp; count > 10)
+            .map((windowedIp, count) -> {
+                String ip = windowedIp.key();
+                long start = windowedIp.window().start();
+                long end = windowedIp.window().end();
+                String alert = String.format("IP %s a eu %d erreurs entre %d et %d", ip, count, start, end);
+                return KeyValue.pair(ip, alert);
+            });
+
+        alerts.to("alerts", Produced.with(Serdes.String(), Serdes.String()));
+
+        KafkaStreams streams = new KafkaStreams(builder.build(), props);
+        streams.start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+    }
+}
+
+// Classe LogEntry et sérialiseur simplifié (à adapter)
+class LogEntry {
+    String ip, timestamp, url;
+    int status;
+    LogEntry(String ip, String ts, String url, int status) { this.ip = ip; this.timestamp = ts; this.url = url; this.status = status; }
+}</code></pre>
+
+    <h3>📊 Étape 2bis – Version plus simple avec ksqlDB</h3>
+    <p>Si vous préférez SQL, voici la même logique avec ksqlDB.</p>
+    <pre><code>-- Créer un stream à partir du topic raw-logs
+CREATE STREAM raw_logs (log_line VARCHAR) WITH (KAFKA_TOPIC='raw-logs', VALUE_FORMAT='DELIMITED');
+
+-- Parser la ligne et extraire IP et status (expression régulière)
+CREATE STREAM parsed_logs AS
+  SELECT
+    REGEXP_EXTRACT(log_line, '^(\\S+)', 1) AS ip,
+    CAST(REGEXP_EXTRACT(log_line, '\\s(\\d{3})\\s', 1) AS INT) AS status
+  FROM raw_logs
+  WHERE log_line IS NOT NULL
+  EMIT CHANGES;
+
+-- Filtrer les erreurs (status >= 400)
+CREATE STREAM error_logs AS
+  SELECT ip, status
+  FROM parsed_logs
+  WHERE status >= 400
+  EMIT CHANGES;
+
+-- Fenêtre tumbling de 5 minutes, compter les erreurs par IP
+CREATE TABLE error_counts AS
+  SELECT ip,
+         COUNT(*) AS errors,
+         WINDOWSTART AS window_start,
+         WINDOWEND AS window_end
+  FROM error_logs
+  WINDOW TUMBLING (SIZE 5 MINUTES)
+  GROUP BY ip
+  EMIT CHANGES;
+
+-- Alerter si le nombre d'erreurs dépasse 10
+CREATE STREAM alerts AS
+  SELECT ip, errors, window_start, window_end
+  FROM error_counts
+  WHERE errors > 10
+  EMIT CHANGES;</code></pre>
+    <p>Les alertes sont alors écrites dans le topic <code>ALERTS</code> (par défaut).</p>
+
+    <h3>📈 Étape 3 – Consommation des alertes (exemple Python)</h3>
+    <pre><code>from kafka import KafkaConsumer
+consumer = KafkaConsumer('alerts', bootstrap_servers='localhost:9092',
+                         value_deserializer=lambda v: v.decode('utf-8'))
+for msg in consumer:
+    print(f"[ALERTE] {msg.value}")</code></pre>
+
+    <h3>🔍 Améliorations possibles</h3>
+    <ul>
+        <li><strong>Enrichissement</strong> : joindre avec une table d’IPs connues (malveillantes, internes).</li>
+        <li><strong>Fenêtre hopping</strong> : au lieu de tumbling, une fenêtre glissante qui se déclenche toutes les minutes.</li>
+        <li><strong>Plusieurs seuils</strong> : alerte critique si >50 erreurs, warning si >10.</li>
+        <li><strong>Stockage des métriques</strong> : envoyer les compteurs dans une base de données (via Kafka Connect JDBC Sink).</li>
+        <li><strong>Tableau de bord temps réel</strong> : utiliser un sink Elasticsearch + Kibana pour visualiser les erreurs par IP.</li>
+    </ul>
+
+    <h3>✅ Bonnes pratiques pour ce cas pratique</h3>
+    <ul>
+        <li>Utilisez <strong>Avro</strong> plutôt que du texte brut pour éviter de re-parser à chaque fois.</li>
+        <li>Gérez les erreurs de parsing via une <strong>Dead Letter Queue</strong> (topic séparé pour les logs mal formés).</li>
+        <li>Surveillez la latence du pipeline avec les métriques Kafka Streams ou ksqlDB.</li>
+        <li>Configurez la rétention du topic <code>raw-logs</code> à quelques jours pour économiser de l’espace.</li>
+        <li>Pour des volumes très importants, augmentez le nombre de partitions des topics.</li>
+    </ul>
+
+    <h3>🧪 Tests et validation</h3>
+    <p>Lancez le producteur, puis l’application de streaming, puis le consommateur d’alertes. Simulez un pic d’erreurs (par exemple en modifiant le producteur pour envoyer beaucoup de 404). Vérifiez que l’alerte apparaît.</p>
+    <p>Pour simuler un pic :</p>
+    <pre><code># Boucle pour envoyer 20 erreurs 404 d'une même IP rapidement
+for i in range(20):
+    log = f"192.168.1.100 - - [{time.strftime('%d/%b/%Y:%H:%M:%S %z')}] \"GET /notfound HTTP/1.1\" 404 512"
+    producer.send('raw-logs', log)
+    time.sleep(0.05)</code></pre>
+    <p>Après 5 minutes (ou si vous réduisez la fenêtre pour les tests), vous devriez voir une alerte.</p>
+
+    <h3>📊 Monitoring du pipeline</h3>
+    <ul>
+        <li>Surveillez le <strong>débit</strong> du topic <code>raw-logs</code> (kafka-consumer-groups).</li>
+        <li>Vérifiez le <strong>lag</strong> des consommateurs (Kafka Streams a son propre groupe).</li>
+        <li>Exposez les métriques JMX de Kafka Streams (taux de messages par seconde, temps de traitement moyen).</li>
+        <li>Pour ksqlDB, utilisez <code>SHOW QUERIES;</code> et <code>EXPLAIN &lt;query_id&gt;;</code>.</li>
+    </ul>
+
+    <h3>🔧 Dépannage fréquent</h3>
+    <ul>
+        <li><strong>Aucune alerte alors que des erreurs existent</strong> : vérifiez le seuil (count > 10), et assurez-vous que la fenêtre est bien configurée (l’alerte n’apparaît qu’à la fin de la fenêtre).</li>
+        <li><strong>Les logs ne sont pas parsés</strong> : testez votre regex sur une ligne réelle. Utilisez un consommateur sur <code>raw-logs</code> pour voir le format exact.</li>
+        <li><strong>Les fenêtres s’accumulent en mémoire</strong> : configurez la rétention des fenêtres (<code>windowstore.changelog.additional.retention.ms</code>).</li>
+    </ul>
+
+    <h3>📚 Ressources complémentaires</h3>
+    <ul>
+        <li><a href="https://kafka.apache.org/35/documentation/streams/developer-guide/dsl-api.html#windowing" target="_blank">Documentation Kafka Streams – Fenêtrage</a></li>
+        <li><a href="https://docs.ksqldb.io/en/latest/developer-guide/aggregate-windowed/" target="_blank">ksqlDB – Fenêtres</a></li>
+        <li><a href="https://github.com/confluentinc/kafka-streams-examples/tree/master/src/main/java/io/confluent/examples/streams" target="_blank">Exemples Kafka Streams (GitHub)</a></li>
+    </ul>
+
+    <h3>🎯 Conclusion</h3>
+    <p>Ce cas pratique montre comment mettre en œuvre une analyse de logs temps réel avec Kafka, en utilisant soit Kafka Streams (Java) soit ksqlDB (SQL). Vous pouvez adapter ce modèle à d’autres sources de données (IoT, clics web, transactions financières) et à d’autres types d’alertes.</p>
+</div>
 
         <!-- 8. Cas pratique #2 : Synchronisation BDD via Debezium + ksqlDB -->
         <div id="tab8" class="tab-pane">

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ksqlDB – Guide complet pour la certification Confluent (CCDAK)</title>
+    <!-- Bootstrap 5 + Icons + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #f8fafc; scroll-behavior: smooth; }
+        .hero {
+            background: linear-gradient(135deg, #2c1e3a 0%, #4a2c6e 100%);
+            color: white;
+            padding: 4rem 0 3rem;
+            border-bottom: 4px solid #ffb347;
+        }
+        .hero h1 { font-weight: 700; font-size: 2.8rem; }
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid #ffb347;
+            display: inline-block;
+        }
+        .card-concept {
+            border: none;
+            border-radius: 1.5rem;
+            box-shadow: 0 12px 28px -8px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease;
+            height: 100%;
+            background: white;
+        }
+        .card-concept:hover { transform: translateY(-5px); box-shadow: 0 24px 36px -12px rgba(0,0,0,0.15); }
+        .card-header-concept {
+            background: white;
+            border-bottom: 2px solid #f0e4ff;
+            padding: 1.2rem 1.2rem 0.8rem;
+            font-weight: 800;
+            font-size: 1.4rem;
+            border-radius: 1.5rem 1.5rem 0 0;
+        }
+        .mnemo-badge {
+            background: #f3e8ff;
+            color: #5e2a8e;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 40px;
+            padding: 0.3rem 0.9rem;
+            display: inline-block;
+        }
+        .concept-section {
+            margin-top: 0.8rem;
+            border-left: 3px solid #f0e4ff;
+            padding-left: 0.8rem;
+        }
+        .concept-section strong { color: #8b5cf6; }
+        .card-body { padding: 1.2rem 1.2rem 1.5rem; }
+        .table-of-contents {
+            background: white;
+            border-radius: 1.25rem;
+            padding: 1.2rem;
+            position: sticky;
+            top: 1rem;
+        }
+        .toc-link {
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 500;
+            display: block;
+            padding: 0.3rem 0;
+        }
+        .toc-link:hover { color: #8b5cf6; padding-left: 5px; }
+        footer { background: #0f172a; color: #cbd5e1; }
+        code { background: #f1f5f9; padding: 0.2rem 0.4rem; border-radius: 8px; font-size: 0.85rem; }
+        pre {
+            background: #1e1e2f;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            margin: 1rem 0;
+        }
+        .step-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.2rem;
+            margin-bottom: 1.2rem;
+            border-left: 5px solid #8b5cf6;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        @media (max-width: 768px) { .hero h1 { font-size: 2rem; } }
+    </style>
+</head>
+<body>
+
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-light text-dark mb-3"><i class="fas fa-database me-1"></i> ksqlDB – Streaming SQL pour Apache Kafka</span>
+                <h1 class="display-5 fw-bold">Maîtrisez ksqlDB<br>pour la certification Confluent</h1>
+                <p class="lead mt-3"><strong class="text-warning">18 concepts clés</strong> illustrés avec un fil conducteur <strong class="text-warning">“Détection de fraude bancaire”</strong>. Analogies, exemples SQL, et astuces pour décrocher le certificat – 100% francophone.</p>
+                <div class="mt-4">
+                    <a href="#fil-rouge" class="btn btn-warning btn-lg me-2 fw-semibold"><i class="fas fa-sitemap me-2"></i>Fil conducteur étape par étape</a>
+                    <a href="#concepts" class="btn btn-outline-light btn-lg"><i class="fas fa-cubes me-2"></i>18 concepts ksqlDB</a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block text-center">
+                <i class="fas fa-code-branch fa-4x text-warning opacity-70"></i>
+                <i class="fas fa-stream fa-3x ms-3 text-light opacity-50"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mt-5">
+    <div class="row g-4">
+        <div class="col-lg-3 order-lg-1 order-2">
+            <div class="table-of-contents shadow-sm">
+                <h5 class="mb-3"><i class="fas fa-list-ul me-2 text-warning"></i>Sommaire ksqlDB</h5>
+                <a href="#fil-rouge" class="toc-link"><i class="fas fa-sitemap me-2 fa-fw"></i> Fil conducteur (détail pas à pas)</a>
+                <a href="#concepts" class="toc-link"><i class="fas fa-cubes me-2 fa-fw"></i> 18 concepts essentiels</a>
+                <a href="#certif-success" class="toc-link"><i class="fas fa-medal me-2 fa-fw"></i> Réussir l'examen</a>
+                <hr>
+                <div class="mt-2 small text-muted"><i class="fas fa-lightbulb"></i> Questions typiques CCDAK sur ksqlDB</div>
+            </div>
+        </div>
+
+        <div class="col-lg-9 order-lg-2 order-1">
+            <!-- FIL CONDUCTEUR : ÉTAPE PAR ÉTAPE, TRÈS CLAIR -->
+            <div id="fil-rouge" class="mb-5">
+                <h2 class="section-title"><i class="fas fa-sitemap me-2 text-warning"></i> Fil conducteur : Détection de fraude en temps réel avec ksqlDB</h2>
+                <div class="card border-0 rounded-4 p-3 shadow-sm" style="background: #faf5ff;">
+                    <p class="lead"><i class="fas fa-credit-card me-2 text-danger"></i> <strong>Contexte :</strong> Une banque reçoit des transactions bancaires sur un topic Kafka <code>transactions-raw</code>. Chaque transaction contient : numéro de carte (clé), montant, timestamp. Objectif : détecter les cartes qui dépassent 1000€ cumulés sur une fenêtre glissante de 2 minutes, et envoyer une alerte.</p>
+                    <p><strong>Solution :</strong> Utiliser ksqlDB pour créer un pipeline de streaming SQL, sans écrire une ligne de Java.</p>
+                </div>
+
+                <!-- Étape 1 -->
+                <div class="step-card">
+                    <h5><i class="fas fa-step-forward text-warning me-2"></i>Étape 1 – Créer un STREAM à partir du topic Kafka</h5>
+                    <p>On déclare un stream nommé <code>transactions_raw</code> qui lit le topic <code>transactions-raw</code> au format JSON. La clé du message est <code>id_carte</code>.</p>
+                    <pre><code>CREATE STREAM transactions_raw (
+    id_carte VARCHAR KEY,
+    montant DOUBLE,
+    timestamp BIGINT
+) WITH (
+    KAFKA_TOPIC = 'transactions-raw',
+    VALUE_FORMAT = 'JSON'
+);</code></pre>
+                    <p class="text-muted"><i class="fas fa-info-circle"></i> La commande ne produit pas encore de données ; elle définit la structure.</p>
+                </div>
+
+                <!-- Étape 2 -->
+                <div class="step-card">
+                    <h5><i class="fas fa-step-forward text-warning me-2"></i>Étape 2 – Filtrer les transactions (garder > 50€)</h5>
+                    <p>On crée un nouveau stream <code>transactions_filtrees</code> qui ne contient que les transactions supérieures à 50€. C’est une transformation <strong>stateless</strong>.</p>
+                    <pre><code>CREATE STREAM transactions_filtrees AS
+    SELECT id_carte, montant, timestamp
+    FROM transactions_raw
+    WHERE montant > 50
+    EMIT CHANGES;</code></pre>
+                    <p class="text-muted"><i class="fas fa-lightbulb"></i> <code>EMIT CHANGES</code> signifie que le résultat est mis à jour en continu.</p>
+                </div>
+
+                <!-- Étape 3 -->
+                <div class="step-card">
+                    <h5><i class="fas fa-step-forward text-warning me-2"></i>Étape 3 – Fenêtre glissante (tumbling) et agrégation par carte</h5>
+                    <p>On agrège les transactions par carte sur des fenêtres fixes de 2 minutes (TUMBLING). On calcule la somme des montants. Le résultat est une <strong>TABLE</strong> (car GROUP BY).</p>
+                    <pre><code>CREATE TABLE alertes_fraude AS
+    SELECT id_carte,
+           SUM(montant) AS somme,
+           WINDOWSTART AS debut_fenetre,
+           WINDOWEND AS fin_fenetre
+    FROM transactions_filtrees
+    WINDOW TUMBLING (SIZE 2 MINUTES)
+    GROUP BY id_carte
+    HAVING SUM(montant) > 1000
+    EMIT CHANGES;</code></pre>
+                    <p class="text-muted"><i class="fas fa-clock"></i> Chaque fois qu’une nouvelle transaction fait passer le seuil, la ligne de la table est mise à jour et une alerte est émise.</p>
+                </div>
+
+                <!-- Étape 4 -->
+                <div class="step-card">
+                    <h5><i class="fas fa-step-forward text-warning me-2"></i>Étape 4 – Interroger les alertes en direct (Push Query)</h5>
+                    <p>Pour voir les alertes en temps réel, on exécute une requête push :</p>
+                    <pre><code>SELECT id_carte, somme, debut_fenetre
+FROM alertes_fraude
+WHERE somme > 1000
+EMIT CHANGES;</code></pre>
+                    <p>Cette requête reste active et affiche chaque nouvelle alerte dès qu’elle est produite.</p>
+                </div>
+
+                <!-- Étape 5 -->
+                <div class="step-card">
+                    <h5><i class="fas fa-step-forward text-warning me-2"></i>Étape 5 – Interrogation ponctuelle (Pull Query)</h5>
+                    <p>Pour connaître l’état actuel d’une carte spécifique (ex: API REST), on utilise une pull query :</p>
+                    <pre><code>SELECT id_carte, somme, debut_fenetre
+FROM alertes_fraude
+WHERE id_carte = '1234-5678';</code></pre>
+                    <p>Cette requête retourne une seule ligne, instantanément, sans attendre de nouveaux événements.</p>
+                </div>
+
+                <div class="alert alert-success mt-2">
+                    <i class="fas fa-check-circle"></i> <strong>Résultat :</strong> Un pipeline complet de détection de fraude, entièrement déclaratif, sans code, avec exactement-once semantics, fenêtrage, agrégations, et push/pull queries.
+                </div>
+            </div>
+
+            <!-- 18 CONCEPTS KSQLDB -->
+            <div id="concepts">
+                <h2 class="section-title"><i class="fas fa-microchip me-2 text-warning"></i> 18 concepts ksqlDB – Version Certification</h2>
+                <p class="mb-4">Chaque carte = analogie + exemple SQL + lien avec notre fil rouge "fraude".</p>
+                <div class="row g-4 mt-1" id="conceptsGrid">
+                    
+                    <!-- 1. ksqlDB Server -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-server me-2 text-warning"></i>ksqlDB Server</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Moteur SQL continu</span><div class="concept-section"><strong>📌 Analogie :</strong> Un serveur de base de données, mais spécialisé dans les flux.</div><div class="concept-section"><strong>💡 Examen :</strong> Mode interactif (CLI) ou headless (application).</div></div></div></div>
+                    
+                    <!-- 2. STREAM -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-water me-2 text-warning"></i>STREAM</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Flux d'événements</span><div class="concept-section"><strong>📌 Analogie :</strong> Une rivière continue de transactions.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>CREATE STREAM</code> lit un topic. Données immuables.</div><div class="concept-section"><strong>🔑 Ici :</strong> <code>transactions_raw</code> est un stream.</div></div></div></div>
+                    
+                    <!-- 3. TABLE -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-table me-2 text-warning"></i>TABLE</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> État mutable</span><div class="concept-section"><strong>📌 Analogie :</strong> Un carnet de comptes par carte.</div><div class="concept-section"><strong>💡 Examen :</strong> Issue d’un GROUP BY ou d’un topic compacté.</div><div class="concept-section"><strong>🔑 <code>alertes_fraude</code></strong> est une table.</div></div></div></div>
+                    
+                    <!-- 4. CSAS -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-code-branch me-2 text-warning"></i>CREATE STREAM AS SELECT</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Transformation persistante</span><div class="concept-section"><strong>📌 Analogie :</strong> Tuyau qui filtre l’eau.</div><div class="concept-section"><strong>💡 Examen :</strong> Matérialise la requête dans un topic.</div><div class="concept-section"><strong>🔑 <code>transactions_filtrees</code></strong> est un CSAS.</div></div></div></div>
+                    
+                    <!-- 5. CTAS -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-chart-line me-2 text-warning"></i>CREATE TABLE AS SELECT</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Agrégation continue</span><div class="concept-section"><strong>📌 Analogie :</strong> Tableau de bord auto‑mis à jour.</div><div class="concept-section"><strong>💡 Examen :</strong> GROUP BY + fenêtre → table.</div><div class="concept-section"><strong>🔑 <code>alertes_fraude</code></strong> est un CTAS.</div></div></div></div>
+                    
+                    <!-- 6. Push Query -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-bell me-2 text-warning"></i>Push Query</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Alerte en continu</span><div class="concept-section"><strong>📌 Analogie :</strong> Sonnette à chaque transaction.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>SELECT ... EMIT CHANGES</code>. S’exécute pour toujours.</div></div></div></div>
+                    
+                    <!-- 7. Pull Query -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-search me-2 text-warning"></i>Pull Query</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Interrogation ponctuelle</span><div class="concept-section"><strong>📌 Analogie :</strong> Coup de fil pour connaître l’état actuel.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>SELECT ... FROM table WHERE clé = ...</code> (sans EMIT). Très rapide.</div></div></div></div>
+                    
+                    <!-- 8. WINDOW -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-hourglass-half me-2 text-warning"></i>WINDOW</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Découpage temporel</span><div class="concept-section"><strong>📌 Analogie :</strong> Fenêtre glissante de 2 minutes.</div><div class="concept-section"><strong>💡 Examen :</strong> TUMBLING, HOPPING, SESSION. Grace period.</div><div class="concept-section"><strong>🔑 Notre requête :</strong> <code>TUMBLING (SIZE 2 MINUTES)</code>.</div></div></div></div>
+                    
+                    <!-- 9. GROUP BY & HAVING -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-object-group me-2 text-warning"></i>GROUP BY / HAVING</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Regroupement & filtre post‑agg</span><div class="concept-section"><strong>📌 Analogie :</strong> On regroupe par carte, puis on filtre les groupes > 1000€.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>HAVING</code> s’applique après l’agrégation.</div></div></div></div>
+                    
+                    <!-- 10. Aggregations -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-chart-pie me-2 text-warning"></i>Aggregations</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Calculs cumulatifs</span><div class="concept-section"><strong>📌 Analogie :</strong> Calculette qui additionne.</div><div class="concept-section"><strong>💡 Examen :</strong> SUM, COUNT, AVG, MIN, MAX, TOPKDISTINCT.</div></div></div></div>
+                    
+                    <!-- 11. PARTITION BY -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-random me-2 text-warning"></i>PARTITION BY</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Changement de clé</span><div class="concept-section"><strong>📌 Analogie :</strong> On réétiquette les fiches pour les répartir différemment.</div><div class="concept-section"><strong>💡 Examen :</strong> Provoque un repartition (topic intermédiaire).</div></div></div></div>
+                    
+                    <!-- 12. WITH clause -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-cog me-2 text-warning"></i>WITH clause</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Paramètres du connecteur</span><div class="concept-section"><strong>📌 Analogie :</strong> Fiche technique du topic.</div><div class="concept-section"><strong>💡 Examen :</strong> KAFKA_TOPIC, VALUE_FORMAT, KEY_FORMAT, etc.</div></div></div></div>
+                    
+                    <!-- 13. EMIT CHANGES / FINAL -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-exchange-alt me-2 text-warning"></i>EMIT CHANGES / FINAL</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Émission continue ou finale</span><div class="concept-section"><strong>📌 Analogie :</strong> CHANGES = annonce en direct ; FINAL = attend la fin de la fenêtre.</div><div class="concept-section"><strong>💡 Examen :</strong> Par défaut EMIT CHANGES pour les agrégations windowées.</div></div></div></div>
+                    
+                    <!-- 14. Materialized Views -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-database me-2 text-warning"></i>Vues matérialisées</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Cache toujours à jour</span><div class="concept-section"><strong>📌 Analogie :</strong> Tableau blanc auto‑réécrit.</div><div class="concept-section"><strong>💡 Examen :</strong> Les tables ksqlDB sont des vues matérialisées (RocksDB).</div></div></div></div>
+                    
+                    <!-- 15. INSERT INTO -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-plus-circle me-2 text-warning"></i>INSERT INTO</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Alimenter manuellement</span><div class="concept-section"><strong>📌 Analogie :</strong> Ajouter une fiche à la main.</div><div class="concept-section"><strong>💡 Examen :</strong> Permet d’insérer des données de test.</div></div></div></div>
+                    
+                    <!-- 16. JOINS -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-link me-2 text-warning"></i>JOIN</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Fusion de flux</span><div class="concept-section"><strong>📌 Analogie :</strong> Enrichir une transaction avec les infos client.</div><div class="concept-section"><strong>💡 Examen :</strong> Stream-Stream (windowée), Stream-Table, Table-Table. Nécessite co‑partitioning.</div></div></div></div>
+                    
+                    <!-- 17. UDF / UDAF -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-code me-2 text-warning"></i>UDF / UDAF</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Fonctions personnalisées</span><div class="concept-section"><strong>📌 Analogie :</strong> Nouvelle formule de calcul.</div><div class="concept-section"><strong>💡 Examen :</strong> Écrites en Java, déployées dans le classpath.</div></div></div></div>
+                    
+                    <!-- 18. CLI & REST API -->
+                    <div class="col-md-6 col-xl-4"><div class="card-concept"><div class="card-header-concept"><i class="fas fa-terminal me-2 text-warning"></i>CLI / REST API</div><div class="card-body"><span class="mnemo-badge mb-2"><i class="fas fa-brain"></i> Console et web service</span><div class="concept-section"><strong>📌 Analogie :</strong> Tableau de bord et télécommande.</div><div class="concept-section"><strong>💡 Examen :</strong> <code>ksql</code> CLI, port 8088 pour REST.</div></div></div></div>
+                </div>
+            </div>
+
+            <!-- SECTION RÉUSSIR LA CERTIFICATION -->
+            <div id="certif-success" class="mt-5">
+                <h2 class="section-title"><i class="fas fa-certificate me-2 text-warning"></i> Stratégie gagnante : Certification Confluent (ksqlDB)</h2>
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <h5><i class="fas fa-list-check me-2"></i>Domaines ksqlDB couverts par l’examen CCDAK</h5>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <ul>
+                                <li><i class="fas fa-check-circle text-success"></i> Création de STREAM et TABLE</li>
+                                <li><i class="fas fa-check-circle text-success"></i> Push vs Pull queries</li>
+                                <li><i class="fas fa-check-circle text-success"></i> Fenêtrage (Tumbling, Hopping, Session)</li>
+                                <li><i class="fas fa-check-circle text-success"></i> Agrégations et GROUP BY / HAVING</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul>
+                                <li><i class="fas fa-check-circle text-success"></i> Jointures (Stream-Table notamment)</li>
+                                <li><i class="fas fa-check-circle text-success"></i> PARTITION BY et repartition</li>
+                                <li><i class="fas fa-check-circle text-success"></i> Formats de données (JSON, Avro, Schema Registry)</li>
+                                <li><i class="fas fa-check-circle text-success"></i> EMIT CHANGES vs EMIT FINAL</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr>
+                    <h5><i class="fas fa-lightbulb me-2"></i>Conseils pour réussir l’examen (partie ksqlDB)</h5>
+                    <ul>
+                        <li><strong>Pratiquez avec Docker</strong> : utilisez l’image <code>confluentinc/ksqldb-server</code> et la CLI <code>ksql</code>.</li>
+                        <li><strong>Maîtrisez la différence entre STREAM et TABLE</strong> : un stream = historique immuable ; une table = dernier état par clé.</li>
+                        <li><strong>Sachez que les fenêtres sont obligatoires pour les agrégations sur les streams</strong> (sauf GROUP BY sur une table).</li>
+                        <li><strong>Comprenez quand <code>PARTITION BY</code> déclenche un repartition</strong> (nécessite un topic intermédiaire).</li>
+                        <li><strong>Testez les requêtes avec <code>EXPLAIN</code></strong> pour analyser le plan d’exécution.</li>
+                        <li><strong>N’oubliez pas <code>EMIT CHANGES</code> pour les push queries</strong>, et son absence pour les pull queries.</li>
+                    </ul>
+                    <div class="alert alert-dark mt-3">
+                        <i class="fas fa-graduation-cap me-2"></i> <strong>Mémo final ksqlDB :</strong> “STREAM pour les événements, TABLE pour l’état, PUSH pour l’alerte, PULL pour l’API, WINDOW pour le temps, GROUP BY pour l’agrégation.”
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 text-center">
+                <a href="#" class="btn btn-outline-secondary"><i class="fas fa-arrow-up"></i> Retour haut de page</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="mt-5 pt-4 pb-3">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <i class="fas fa-database me-1"></i> <strong>Guide ksqlDB pour certification Confluent</strong> · 18 concepts, fil conducteur détaillé
+                <br><small>Analogies, SQL concret et astuces francophones – CCDAK ready.</small>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <span class="text-white-50">© 2025 — Guide libre pour la communauté Kafka francophone</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('.toc-link, a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if(href && href !== "#" && href.startsWith('#')) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+</script>
+</body>
+</html>
