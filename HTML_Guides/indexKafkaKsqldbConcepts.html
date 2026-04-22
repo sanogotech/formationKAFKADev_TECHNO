@@ -143,7 +143,7 @@
                 <div class="step-card">
                     <h5><i class="fas fa-step-forward text-warning me-2"></i>Étape 1 – Créer un STREAM à partir du topic Kafka</h5>
                     <p>On déclare un stream nommé <code>transactions_raw</code> qui lit le topic <code>transactions-raw</code> au format JSON. La clé du message est <code>id_carte</code>.</p>
-                    <pre><code>CREATE STREAM transactions_raw (
+                    <pre style="color: blue;"><code>CREATE STREAM transactions_raw (
     id_carte VARCHAR KEY,
     montant DOUBLE,
     timestamp BIGINT
@@ -158,7 +158,7 @@
                 <div class="step-card">
                     <h5><i class="fas fa-step-forward text-warning me-2"></i>Étape 2 – Filtrer les transactions (garder > 50€)</h5>
                     <p>On crée un nouveau stream <code>transactions_filtrees</code> qui ne contient que les transactions supérieures à 50€. C’est une transformation <strong>stateless</strong>.</p>
-                    <pre><code>CREATE STREAM transactions_filtrees AS
+                    <pre  style="color: blue;"><code>CREATE STREAM transactions_filtrees AS
     SELECT id_carte, montant, timestamp
     FROM transactions_raw
     WHERE montant > 50
@@ -170,7 +170,7 @@
                 <div class="step-card">
                     <h5><i class="fas fa-step-forward text-warning me-2"></i>Étape 3 – Fenêtre glissante (tumbling) et agrégation par carte</h5>
                     <p>On agrège les transactions par carte sur des fenêtres fixes de 2 minutes (TUMBLING). On calcule la somme des montants. Le résultat est une <strong>TABLE</strong> (car GROUP BY).</p>
-                    <pre><code>CREATE TABLE alertes_fraude AS
+                    <pre  style="color: blue;"><code>CREATE TABLE alertes_fraude AS
     SELECT id_carte,
            SUM(montant) AS somme,
            WINDOWSTART AS debut_fenetre,
@@ -187,7 +187,7 @@
                 <div class="step-card">
                     <h5><i class="fas fa-step-forward text-warning me-2"></i>Étape 4 – Interroger les alertes en direct (Push Query)</h5>
                     <p>Pour voir les alertes en temps réel, on exécute une requête push :</p>
-                    <pre><code>SELECT id_carte, somme, debut_fenetre
+                    <pre  style="color: blue;"><code>SELECT id_carte, somme, debut_fenetre
 FROM alertes_fraude
 WHERE somme > 1000
 EMIT CHANGES;</code></pre>
@@ -198,7 +198,7 @@ EMIT CHANGES;</code></pre>
                 <div class="step-card">
                     <h5><i class="fas fa-step-forward text-warning me-2"></i>Étape 5 – Interrogation ponctuelle (Pull Query)</h5>
                     <p>Pour connaître l’état actuel d’une carte spécifique (ex: API REST), on utilise une pull query :</p>
-                    <pre><code>SELECT id_carte, somme, debut_fenetre
+                    <pre  style="color: blue;"><code>SELECT id_carte, somme, debut_fenetre
 FROM alertes_fraude
 WHERE id_carte = '1234-5678';</code></pre>
                     <p>Cette requête retourne une seule ligne, instantanément, sans attendre de nouveaux événements.</p>

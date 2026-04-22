@@ -239,7 +239,12 @@ public class WordCountStreamsApp {
 
         // Dossier local où seront stockés les state stores (ex: compteurs).
         // Doit être unique par application.
-        config.put(StreamsConfig.STATE_DIR_CONFIG, "/tmp/kafka-streams/tp06");
+        //config.put(StreamsConfig.STATE_DIR_CONFIG, "/tmp/kafka-streams/tp06");
+
+
+        config.put(StreamsConfig.STATE_DIR_CONFIG, "D:/temp/kafka-streams/tp06");
+
+    
 
         // Fréquence de commit de l'état (toutes les 2 secondes)
         config.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, "2000");
