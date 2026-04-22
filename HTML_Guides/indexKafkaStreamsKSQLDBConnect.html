@@ -1630,74 +1630,802 @@ for i in range(20):
 </div>
 
         <!-- 8. Cas pratique #2 : Synchronisation BDD via Debezium + ksqlDB -->
-        <div id="tab8" class="tab-pane">
-            <h2>🔄 Cas pratique #2 – Materialized Views avec Debezium + ksqlDB</h2>
-            <p><strong>Contexte :</strong> Une base PostgreSQL, on veut une vue enrichie (jointure entre customers et orders) mise à jour en temps réel.</p>
-            <h3>Étapes :</h3>
-            <ol>
-                <li>Démarrer Debezium PostgreSQL connector → topics <code>dbserver1.public.customers</code> et <code>dbserver1.public.orders</code>.</li>
-                <li>Dans ksqlDB : créer des streams à partir de ces topics.</li>
-                <li>Faire une jointure et matérialiser une table.</li>
-            </ol>
-            <pre><code>CREATE STREAM customers (id INT, name VARCHAR) WITH (KAFKA_TOPIC='...', VALUE_FORMAT='AVRO');
-CREATE STREAM orders (order_id INT, cust_id INT, total DECIMAL) WITH (...);
+      <div id="tab8" class="tab-pane">
+    <h2>🔄 Cas pratique #2 – Synchronisation BDD via Debezium + ksqlDB</h2>
+    <p>Ce cas pratique vous guide dans la mise en place d’une synchronisation de bases de données en temps réel. Vous allez capturer les changements d’une base source (PostgreSQL) avec Debezium, les transformer et les enrichir avec ksqlDB, puis les répliquer vers une base cible (ou créer une vue matérialisée dans Kafka).</p>
 
-CREATE TABLE enriched_orders AS
-  SELECT o.order_id, c.name, o.total
-  FROM orders o
-  JOIN customers c ON o.cust_id = c.id
+    <h3>🎯 Objectifs pédagogiques</h3>
+    <ul>
+        <li>Comprendre le Change Data Capture (CDC) avec Debezium.</li>
+        <li>Configurer un connecteur Debezium pour PostgreSQL.</li>
+        <li>Utiliser ksqlDB pour créer des streams et des tables à partir des topics Debezium.</li>
+        <li>Réaliser des jointures entre plusieurs tables capturées (ex: customers et orders).</li>
+        <li>Envoyer les données transformées vers une base cible via Kafka Connect JDBC Sink.</li>
+        <li>Mettre en place une vue matérialisée temps réel dans ksqlDB.</li>
+    </ul>
+
+    <h3>🏗️ Architecture générale</h3>
+    <pre><code>Base source (PostgreSQL) → Debezium Connector → Topics Kafka (bruts)
+→ ksqlDB (nettoyage, jointure, agrégation) → Topics enrichis
+→ JDBC Sink Connector → Base cible (PostgreSQL / autre)</code></pre>
+    <p>Nous allons simuler une base de données e-commerce avec deux tables : <code>customers</code> et <code>orders</code>. Nous souhaitons maintenir une vue dénormalisée <code>customer_orders</code> (client + commandes) en temps réel.</p>
+
+    <h3>📦 Prérequis et installation de l’environnement</h3>
+    <p>Nous allons utiliser Docker Compose pour démarrer : PostgreSQL (source), Kafka, Kafka Connect (avec Debezium et JDBC Sink), ksqlDB, et éventuellement une base cible (une autre instance PostgreSQL).</p>
+    <pre><code># docker-compose.yml
+version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+  postgres-source:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ecommerce
+    command: ["postgres", "-c", "wal_level=logical"]
+    ports:
+      - "5432:5432"
+  postgres-target:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ecommerce_target
+    ports:
+      - "5433:5432"
+  connect:
+    image: debezium/connect:latest
+    depends_on:
+      - kafka
+      - postgres-source
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect-configs
+      OFFSET_STORAGE_TOPIC: connect-offsets
+      STATUS_STORAGE_TOPIC: connect-status
+      PLUGIN_PATH: /kafka/connect
+    ports:
+      - "8083:8083"
+  ksqldb-server:
+    image: confluentinc/ksqldb-server:latest
+    depends_on:
+      - kafka
+    environment:
+      KSQL_BOOTSTRAP_SERVERS: kafka:9092
+      KSQL_LISTENERS: http://0.0.0.0:8088
+    ports:
+      - "8088:8088"
+  ksqldb-cli:
+    image: confluentinc/ksqldb-cli:latest
+    depends_on:
+      - ksqldb-server
+    entrypoint: /bin/sh
+    stdin_open: true
+    tty: true</code></pre>
+    <p>Démarrez : <code>docker-compose up -d</code>.</p>
+
+    <h3>📝 Étape 1 – Préparer la base source (PostgreSQL)</h3>
+    <p>Connectez-vous à la base source et créez les tables :</p>
+    <pre><code>docker exec -it postgres-source psql -U postgres -d ecommerce
+CREATE TABLE customers (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    email VARCHAR(200) UNIQUE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    customer_id INT REFERENCES customers(id),
+    product VARCHAR(200),
+    quantity INT,
+    price DECIMAL(10,2),
+    order_date TIMESTAMP DEFAULT NOW()
+);
+INSERT INTO customers (first_name, last_name, email) VALUES
+('John', 'Doe', 'john@example.com'),
+('Jane', 'Smith', 'jane@example.com');
+INSERT INTO orders (customer_id, product, quantity, price) VALUES
+(1, 'Laptop', 1, 1200.00),
+(1, 'Mouse', 2, 25.50),
+(2, 'Keyboard', 1, 75.00);</code></pre>
+
+    <h3>🔌 Étape 2 – Configurer le connecteur Debezium PostgreSQL</h3>
+    <p>Créez un connecteur source Debezium pour capturer les changements des tables <code>customers</code> et <code>orders</code>.</p>
+    <pre><code>curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "postgres-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "postgres-source",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.dbname": "ecommerce",
+    "database.server.name": "dbserver1",
+    "table.include.list": "public.customers,public.orders",
+    "plugin.name": "pgoutput",
+    "publication.autocreate.mode": "filtered",
+    "snapshot.mode": "initial"
+  }
+}' http://localhost:8083/connectors</code></pre>
+    <p>Vérifiez que le connecteur est actif : <code>curl localhost:8083/connectors/postgres-connector/status</code>.</p>
+    <p>Debezium crée deux topics Kafka : <code>dbserver1.public.customers</code> et <code>dbserver1.public.orders</code>. Consommez-les pour voir les événements :</p>
+    <pre><code>docker exec -it kafka kafka-console-consumer --bootstrap-server kafka:9092 \
+  --topic dbserver1.public.customers --from-beginning</code></pre>
+
+    <h3>📊 Étape 3 – Préparer les streams dans ksqlDB</h3>
+    <p>Connectez-vous à ksqlDB CLI :</p>
+    <pre><code>docker exec -it ksqldb-cli ksql http://ksqldb-server:8088</code></pre>
+    <p>Définissez les streams à partir des topics Debezium. Notez que les messages sont au format JSON avec une structure <code>before</code>/<code>after</code>.</p>
+    <pre><code>-- Définir un stream pour les customers (nous ne prenons que le payload.after)
+CREATE STREAM customers_raw (before STRUCT&lt;...&gt;, after STRUCT&lt;id INT, first_name VARCHAR, last_name VARCHAR, email VARCHAR, created_at VARCHAR&gt;, op VARCHAR)
+WITH (KAFKA_TOPIC='dbserver1.public.customers', VALUE_FORMAT='JSON');
+
+-- Créer un stream propre avec seulement les données après modification (insert/update)
+CREATE STREAM customers AS
+  SELECT after->id AS id,
+         after->first_name AS first_name,
+         after->last_name AS last_name,
+         after->email AS email,
+         after->created_at AS created_at
+  FROM customers_raw
+  WHERE op IN ('c', 'u')
+  EMIT CHANGES;
+
+-- Créer une table matérialisée des customers (état le plus récent)
+CREATE TABLE customers_table AS
+  SELECT id,
+         LATEST_BY_OFFSET(first_name) AS first_name,
+         LATEST_BY_OFFSET(last_name) AS last_name,
+         LATEST_BY_OFFSET(email) AS email
+  FROM customers
+  GROUP BY id
   EMIT CHANGES;</code></pre>
-            <p>Résultat : une table Kafka qui s’enrichit en continu, consultable via requêtes push/pull.</p>
-        </div>
+    <p>Même chose pour les commandes (<code>orders</code>) :</p>
+    <pre><code>CREATE STREAM orders_raw (before STRUCT&lt;...&gt;, after STRUCT&lt;id INT, customer_id INT, product VARCHAR, quantity INT, price DECIMAL(10,2), order_date VARCHAR&gt;, op VARCHAR)
+WITH (KAFKA_TOPIC='dbserver1.public.orders', VALUE_FORMAT='JSON');
+
+CREATE STREAM orders AS
+  SELECT after->id AS order_id,
+         after->customer_id AS customer_id,
+         after->product AS product,
+         after->quantity AS quantity,
+         after->price AS price,
+         after->order_date AS order_date
+  FROM orders_raw
+  WHERE op IN ('c', 'u')
+  EMIT CHANGES;
+
+CREATE TABLE orders_table AS
+  SELECT order_id,
+         LATEST_BY_OFFSET(customer_id) AS customer_id,
+         LATEST_BY_OFFSET(product) AS product,
+         LATEST_BY_OFFSET(quantity) AS quantity,
+         LATEST_BY_OFFSET(price) AS price
+  FROM orders
+  GROUP BY order_id
+  EMIT CHANGES;</code></pre>
+
+    <h3>🔗 Étape 4 – Créer une vue matérialisée : jointure customers + orders</h3>
+    <p>Nous voulons une table qui pour chaque commande affiche les informations du client (dénormalisation).</p>
+    <pre><code>CREATE TABLE customer_orders AS
+  SELECT o.order_id,
+         o.customer_id,
+         c.first_name,
+         c.last_name,
+         o.product,
+         o.quantity,
+         o.price
+  FROM orders_table o
+  LEFT JOIN customers_table c ON o.customer_id = c.id
+  EMIT CHANGES;</code></pre>
+    <p>Cette table se met à jour en temps réel : si un client change son nom, la jointure reflète immédiatement le changement. Vous pouvez interroger cette table :</p>
+    <pre><code>SELECT * FROM customer_orders WHERE order_id = 1;</code></pre>
+
+    <h3>📤 Étape 5 – Synchroniser vers une base cible via JDBC Sink</h3>
+    <p>Nous allons utiliser Kafka Connect JDBC Sink pour écrire les données de la table <code>customer_orders</code> dans une table PostgreSQL cible.</p>
+    <p>D’abord, créez la table cible dans <code>postgres-target</code> :</p>
+    <pre><code>docker exec -it postgres-target psql -U postgres -d ecommerce_target
+CREATE TABLE customer_orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    product VARCHAR(200),
+    quantity INT,
+    price DECIMAL(10,2)
+);</code></pre>
+    <p>Ensuite, installez le connecteur JDBC Sink (si non présent). Pour Debezium Connect, ajoutez le plugin. Avec notre image <code>debezium/connect:latest</code>, il n’est pas inclus par défaut. Vous pouvez utiliser l’image <code>confluentinc/cp-kafka-connect:latest</code> avec les plugins appropriés. Pour simplifier, nous allons utiliser une approche alternative : créer un stream dans ksqlDB qui écrit dans un topic, puis un connecteur sink. Ou bien utiliser ksqlDB directement pour écrire dans une base via un connecteur intégré (non disponible). Je vais plutôt montrer la configuration d’un connecteur JDBC sink séparé.</p>
+    <p>Créez d’abord un topic à partir de la table ksqlDB :</p>
+    <pre><code>-- Dans ksqlDB, créer un stream qui réplique la table (pour la rendre disponible en tant que topic)
+CREATE STREAM customer_orders_stream AS
+  SELECT * FROM customer_orders
+  EMIT CHANGES;</code></pre>
+    <p>Ce stream écrit dans un topic <code>CUSTOMER_ORDERS_STREAM</code>. Maintenant, configurez un connecteur JDBC sink (vous aurez besoin de télécharger le connecteur JDBC et de le placer dans le <code>plugin.path</code> du worker). Exemple de configuration :</p>
+    <pre><code>curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "jdbc-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "connection.url": "jdbc:postgresql://postgres-target:5432/ecommerce_target",
+    "connection.user": "postgres",
+    "connection.password": "postgres",
+    "topics": "CUSTOMER_ORDERS_STREAM",
+    "table.name.format": "customer_orders",
+    "insert.mode": "upsert",
+    "pk.mode": "record_key",
+    "pk.fields": "order_id",
+    "auto.create": false,
+    "auto.evolve": false
+  }
+}' http://localhost:8083/connectors</code></pre>
+    <p>Désormais, chaque insertion ou modification dans la base source (customers ou orders) se propage instantanément vers la base cible.</p>
+
+    <h3>🧪 Étape 6 – Tester la synchronisation</h3>
+    <p>Effectuez des modifications dans la base source :</p>
+    <pre><code>-- Insérer un nouveau client
+INSERT INTO customers (first_name, last_name, email) VALUES ('Alice', 'Brown', 'alice@example.com');
+-- Insérer une commande pour Alice
+INSERT INTO orders (customer_id, product, quantity, price) VALUES (3, 'Monitor', 1, 300.00);
+-- Mettre à jour le nom de John Doe
+UPDATE customers SET last_name = 'Johnson' WHERE id = 1;
+-- Supprimer une commande (note : Debezium envoie un événement "delete")
+DELETE FROM orders WHERE id = 2;</code></pre>
+    <p>Vérifiez dans la base cible :</p>
+    <pre><code>SELECT * FROM customer_orders;</code></pre>
+    <p>Vous devriez voir la commande de John avec son nouveau nom, la commande d’Alice, et l’absence de la commande supprimée (si vous avez géré les suppressions – note : dans notre table, nous n’avons pas de suppression, mais vous pourriez ajouter une colonne <code>deleted</code>).</p>
+
+    <h3>🔄 Gestion des suppressions (tombstones)</h3>
+    <p>Pour gérer les suppressions, vous pouvez configurer Debezium pour envoyer des messages tombstone (valeur null). Dans la table ksqlDB, les suppressions apparaîtront comme <code>op='d'</code>. Vous devez alors propager la suppression au sink. C’est plus avancé, mais possible.</p>
+
+    <h3>✅ Bonnes pratiques pour ce cas pratique</h3>
+    <ul>
+        <li><strong>Utilisez Avro</strong> plutôt que JSON pour les événements Debezium, afin de bénéficier de Schema Registry.</li>
+        <li><strong>Surveillez le lag</strong> des connecteurs Debezium et JDBC Sink.</li>
+        <li><strong>Testez la résilience</strong> : arrêtez et redémarrez les workers Connect, vérifiez que la synchronisation reprend sans perte.</li>
+        <li><strong>Filtrez les colonnes sensibles</strong> dans Debezium (ex: email, mots de passe) via <code>column.exclude.list</code>.</li>
+        <li><strong>Pour de très gros volumes, utilisez des partitions multiples</strong> sur les topics sources (Debezium respecte la clé primaire).</li>
+        <li><strong>Activez le compactage des topics</strong> (<code>cleanup.policy=compact</code>) pour les tables ksqlDB, afin d’éviter l’accumulation infinie.</li>
+    </ul>
+
+    <h3>📊 Monitoring du pipeline</h3>
+    <ul>
+        <li><code>curl localhost:8083/connectors/postgres-connector/status</code> et <code>/connectors/jdbc-sink/status</code>.</li>
+        <li>Dans ksqlDB : <code>SHOW STREAMS;</code> <code>SHOW TABLES;</code> <code>SHOW QUERIES;</code>.</li>
+        <li>Surveillez la taille des topics <code>dbserver1.public.customers</code> et autres.</li>
+    </ul>
+
+    <h3>🔧 Dépannage fréquent</h3>
+    <ul>
+        <li><strong>Le connecteur Debezium ne capture pas les changements</strong> : vérifiez que <code>wal_level=logical</code> est actif dans PostgreSQL.</li>
+        <li><strong>Les événements n’apparaissent pas dans ksqlDB</strong> : assurez-vous que les streams sont créés avec le bon format et la bonne structure (consultez un message brut pour voir la structure exacte).</li>
+        <li><strong>La jointure ne fonctionne pas</strong> : vérifiez que les clés de jointure sont correctement typées et que les streams/tables sont correctement partitionnées (clé primaire).</li>
+        <li><strong>Le sink JDBC échoue avec des erreurs de duplication</strong> : configurez <code>insert.mode=upsert</code> et une clé primaire.</li>
+    </ul>
+
+    <h3>📚 Ressources complémentaires</h3>
+    <ul>
+        <li><a href="https://debezium.io/documentation/reference/stable/connectors/postgresql.html" target="_blank">Documentation Debezium PostgreSQL</a></li>
+        <li><a href="https://docs.ksqldb.io/en/latest/developer-guide/joins/" target="_blank">ksqlDB – Jointures</a></li>
+        <li><a href="https://www.confluent.io/blog/real-time-data-synchronization-using-debezium-and-ksqldb/" target="_blank">Article Confluent sur Debezium + ksqlDB</a></li>
+    </ul>
+
+    <h3>🎯 Conclusion</h3>
+    <p>Ce cas pratique montre comment combiner la puissance de Debezium (CDC) et de ksqlDB (traitement SQL en continu) pour synchroniser des bases de données en temps réel, avec des transformations et des jointures. Cette approche est utilisée en production pour maintenir des caches, des data warehouses, ou des vues matérialisées sans code complexe.</p>
+</div>
 
         <!-- 9. Bonnes pratiques -->
-        <div id="tab9" class="tab-pane">
-            <h2>✅ Bonnes pratiques générales</h2>
-            <div class="card-grid">
-                <div class="card"><strong>Partitionnement</strong> – Choisir une clé de partition pour l'ordre et le parallélisme.</div>
-                <div class="card"><strong>Sérialisation</strong> – Utiliser Avro ou Protobuf avec Schema Registry.</div>
-                <div class="card"><strong>Exactly-once</strong> – Activer les sémantiques exactly-once pour les applications critiques.</div>
-                <div class="card"><strong>Monitoring</strong> – JMX, Prometheus, Grafana pour surveiller latence, débit, état des connecteurs.</div>
-                <div class="card"><strong>Rétention</strong> – Configurer <code>log.retention.hours</code> selon les besoins de rejeu.</div>
-                <div class="card"><strong>Gestion des erreurs</strong> – Dead Letter Queue (DLQ) pour les messages malformés.</div>
-            </div>
-            <h3>Pour les connecteurs :</h3>
+       <div id="tab9" class="tab-pane">
+    <h2>✅ Bonnes pratiques pour l’écosystème Kafka</h2>
+    <p>Cette section rassemble les meilleures pratiques pour concevoir, développer, déployer et maintenir des applications Kafka robustes, performantes et sécurisées. Ces recommandations s’appliquent aux producteurs, consommateurs, Kafka Streams, ksqlDB, Kafka Connect, Debezium, et à l’administration du cluster.</p>
+
+    <h3>📦 1. Producteurs Kafka</h3>
+    <ul>
+        <li><strong>Utilisez des clés de partition pertinentes</strong> : une clé détermine la partition. Pour garantir l’ordre des messages d’une même entité (ex: commande), choisissez une clé métier (ex: order_id).</li>
+        <li><strong>Activez l’idempotence</strong> : <code>enable.idempotence=true</code> évite les doublons en cas de retry.</li>
+        <li><strong>Configurez <code>acks=all</code></strong> pour garantir la persistance sur tous les réplicas (sauf si la latence est critique).</li>
+        <li><strong>Gérez les retries avec backoff</strong> : <code>retries=Integer.MAX_VALUE</code> et <code>retry.backoff.ms=100</code> pour une reprise progressive.</li>
+        <li><strong>Utilisez des sérialiseurs performants</strong> : Avro, Protobuf ou JSON Schema avec Schema Registry plutôt que JSON brut (sans schéma).</li>
+        <li><strong>Compressez les messages</strong> : <code>compression.type=snappy</code> ou <code>lz4</code> pour réduire la bande passante et le stockage.</li>
+        <li><strong>Évitez les messages trop gros</strong> : la limite par défaut est 1 Mo. Pour des messages plus gros, utilisez un référentiel externe (S3, HDFS) et envoyez l’URI.</li>
+        <li><strong>Surveillez les métriques</strong> : request-latency, record-error-rate, bytes-out.</li>
+    </ul>
+
+    <h3>📖 2. Consommateurs Kafka</h3>
+    <ul>
+        <li><strong>Choisissez le bon <code>auto.offset.reset</code></strong> : <code>earliest</code> pour relire depuis le début, <code>latest</code> pour ne lire que les nouveaux messages.</li>
+        <li><strong>Utilisez le commit manuel des offsets</strong> (<code>enable.auto.commit=false</code>) pour contrôler exactement quand marquer un message comme traité.</li>
+        <li><strong>Gérez le rebalancement</strong> : implémentez <code>ConsumerRebalanceListener</code> pour sauvegarder l’état avant la perte de partitions.</li>
+        <li><strong>Augmentez <code>max.poll.interval.ms</code></strong> si le traitement de chaque lot peut prendre du temps (sinon, le consommateur sera considéré comme mort).</li>
+        <li><strong>Limitez la taille des lots avec <code>max.poll.records</code></strong> pour éviter de surcharger la mémoire.</li>
+        <li><strong>Utilisez des groupes de consommateurs</strong> pour paralléliser la consommation : le nombre de consommateurs dans un groupe ne doit pas dépasser le nombre de partitions.</li>
+        <li><strong>Surveillez le <em>consumer lag</em></strong> : écart entre le dernier message produit et le dernier message consommé. Outils : <code>kafka-consumer-groups</code>, JMX, Burrow.</li>
+    </ul>
+
+    <h3>⚙️ 3. Kafka Streams (Java)</h3>
+    <ul>
+        <li><strong>Définissez un <code>application.id</code> unique et cohérent</strong> : il sert à identifier l’application dans le cluster et pour le stockage d’état.</li>
+        <li><strong>Utilisez <code>exactly-once</code> pour les transactions critiques</strong> : <code>processing.guarantee=exactly_once_v2</code>.</li>
+        <li><strong>Choisissez le nombre de threads (<code>num.stream.threads</code>)</strong> égal au nombre de partitions pour un parallélisme maximal sur une seule instance.</li>
+        <li><strong>Surveillez la taille des stores RocksDB</strong> : les stores peuvent devenir très gros. Configurez <code>rocksdb.block.cache.size</code> et <code>rocksdb.write.buffer.size</code>.</li>
+        <li><strong>Utilisez des <em>window stores</em> avec une rétention adaptée</strong> : <code>windowstore.changelog.additional.retention.ms</code> pour éviter une accumulation infinie.</li>
+        <li><strong>Testez la topologie avec <code>TopologyTestDriver</code></strong> pour valider le comportement sans déployer de cluster.</li>
+        <li><strong>Gérez les erreurs de désérialisation</strong> : implémentez <code>DeserializationExceptionHandler</code> pour envoyer les mauvais messages vers une Dead Letter Queue.</li>
+        <li><strong>Activez la métrologie JMX</strong> pour surveiller le débit, la latence et l’état des stores.</li>
+    </ul>
+
+    <h3>🐍 4. Faust (Python)</h3>
+    <ul>
+        <li><strong>Utilisez <code>rocksdb://</code> comme store</strong> (par défaut). Évitez <code>memory://</code> en production.</li>
+        <li><strong>Configurez <code>topic_partitions</code></strong> sur l’application pour correspondre aux partitions du topic source.</li>
+        <li><strong>Surveillez la mémoire</strong> : Faust étant asynchrone, les agents peuvent accumuler des messages non traités. Utilisez <code>app.conf.stream_buffer_max_size</code>.</li>
+        <li><strong>Utilisez les timers avec parcimonie</strong> : trop de timers peuvent bloquer le event loop.</li>
+        <li><strong>Déployez plusieurs workers</strong> pour la haute disponibilité, mais assurez-vous que chaque worker ait une configuration <code>web_port</code> différente.</li>
+        <li><strong>Activez les logs détaillés</strong> : <code>faust --debug</code> pour le débogage, mais désactivez en production.</li>
+    </ul>
+
+    <h3>📊 5. ksqlDB</h3>
+    <ul>
+        <li><strong>Utilisez des clés primaires dans les tables</strong> : définissez <code>PRIMARY KEY</code> pour permettre les mises à jour et les suppressions.</li>
+        <li><strong>Évitez les requêtes <code>EMIT CHANGES</code> non filtrées</strong> sur de gros volumes : elles peuvent submerger le client.</li>
+        <li><strong>Préférez les <em>pull queries</em> pour les requêtes ponctuelles</strong> plutôt que les push queries.</li>
+        <li><strong>Surveillez les requêtes actives</strong> : <code>SHOW QUERIES;</code> et <code>TERMINATE &lt;query_id&gt;;</code> si nécessaire.</li>
+        <li><strong>Activez le schéma Avro avec Schema Registry</strong> pour garantir l’évolution.</li>
+        <li><strong>Définissez des propriétés de streaming appropriées</strong> : <code>auto.offset.reset=earliest</code> ou <code>latest</code> selon le besoin.</li>
+    </ul>
+
+    <h3>🔌 6. Kafka Connect</h3>
+    <ul>
+        <li><strong>Utilisez le mode distribué en production</strong> avec au moins 2 workers pour la tolérance aux pannes.</li>
+        <li><strong>Configurez <code>tasks.max</code> en fonction du parallélisme souhaité</strong> : pour un connecteur source JDBC, tasks.max peut être le nombre de tables ou de partitions.</li>
+        <li><strong>Utilisez les transformations SMT avec modération</strong> : elles s’exécutent dans le worker et peuvent devenir un goulot d’étranglement.</li>
+        <li><strong>Activez la Dead Letter Queue</strong> : <code>errors.tolerance=all</code> et <code>errors.deadletterqueue.topic.name</code> pour rediriger les messages problématiques.</li>
+        <li><strong>Surveillez l’état des connecteurs et des tâches</strong> via l’API REST et les métriques JMX.</li>
+        <li><strong>Séparez les connecteurs par répertoire <code>plugin.path</code></strong> pour éviter les conflits de version de dépendances.</li>
+    </ul>
+
+    <h3>🔄 7. Debezium (CDC)</h3>
+    <ul>
+        <li><strong>Assurez-vous que la base source conserve les logs assez longtemps</strong> : MySQL binlog retention, PostgreSQL <code>wal_keep_size</code>.</li>
+        <li><strong>Utilisez <code>snapshot.mode=initial</code> pour la première exécution</strong>, puis <code>never</code> si vous recréez le connecteur.</li>
+        <li><strong>Filtrez les colonnes sensibles</strong> avec <code>column.exclude.list</code> ou masquez via SMT.</li>
+        <li><strong>Surveillez la latence</strong> : Debezium ajoute un champ <code>source.ts_ms</code>. Comparez-le avec <code>ts_ms</code> pour détecter les retards.</li>
+        <li><strong>Activez les <em>tombstones</em> pour les suppressions</strong> : <code>tombstones.on.delete=true</code> pour que les tables compactées reflètent la suppression.</li>
+    </ul>
+
+    <h3>🔐 8. Sécurité</h3>
+    <ul>
+        <li><strong>Activez SSL/TLS</strong> pour le chiffrement des communications entre clients et brokers, et entre brokers.</li>
+        <li><strong>Utilisez SASL (SCRAM, PLAIN, Kerberos)</strong> pour l’authentification des clients.</li>
+        <li><strong>Appliquez des ACLs</strong> : contrôlez qui peut lire, écrire, créer des topics, etc.</li>
+        <li><strong>Séparez les environnements</strong> (développement, test, production) avec des clusters distincts ou des namespaces.</li>
+        <li><strong>Gérez les secrets avec des providers externes</strong> (Vault, AWS Secrets Manager) plutôt qu’en clair dans les fichiers de configuration.</li>
+        <li><strong>Auditez les accès</strong> : activez les logs d’autorisation (<code>authorizer.logger</code>).</li>
+    </ul>
+
+    <h3>📈 9. Monitoring et alerting</h3>
+    <ul>
+        <li><strong>Exposez les métriques JMX</strong> et utilisez Prometheus + Grafana.</li>
+        <li><strong>Surveillez les métriques clés</strong> :
             <ul>
-                <li>Toujours spécifier <code>tasks.max</code> pour le parallélisme.</li>
-                <li>Utiliser <code>transforms</code> pour le routage ou l’enrichissement léger.</li>
-                <li>Surveiller les délais de rebalancement.</li>
+                <li>Pour les brokers : <code>kafka.server:type=BrokerTopicMetrics</code> (messages in/out), <code>kafka.controller:type=ControllerStats</code> (état du contrôleur).</li>
+                <li>Pour les consommateurs : consumer lag (via <code>kafka-consumer-groups</code>).</li>
+                <li>Pour Kafka Streams : taux de traitement, taille des stores, temps de commit.</li>
+                <li>Pour Connect : nombre d’enregistrements traités, tâches en échec.</li>
             </ul>
-        </div>
+        </li>
+        <li><strong>Configurez des alertes</strong> : lag > seuil, broker down, tâches Connect défaillantes, erreurs de désérialisation.</li>
+        <li><strong>Utilisez des outils comme Burrow, Cruise Control, Confluent Control Center</strong> pour la surveillance avancée.</li>
+    </ul>
+
+    <h3>🚀 10. Administration du cluster</h3>
+    <ul>
+        <li><strong>Dimensionnez correctement le nombre de partitions</strong> : trop de partitions augmente la latence et la mémoire, trop peu limite le parallélisme. Une règle : 2-3 partitions par broker pour commencer.</li>
+        <li><strong>Configurez la rétention des données</strong> : <code>log.retention.hours</code> ou <code>log.retention.bytes</code>. Évitez la rétention infinie.</li>
+        <li><strong>Activez la compaction pour les topics de type <em>changelog</em></strong> (ex: tables Kafka Streams) : <code>cleanup.policy=compact</code>.</li>
+        <li><strong>Surveillez l’utilisation du disque</strong> : les partitions peuvent grossir rapidement.</li>
+        <li><strong>Planifiez la répartition des partitions</strong> : utilisez <code>kafka-reassign-partitions</code> pour équilibrer la charge.</li>
+        <li><strong>Mettez à jour Kafka progressivement</strong> : testez d’abord sur un environnement de staging, puis procédez broker par broker avec rolling upgrade.</li>
+    </ul>
+
+    <h3>🧪 11. Tests et validation</h3>
+    <ul>
+        <li><strong>Testez unitairement les topologies Kafka Streams</strong> avec <code>TopologyTestDriver</code>.</li>
+        <li><strong>Utilisez des conteneurs Docker (Testcontainers)</strong> pour les tests d’intégration avec un vrai broker Kafka.</li>
+        <li><strong>Simulez des pannes</strong> : tuez des brokers, des workers Connect, des consommateurs, et vérifiez la reprise.</li>
+        <li><strong>Vérifiez la sémantique exactly-once</strong> en injectant des erreurs et en redémarrant les applications.</li>
+    </ul>
+
+    <h3>📝 12. Documentation et gestion des schémas</h3>
+    <ul>
+        <li><strong>Utilisez Schema Registry</strong> pour stocker et versionner les schémas Avro/Protobuf/JSON.</li>
+        <li><strong>Adoptez des conventions de nommage des topics</strong> : <code>&lt;environnement&gt;.&lt;domaine&gt;.&lt;entité&gt;.&lt;type&gt;</code> (ex: <code>prod.ecommerce.orders.v1</code>).</li>
+        <li><strong>Documentez les flux de données</strong> : quels producteurs écrivent dans quels topics, quels consommateurs lisent, quels schémas.</li>
+        <li><strong>Versionnez vos configurations</strong> (Connect, Streams) et utilisez Git.</li>
+    </ul>
+
+    <h3>🎓 Récapitulatif des erreurs courantes à éviter</h3>
+    <ul>
+        <li>Négliger le dimensionnement des partitions → déséquilibre ou limitation de débit.</li>
+        <li>Ne pas surveiller le lag consommateur → données périmées.</li>
+        <li>Utiliser le commit automatique sans comprendre les risques de perte ou double traitement.</li>
+        <li>Ignorer les erreurs de désérialisation → blocage silencieux du pipeline.</li>
+        <li>Configurer une rétention trop courte pour les topics de changelog → perte d’état après redémarrage.</li>
+        <li>Ne pas sécuriser le cluster en production → risques de fuite de données.</li>
+    </ul>
+
+    <h3>📚 Ressources pour approfondir</h3>
+    <ul>
+        <li><a href="https://kafka.apache.org/documentation/#operations" target="_blank">Guide d’opérations Kafka</a></li>
+        <li><a href="https://docs.confluent.io/platform/current/installation/overview.html" target="_blank">Documentation Confluent Platform</a></li>
+        <li><a href="https://github.com/confluentinc/kafka-streams-examples" target="_blank">Exemples Kafka Streams</a></li>
+        <li><a href="https://debezium.io/documentation/reference/stable/operations/operating.html" target="_blank">Opérations Debezium</a></li>
+    </ul>
+</div>
 
         <!-- 10. Cas réels (Worldflik) -->
-        <div id="tab10" class="tab-pane">
-            <h2>🌍 Cas réels d'entreprise (Worldflik – style Netflix)</h2>
-            <p>Worldflik utilise Kafka pour alimenter son moteur de recommandations, sa détection de fraudes et son monitoring.</p>
-            <div class="card-grid">
-                <div class="card"><strong>Recommandation temps réel</strong> – Flux d’événements "visionnage" → Kafka Streams calcule les similarités entre utilisateurs → met à jour une table Redis.</div>
-                <div class="card"><strong>Fraude aux essais gratuits</strong> – Debezium capture les inscriptions en base → ksqlDB détecte les multi-comptes (même adresse IP ou carte bancaire) → alerte Kafka.</div>
-                <div class="card"><strong>Pipeline analytique</strong> – Kafka Connect S3 sink pour déposer les logs dans un data lake (Parquet).</div>
-                <div class="card"><strong>Monitoring SLAs</strong> – Agrégations par fenêtre tumbling sur les temps de réponse des APIs.</div>
-            </div>
-            <p>Leçons tirées : scalabilité horizontale, exactly-once pour la facturation, gestion des schémas avec Schema Registry.</p>
-        </div>
+       <div id="tab10" class="tab-pane">
+    <h2>🌍 Cas réels d’entreprise – Worldflik (plateforme de streaming)</h2>
+    <p>Worldflik est une plateforme de streaming vidéo qui compte des millions d’utilisateurs. Elle utilise Apache Kafka comme épine dorsale pour traiter plus de 1 million d’événements par seconde : clics, lectures, recherches, paiements, logs système. Voici quatre cas d’usage réels déployés en production, avec les architectures, les patterns, les extraits de code et les leçons apprises.</p>
+
+    <h3>📺 1. Moteur de recommandation en temps réel</h3>
+    <p><strong>Problème :</strong> Proposer des films/séries personnalisés à chaque utilisateur en fonction de ses dernières actions (visionnages, likes, recherches). L’algorithme doit réagir en quelques secondes.</p>
+    <p><strong>Solution :</strong> Kafka Streams + Redis (cache des similarités) + modèle ML précalculé.</p>
+    <h4>Architecture</h4>
+    <pre><code>Actions utilisateur (applis, web) → Topic "user-events" → Kafka Streams (agrégation par fenêtre glissante) → Mise à jour du profil utilisateur dans Redis → API de recommandation lit Redis + modèle ML.</code></pre>
+    <h4>Extrait Kafka Streams (Java)</h4>
+    <pre><code>KStream&lt;String, UserAction&gt; actions = builder.stream("user-events");
+KTable&lt;String, UserProfile&gt; profiles = actions
+    .groupByKey()
+    .windowedBy(SessionWindows.with(Duration.ofMinutes(5)))
+    .aggregate(
+        () -> new UserProfile(),
+        (key, action, profile) -> profile.update(action),
+        Materialized.as("user-profile-store")
+    );</code></pre>
+    <p>Le profil est ensuite poussé dans Redis via un sink Kafka Connect Redis (ou un consommateur dédié).</p>
+    <p><strong>Leçons apprises :</strong></p>
+    <ul>
+        <li>Utiliser des fenêtres de session pour capturer l’activité par session utilisateur.</li>
+        <li>Scaler les instances de Kafka Streams en augmentant les partitions du topic source.</li>
+        <li>Mettre en cache les profils dans Redis pour réduire la latence de l’API.</li>
+    </ul>
+
+    <h3>🛡️ 2. Détection de fraudes aux essais gratuits</h3>
+    <p><strong>Problème :</strong> Des utilisateurs malveillants créent des comptes multiples avec de fausses identités ou cartes bancaires pour profiter indéfiniment des essais gratuits.</p>
+    <p><strong>Solution :</strong> Debezium capture les inscriptions en base PostgreSQL → ksqlDB analyse les patterns (même adresse IP, même carte bancaire, même appareil) → alerte en temps réel.</p>
+    <h4>Architecture</h4>
+    <pre><code>Base de données utilisateurs (PostgreSQL) → Debezium CDC → Topic "postgres.public.users"
+Topic "postgres.public.payments" → ksqlDB (jointure + fenêtre tumbling) → Topic "fraud-alerts" → Service d’alerte (email, SMS, blocage).</code></pre>
+    <h4>Requête ksqlDB pour détecter les multi-comptes par IP</h4>
+    <pre><code>CREATE STREAM users_raw (before ..., after ...) WITH (...);
+CREATE STREAM users AS SELECT after->id AS user_id, after->ip_address AS ip FROM users_raw WHERE op='c';
+CREATE TABLE fraud_count AS
+    SELECT ip,
+           COUNT(DISTINCT user_id) AS distinct_users,
+           WINDOWSTART AS window_start
+    FROM users
+    WINDOW TUMBLING (SIZE 1 HOUR)
+    GROUP BY ip
+    HAVING COUNT(DISTINCT user_id) > 5
+    EMIT CHANGES;
+
+CREATE STREAM fraud_alerts AS
+    SELECT ip, distinct_users, 'multi-account' AS reason
+    FROM fraud_count
+    EMIT CHANGES;</code></pre>
+    <p><strong>Leçons apprises :</strong></p>
+    <ul>
+        <li>Les fenêtres tumbling courtes (1 heure) permettent de réagir vite.</li>
+        <li>Utiliser des jointures entre plusieurs topics (inscriptions + paiements) pour une détection plus fine.</li>
+        <li>Mettre en place une Dead Letter Queue pour les événements mal formés.</li>
+    </ul>
+
+    <h3>📊 3. Pipeline analytique vers un data lake (S3)</h3>
+    <p><strong>Problème :</strong> Les équipes data doivent analyser des volumes massifs de logs (visionnages, clics, erreurs) pour des rapports quotidiens et de l’apprentissage automatique. Le stockage dans Kafka n’est que temporaire (7 jours).</p>
+    <p><strong>Solution :</strong> Kafka Connect S3 Sink pour archiver les événements au format Parquet, partitionné par date.</p>
+    <h4>Configuration du connecteur S3 Sink</h4>
+    <pre><code>{
+  "name": "s3-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.s3.S3SinkConnector",
+    "s3.region": "us-east-1",
+    "s3.bucket.name": "worldflik-data-lake",
+    "topics": "user-events,server-logs,payments",
+    "flush.size": 10000,
+    "rotate.interval.ms": 3600000,
+    "partitioner.class": "io.confluent.connect.storage.partitioner.TimeBasedPartitioner",
+    "path.format": "'year'=YYYY/'month'=MM/'day'=dd/'hour'=HH",
+    "locale": "en-US",
+    "timezone": "UTC",
+    "format.class": "io.confluent.connect.s3.format.parquet.ParquetFormat"
+  }
+}</code></pre>
+    <p>Les données sont ensuite interrogables via Athena, Spark, ou Trino.</p>
+    <p><strong>Leçons apprises :</strong></p>
+    <ul>
+        <li>Utiliser Parquet pour de meilleures performances de lecture et la compression.</li>
+        <li>Partitionner par date/heure pour faciliter les requêtes et la gestion des coûts S3.</li>
+        <li>Surveiller le lag du connecteur S3 (les écritures S3 peuvent être lentes).</li>
+    </ul>
+
+    <h3>⏱️ 4. Monitoring des SLAs et alerting</h3>
+    <p><strong>Problème :</strong> Worldflik doit garantir un temps de chargement des vidéos inférieur à 2 secondes (SLA). Les équipes d’infrastructure veulent des alertes immédiates en cas de dégradation.</p>
+    <p><strong>Solution :</strong> Les services backend envoient des métriques (temps de réponse, code erreur) dans un topic Kafka. Une application Kafka Streams calcule des percentiles sur fenêtre glissante de 1 minute et déclenche des alertes.</p>
+    <h4>Exemple Kafka Streams (calcul du p95)</h4>
+    <pre><code>KStream&lt;String, Metric&gt; metrics = builder.stream("service-metrics");
+KTable&lt;Windowed&lt;String&gt;, Double&gt; p95 = metrics
+    .groupBy((k, v) -> v.serviceName)
+    .windowedBy(TumblingWindows.of(Duration.ofMinutes(1)))
+    .aggregate(
+        () -> new ArrayList&lt;Double&gt;(),
+        (key, metric, list) -> { list.add(metric.latency); return list; },
+        Materialized.as("latency-store")
+    )
+    .mapValues(list -> calculatePercentile(list, 95.0));</code></pre>
+    <p>Si p95 > 2000 ms, on écrit un message dans le topic <code>sla-alerts</code>.</p>
+    <p><strong>Leçons apprises :</strong></p>
+    <ul>
+        <li>Les fenêtres tumbling sont faciles à comprendre pour les SLAs.</li>
+        <li>Attention à la mémoire utilisée pour stocker les listes de latences – utiliser des structures optimisées (ex: HdrHistogram).</li>
+        <li>Intégrer les alertes avec PagerDuty ou Slack via un consommateur dédié.</li>
+    </ul>
+
+    <h3>🧠 Patterns réutilisables dans Worldflik</h3>
+    <ul>
+        <li><strong>Event Sourcing</strong> : tous les changements d’état (inscription, visionnage, like) sont stockés dans Kafka comme source de vérité.</li>
+        <li><strong>CQRS</strong> : les commandes (écritures) et les requêtes (lectures) sont séparées. Les vues matérialisées (tables ksqlDB, Redis) sont mises à jour via les événements.</li>
+        <li><strong>CDC</strong> : Debezium pour capturer les modifications des bases de données transactionnelles et les propager dans Kafka.</li>
+        <li><strong>Stateful processing</strong> : utilisation intensive de Kafka Streams et ksqlDB pour maintenir des agrégations temps réel.</li>
+    </ul>
+
+    <h3>📈 Leçons apprises en production</h3>
+    <ul>
+        <li><strong>Partitionnement :</strong> Worldflik utilise 36 partitions pour les topics à fort débit (ex: user-events) afin de paralléliser les consommateurs.</li>
+        <li><strong>Exactly-once :</strong> Activé pour les pipelines critiques (facturation, recommandation) pour éviter les doublons ou pertes.</li>
+        <li><strong>Schema Registry :</strong> Tous les événements utilisent Avro avec évolution de schéma rétrocompatible.</li>
+        <li><strong>Monitoring :</strong> Utilisation de Prometheus + Grafana pour les métriques Kafka (lag, débit, état des connecteurs) et des dashboards dédiés par équipe.</li>
+        <li><strong>Tests de résilience :</strong> Chaos Monkey arrête aléatoirement des brokers Kafka et des workers Connect pour valider la tolérance aux pannes.</li>
+        <li><strong>Gestion des coûts :</strong> Rétention configurée à 7 jours pour les topics opérationnels, 30 jours pour les topics d’audit, et archiving vers S3 pour l’historique.</li>
+    </ul>
+
+    <h3>🛠️ Extraits de code supplémentaires (cas concret)</h3>
+    <h4>Producteur d’événements (Python) depuis l’application mobile (via API gateway)</h4>
+    <pre><code># producer_events.py
+from kafka import KafkaProducer
+import json
+producer = KafkaProducer(bootstrap_servers='kafka-cluster:9092',
+                         value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+event = {
+    "user_id": "u123",
+    "action": "play",
+    "content_id": "movie456",
+    "timestamp_ms": 1712345678901,
+    "device": "android"
+}
+producer.send("user-events", key=b"u123", value=event)
+producer.flush()</code></pre>
+
+    <h4>Consommateur de recommandations (mise à jour du cache Redis)</h4>
+    <pre><code># recommender_consumer.py
+import redis, json
+from kafka import KafkaConsumer
+r = redis.Redis(host='localhost', port=6379)
+consumer = KafkaConsumer('user-profiles', bootstrap_servers='localhost:9092',
+                         value_deserializer=lambda v: json.loads(v.decode('utf-8')))
+for msg in consumer:
+    profile = msg.value
+    r.hset(f"profile:{profile['user_id']}", mapping=profile)</code></pre>
+
+    <h3>📊 Métriques clés suivies par Worldflik</h3>
+    <ul>
+        <li>Message throughput (messages/s) par topic.</li>
+        <li>Consumer lag (différence entre offset produit et consommé).</li>
+        <li>Latence end-to-end (de la production à la consommation finale).</li>
+        <li>Taille des state stores RocksDB (pour Kafka Streams).</li>
+        <li>Nombre de tâches Connect en échec et durée de rebalancement.</li>
+        <li>Espace disque utilisé par les logs Kafka.</li>
+    </ul>
+
+    <h3>📚 Références et inspirations</h3>
+    <ul>
+        <li><a href="https://netflixtechblog.com/evolution-of-the-netflix-data-pipeline-1a87c7c8f3ae" target="_blank">Netflix Data Pipeline</a></li>
+        <li><a href="https://engineering.linkedin.com/kafka" target="_blank">LinkedIn Kafka</a></li>
+        <li><a href="https://www.confluent.io/fr-fr/customers/" target="_blank">Études de cas Confluent</a></li>
+    </ul>
+
+    <h3>🎯 Conclusion</h3>
+    <p>Les cas réels de Worldflik montrent comment Kafka, Kafka Streams, ksqlDB, Debezium et Kafka Connect s’intègrent pour résoudre des problèmes métier à grande échelle. Les patterns présentés (recommandation temps réel, détection de fraudes, data lake, monitoring) sont transposables à de nombreux domaines : e-commerce, IoT, finance, jeux en ligne, etc.</p>
+</div>
 
         <!-- 11. Certifications -->
         <div id="tab11" class="tab-pane">
-            <h2>🎓 Certifications Kafka – Connaissances requises</h2>
-            <p>Les certifications Confluent (Confluent Certified Developer for Apache Kafka) sont les plus reconnues.</p>
-            <table>
-                <tr><th>Domaine</th><th>Points clés</th></tr>
-                <tr><td>Architecture Kafka</td><td>Partitions, réplication, leader/ISR, acks, min.insync.replicas</td></tr>
-                <tr><td>Producteurs & consommateurs</td><td>Serializers, idempotence, transactions, group management, offset commit</td></tr>
-                <tr><td>Kafka Streams / ksqlDB</td><td>Topologies, état local (RocksDB), fenêtrage (hopping, tumbling, session), KTable vs KStream, exactly-once</td></tr>
-                <tr><td>Kafka Connect</td><td>Connectors source/sink, transformations, modes (standalone/distributed), Dead Letter Queue</td></tr>
-                <tr><td>Admin & monitoring</td><td>Rééquilibrage, déplacement de partitions, configuration des logs, métriques JMX, MirrorMaker 2</td></tr>
-                <tr><td>Sécurité</td><td>SSL, SASL, ACLs, rbac</td></tr>
-            </table>
-            <p><strong>Conseil :</strong> Pratiquer avec des projets concrets (CDC, streaming analytics) et utiliser Confluent Platform en local.</p>
-        </div>
+    <h2>🎓 Certifications Apache Kafka – Guide complet</h2>
+    <p>Les certifications Confluent sont les références du marché pour valider vos compétences sur Kafka. Elles couvrent la conception, le développement, l’administration et la production d’applications Kafka. Ce guide détaille les deux principales certifications, les sujets à maîtriser, des exemples de questions, et un plan d’étude pas à pas.</p>
 
+    <h3>📜 Les deux certifications principales</h3>
+    <table>
+        <thead>
+            <tr><th>Certification</th><th>Public cible</th><th>Code</th><th>Durée</th><th>Prix (indicatif)</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><strong>Confluent Certified Developer for Apache Kafka</strong></td><td>Développeurs, data engineers</td><td>CCDAK</td><td>90 minutes</td><td>~150 USD</td></tr>
+            <tr><td><strong>Confluent Certified Administrator for Apache Kafka</strong></td><td>Ops, SRE, administrateurs</td><td>CCAAK</td><td>90 minutes</td><td>~150 USD</td></tr>
+        </tbody>
+    </table>
+    <p>Il existe également une certification <strong>Confluent Certified Kafka Architect</strong> (niveau expert) mais moins courante. Nous nous concentrons ici sur les deux premières.</p>
+
+    <h3>📘 1. Confluent Certified Developer (CCDAK)</h3>
+    <p>Cette certification teste votre capacité à développer des applications Kafka (producteurs, consommateurs, Kafka Streams, ksqlDB, Connect).</p>
+    <h4>Domaines du programme</h4>
+    <ul>
+        <li><strong>Concepts de base (20%)</strong> : topics, partitions, brokers, replication, ISR, acks, offsets.</li>
+        <li><strong>Producteurs (20%)</strong> : configuration, sérialisation, partitionnement, idempotence, transactions, gestion des erreurs.</li>
+        <li><strong>Consommateurs (20%)</strong> : groupes, commit des offsets, rééquilibrage, consommation à partir d’un offset précis, gestion des erreurs.</li>
+        <li><strong>Kafka Streams (25%)</strong> : topologie, KStream vs KTable, fenêtrage (tumbling, hopping, session), états (RocksDB), exactly-once, jointures.</li>
+        <li><strong>ksqlDB (10%)</strong> : streams vs tables, push/pull queries, agrégations, fenêtres, jointures.</li>
+        <li><strong>Kafka Connect (5%)</strong> : concepts de base, transformations SMT, Dead Letter Queue.</li>
+    </ul>
+    <h4>Exemple de question (style examen)</h4>
+    <pre><code>Question : Une application Kafka Streams doit compter les mots dans un flux de phrases et émettre les résultats toutes les 5 secondes (fenêtre hopping). Quelle API utiliser ?
+A) TimeWindows.of(Duration.ofSeconds(5)).advanceBy(Duration.ofSeconds(1))
+B) JoinWindows.of(Duration.ofSeconds(5))
+C) SessionWindows.with(Duration.ofSeconds(5))
+D) TumblingWindows.of(Duration.ofSeconds(5))
+
+Réponse : A (Hopping window avec avancement).</code></pre>
+
+    <h3>🖥️ 2. Confluent Certified Administrator (CCAAK)</h3>
+    <p>Cette certification se concentre sur l’installation, la configuration, la surveillance, la sécurisation et l’optimisation d’un cluster Kafka en production.</p>
+    <h4>Domaines du programme</h4>
+    <ul>
+        <li><strong>Installation et configuration (20%)</strong> : brokers, Zookeeper/KRaft, configuration des logs, réplication, quotas.</li>
+        <li><strong>Administration et opérations (25%)</strong> : ajout/suppression de brokers, réaffectation des partitions, équilibrage de charge, MirrorMaker 2.</li>
+        <li><strong>Surveillance et métriques (20%)</strong> : JMX, métriques clés (ISR, débit, lag, taille des partitions), outils (Burrow, Cruise Control).</li>
+        <li><strong>Sécurité (20%)</strong> : SSL/TLS, SASL (SCRAM, PLAIN, Kerberos), ACLs, rôles, configuration sécurisée.</li>
+        <li><strong>Gestion des données (15%)</strong> : rétention, compaction, nettoyage des logs, stratégies de partitionnement.</li>
+    </ul>
+    <h4>Exemple de question (style examen)</h4>
+    <pre><code>Question : Un broker Kafka tombe en panne. Quelle condition doit être vraie pour qu’une partition reste disponible ?
+A) Le nombre de réplicas ISR est supérieur ou égal à 1
+B) min.insync.replicas est strictement inférieur au nombre de réplicas
+C) Le leader est toujours sur le broker tombé
+D) Le facteur de réplication est supérieur à 1
+
+Réponse : D (facteur de réplication > 1 permet au cluster d’élire un nouveau leader parmi les followers).</code></pre>
+
+    <h3>📚 Plan d’étude pas à pas (pour les deux certifications)</h3>
+    <h4>Étape 1 – Maîtriser les bases</h4>
+    <ul>
+        <li>Lisez la documentation officielle : <a href="https://kafka.apache.org/documentation/" target="_blank">Apache Kafka Documentation</a> (sections "Concepts" et "Configuration").</li>
+        <li>Suivez le cours gratuit <strong>Apache Kafka 101</strong> sur Confluent Developer.</li>
+        <li>Pratiquez avec un cluster local (docker compose) : créez des topics, produisez/consommez.</li>
+    </ul>
+    <h4>Étape 2 – Approfondir par domaine</h4>
+    <ul>
+        <li>Pour le développement : implémentez des producteurs et consommateurs en Java ou Python avec différents paramètres (acks, idempotence, transactions).</li>
+        <li>Pour Kafka Streams : refaites les exemples wordcount, fenêtrage, jointures. Utilisez <code>TopologyTestDriver</code> pour les tests.</li>
+        <li>Pour l’administration : installez un cluster multi-brokers (3 brokers), simulez une panne, réaffectez des partitions, configurez la sécurité SSL/SASL.</li>
+    </ul>
+    <h4>Étape 3 – Se familiariser avec ksqlDB et Connect</h4>
+    <ul>
+        <li>Installez ksqlDB (docker) et exécutez des requêtes push/pull.</li>
+        <li>Déployez un connecteur source (file source) et sink (JDBC).</li>
+        <li>Comprenez les SMT (Single Message Transforms).</li>
+    </ul>
+    <h4>Étape 4 – Faire des examens blancs</h4>
+    <ul>
+        <li>Utilisez les examens blancs officiels Confluent (payants) ou des séries de questions disponibles sur GitHub (ex: <code>confluentinc/ccdak-study-guide</code>).</li>
+        <li>Chronométrez-vous : 90 minutes pour 60-70 questions.</li>
+        <li>Ciblez un score >85% en pratique avant l’examen réel.</li>
+    </ul>
+    <h4>Étape 5 – Réviser les points sensibles</h4>
+    <ul>
+        <li>Différences entre exactly-once, at-least-once, at-most-once.</li>
+        <li>Rôles de Zookeeper (ou KRaft) : élection du controller, gestion des métadonnées.</li>
+        <li>Calcul des ISR (In-Sync Replicas) et impact de <code>min.insync.replicas</code>.</li>
+        <li>Fonctionnement des fenêtres (tumbling, hopping, session) et leurs paramètres.</li>
+        <li>Garanties d’ordre dans une partition, mais pas entre partitions.</li>
+    </ul>
+
+    <h3>📖 Ressources recommandées</h3>
+    <ul>
+        <li><a href="https://developer.confluent.io/certification/" target="_blank">Page officielle Confluent Certification</a> (plan d’étude, examens blancs).</li>
+        <li><strong>Livre</strong> : <em>Kafka: The Definitive Guide</em> (O’Reilly) – 2e édition.</li>
+        <li><strong>Vidéos</strong> : chaîne YouTube “Confluent” (playlists certification).</li>
+        <li><strong>GitHub</strong> : <a href="https://github.com/gwenshap/kafka-exercises" target="_blank">kafka-exercises</a> et <a href="https://github.com/confluentinc/ccdak-study-guide" target="_blank">ccdak-study-guide</a>.</li>
+        <li><strong>Pratique en ligne</strong> : utilisez <a href="https://labs.confluent.io/" target="_blank">Confluent Labs</a> ou Kafka sur Docker.</li>
+    </ul>
+
+    <h3>📝 Checklist de préparation – Développeur (CCDAK)</h3>
+    <table>
+        <thead><tr><th>Sujet</th><th>Maîtrise ?</th></tr></thead>
+        <tbody>
+            <tr><td>Producteur : paramètres acks, retries, idempotence, compression</td><td>☐</td></tr>
+            <tr><td>Producteur : partitionnement personnalisé</td><td>☐</td></tr>
+            <tr><td>Consommateur : commit manuel (synchrone/asynchrone)</td><td>☐</td></tr>
+            <tr><td>Consommateur : gestion du rebalancement (listener)</td><td>☐</td></tr>
+            <tr><td>Kafka Streams : KStream vs KTable, fenêtrage, jointures</td><td>☐</td></tr>
+            <tr><td>Kafka Streams : état local (RocksDB) et exactly-once</td><td>☐</td></tr>
+            <tr><td>ksqlDB : création de streams/tables, push vs pull queries</td><td>☐</td></tr>
+            <tr><td>Connect : configuration source/sink, SMT</td><td>☐</td></tr>
+        </tbody>
+    </table>
+
+    <h3>📝 Checklist de préparation – Administrateur (CCAAK)</h3>
+    <table>
+        <thead><tr><th>Sujet</th><th>Maîtrise ?</th></tr></thead>
+        <tbody>
+            <tr><td>Installation cluster KRaft (sans Zookeeper)</td><td>☐</td></tr>
+            <tr><td>Configuration des paramètres brokers (log.retention, segment.bytes, etc.)</td><td>☐</td></tr>
+            <tr><td>Réassignation de partitions et équilibrage</td><td>☐</td></tr>
+            <tr><td>Surveillance : métriques JMX, lag, état ISR</td><td>☐</td></tr>
+            <tr><td>Sécurité : SSL, SASL/SCRAM, ACLs (kafka-acls)</td><td>☐</td></tr>
+            <tr><td>MirrorMaker 2 : configuration, topologies active/active</td><td>☐</td></tr>
+            <tr><td>Gestion des quotas (bytes, request rate)</td><td>☐</td></tr>
+            <tr><td>Upgrade de cluster (rolling upgrade)</td><td>☐</td></tr>
+        </tbody>
+    </table>
+
+    <h3>🧠 Conseils pour le jour de l’examen</h3>
+    <ul>
+        <li>L’examen est en ligne, surveillé par un proctor. Assurez-vous d’avoir une connexion stable, une webcam, et un environnement calme.</li>
+        <li>Lisez attentivement chaque question – certaines comportent des pièges (ex: “Kafka Streams ne peut pas faire X” alors que si).</li>
+        <li>Pour les questions de code, vérifiez les imports et les types (Serde, Duration, etc.).</li>
+        <li>Gérez votre temps : 1 minute par question en moyenne. Marquez les questions difficiles pour y revenir.</li>
+        <li>Ne changez pas une réponse sauf si vous êtes certain d’une erreur – l’intuition initiale est souvent bonne.</li>
+    </ul>
+
+    <h3>📊 Exemple de questions supplémentaires (auto-évaluation)</h3>
+    <h4>Développeur</h4>
+    <ul>
+        <li>Q : Comment garantir l’ordre des messages d’une même clé ? <strong>R : En utilisant la même clé de partition (tous les messages avec la même clé vont dans la même partition).</strong></li>
+        <li>Q : Que se passe-t-il si <code>acks=0</code> ? <strong>R : Le producteur ne reçoit aucune confirmation ; risque de perte, mais très faible latence.</strong></li>
+        <li>Q : Quelle fenêtre utilisez-vous pour des sessions utilisateur ? <strong>R : SessionWindows.</strong></li>
+    </ul>
+    <h4>Administrateur</h4>
+    <ul>
+        <li>Q : Quelle commande permet de lister les groupes de consommateurs ? <strong>R : <code>kafka-consumer-groups --list --bootstrap-server localhost:9092</code>.</strong></li>
+        <li>Q : Comment modifier la rétention d’un topic existant ? <strong>R : <code>kafka-configs --alter --entity-type topics --entity-name mytopic --add-config retention.ms=86400000</code>.</strong></li>
+        <li>Q : Quelle métrique indique le nombre de réplicas hors-synchronisation ? <strong>R : <code>kafka.server:type=Partition,name=UnderReplicatedPartitions</code>.</strong></li>
+    </ul>
+
+    <h3>🔁 Renouvellement et valeur des certifications</h3>
+    <ul>
+        <li>Les certifications Confluent sont valables 2 ans. Le renouvellement se fait en passant un examen plus court (gratuit pour les certifiés).</li>
+        <li>Elles sont très valorisées sur le marché (CV, LinkedIn). Les entreprises utilisant Kafka (Netflix, Uber, LinkedIn, Goldman Sachs) les recherchent.</li>
+        <li>Coût : environ 150 USD par examen, avec souvent des réductions pendant les conférences (Kafka Summit).</li>
+    </ul>
+
+    <h3>📢 Témoignage (simulé)</h3>
+    <p><em>“J’ai passé la certification CCDAK après 6 mois de pratique régulière. Le plus difficile était les fenêtres et les jointures dans Kafka Streams. J’ai utilisé les examens blancs de Confluent et le livre de O’Reilly. Aujourd’hui, cette certification m’a ouvert des portes pour des postes d’architecte data.”</em> – Jean, Data Engineer.</p>
+
+    <h3>📚 Liens utiles pour réviser</h3>
+    <ul>
+        <li><a href="https://docs.confluent.io/current/streams/index.html" target="_blank">Documentation Kafka Streams</a></li>
+        <li><a href="https://docs.confluent.io/current/ksqldb/index.html" target="_blank">Documentation ksqlDB</a></li>
+        <li><a href="https://kafka.apache.org/quickstart" target="_blank">Kafka Quickstart</a></li>
+        <li><a href="https://github.com/confluentinc/ccdak-study-guide" target="_blank">CCDAK Study Guide (GitHub)</a></li>
+        <li><a href="https://github.com/confluentinc/ccdak-study-guide/tree/main/practice-exam" target="_blank">Exemples de questions</a></li>
+    </ul>
+
+    <h3>🎯 Conclusion</h3>
+    <p>Les certifications Confluent sont un excellent investissement pour valider vos compétences Kafka. Avec une préparation structurée, de la pratique régulière et l’utilisation des ressources recommandées, vous pouvez les réussir en 2-3 mois. Commencez par les bases, puis approfondissez les domaines spécifiques à votre rôle (développeur ou administrateur).</p>
+</div>
         <!-- 12. Ressources & Cheatsheet -->
         <div id="tab12" class="tab-pane">
             <h2>📚 Ressources et Cheatsheet</h2>
