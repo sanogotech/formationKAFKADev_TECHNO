@@ -2760,70 +2760,2504 @@ confluent connect connector restart my-connector --task-id=0</code></pre>
 
       <!-- Testing & CLI & Scaling -->
 
+<!-- TESTING, CLI & SCALING - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabTesting" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-vial me-2"></i> Testing, CLI Tools & Scaling – Comprehensive Guide
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Why this module is essential for the CCDAK exam?</strong><br>
+    Testing Kafka applications (producers, consumers, Streams, Connect) is a critical skill. The exam expects you to know the tools: <code>TopologyTestDriver</code>, <code>MockProducer</code>, <code>EmbeddedKafka</code>. CLI tools (kafka-console-*, kafka-consumer-groups, kafka-topics) are heavily tested. Scaling (horizontal/vertical) and deployment frameworks (Kubernetes, Strimzi) round out the observability and operations domain. Approximately 10-15% of questions target these topics.
+  </div>
+
+  <!-- 2. Testing tools – detailed comparison -->
+  <div class="section-title mt-3" style="font-size:1.3rem">🧪 Testing tools for Kafka applications</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>Tool</th><th>Purpose</th><th>When to use</th><th>Limitations</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Embedded Kafka</strong> (kafka-clients test jar)</td>
+          <td>Start a real Kafka broker and ZooKeeper/KRaft in‑process for integration testing.</td>
+          <td>End‑to‑end tests, testing multiple consumers/producers, exactly‑once scenarios.</td>
+          <td>Slow (requires startup/teardown). Use for integration, not unit tests.</td>
+        </tr>
+        <tr>
+          <td><strong>MockProducer / MockConsumer</strong></td>
+          <td>Simulate producer/consumer behavior without a broker.</td>
+          <td>Unit testing custom logic (e.g., error handling, serialization).</td>
+          <td>Does not test serialization or networking; for lightweight unit tests.</td>
+        </tr>
+        <tr>
+          <td><strong>TopologyTestDriver</strong> (Kafka Streams)</td>
+          <td>Test Streams topologies without a Kafka cluster; simulates processing.</td>
+          <td>Fast unit/integration tests for Kafka Streams (stateful, windowing).</td>
+          <td>Does not test end‑to‑end exactly‑once with transactions.</td>
+        </tr>
+        <tr>
+          <td><strong>Testcontainers</strong></td>
+          <td>Start Kafka container (and Schema Registry, etc.) in Docker for tests.</td>
+          <td>Realistic integration tests, especially with confluentinc/cp-kafka image.</td>
+          <td>Slower than Embedded Kafka but more realistic.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3. Embedded Kafka example -->
+  <div class="best-card mb-4">
+    <strong>Embedded Kafka (JUnit) – typical setup</strong>
+    <pre class="bg-light p-2 rounded"><code>@ClassRule
+public static EmbeddedKafkaRule embeddedKafka = new EmbeddedKafkaRule(1, true, "input-topic");
+
+@Test
+public void testProducerAndConsumer() {
+    Map<String, Object> producerProps = new HashMap<>();
+    producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, embeddedKafka.getEmbeddedKafka().getBrokersAsString());
+    // ... send messages
+    // then consume and assert
+}</code></pre>
+    <small>💡 Requires <code>spring-kafka-test</code> or <code>kafka-clients:test</code> dependency. For pure Java, use <code>kafka.junit5.EmbeddedKafkaCluster</code>.</small>
+  </div>
+
+  <!-- 4. TopologyTestDriver (Kafka Streams) deep dive -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔀 TopologyTestDriver – testing Streams without a broker</div>
+  <div class="def-list mb-4">
+    <pre class="bg-light p-2 rounded"><code>// Create topology
+StreamsBuilder builder = new StreamsBuilder();
+KStream<String, String> stream = builder.stream("input");
+stream.mapValues(v -> v.toUpperCase()).to("output");
+
+// Create test driver
+Properties props = new Properties();
+props.put(StreamsConfig.APPLICATION_ID_CONFIG, "test-app");
+TopologyTestDriver driver = new TopologyTestDriver(builder.build(), props);
+
+// Push input
+TestInputTopic<String, String> inputTopic = driver.createInputTopic("input", 
+    Serdes.String().serializer(), Serdes.String().serializer());
+inputTopic.pipeInput("key1", "hello");
+
+// Verify output
+TestOutputTopic<String, String> outputTopic = driver.createOutputTopic("output",
+    Serdes.String().deserializer(), Serdes.String().deserializer());
+assertThat(outputTopic.readValue()).isEqualTo("HELLO");
+
+driver.close();</code></pre>
+    <small>💡 TopologyTestDriver processes records synchronously, supports state stores, windowing, and punctuation. It does not commit offsets or use transactions.</small>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-exclamation-triangle"></i> <strong>Exam nuance:</strong> <code>TopologyTestDriver</code> can also test processors, interact with state stores via <code>getStateStore()</code>, and simulate wall‑clock time (<code>advanceWallClockTime()</code>) for punctuations.
+  </div>
+
+  <!-- 5. CLI tools – exhaustive list and usage -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🖥️ Essential Kafka CLI tools (must know for exam)</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong><code>kafka-topics</code></strong>
+        <pre class="bg-light p-2 rounded"><code>--create, --alter, --describe, --delete, --list
+--partitions, --replication-factor, --config</code></pre>
+        <strong><code>kafka-console-producer</code></strong>
+        <pre class="bg-light p-2 rounded"><code>--topic, --broker-list, --property parse.key=true, --producer.config</code></pre>
+        <strong><code>kafka-console-consumer</code></strong>
+        <pre class="bg-light p-2 rounded"><code>--topic, --bootstrap-server, --from-beginning, --group, --property print.key=true, --formatter</code></pre>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong><code>kafka-consumer-groups</code></strong>
+        <pre class="bg-light p-2 rounded"><code>--list, --describe, --group, --reset-offsets (--to-earliest, --to-latest, --to-datetime), --execute</code></pre>
+        <strong><code>kafka-producer-perf-test</code></strong> – performance benchmark
+        <strong><code>kafka-dump-log</code></strong> – inspect log segments
+        <strong><code>kafka-replica-verification</code></strong> – check replica consistency
+        <strong><code>kafka-configs</code></strong> – alter broker/topic/client configs
+        <strong><code>kafka-acls</code></strong> – manage ACLs
+      </div>
+    </div>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong>Common CLI patterns for the exam:</strong>
+    <pre class="bg-light p-2 rounded"><code># Reset a consumer group offsets to earliest
+kafka-consumer-groups --bootstrap-server localhost:9092 --group my-group --reset-offsets --to-earliest --topic my-topic --execute
+
+# Create a topic with compaction and specific retention
+kafka-topics --bootstrap-server localhost:9092 --create --topic compacted-topic --partitions 3 --replication-factor 3 --config cleanup.policy=compact --config retention.ms=86400000
+
+# Dump a log segment (for troubleshooting)
+kafka-dump-log --files /var/lib/kafka/data/my-topic-0/00000000000000000000.log --print-data-log
+
+# Descriptive consumer group with lag
+kafka-consumer-groups --bootstrap-server localhost:9092 --group my-group --describe</code></pre>
+  </div>
+
+  <!-- 6. Horizontal vs vertical scaling -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📈 Scaling Kafka applications – horizontal & vertical</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Aspect</th><th>Horizontal scaling (scale out)</th><th>Vertical scaling (scale up)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Definition</strong></td><td>Add more instances (nodes, JVMs, containers)</td><td>Increase resources of existing node (CPU, RAM, disk speed)</td></tr>
+        <tr><td><strong>Consumer group</strong></td><td>Add more consumers (max = number of partitions)</td><td>Faster processing per consumer (but still limited by partition count)</td></tr>
+        <tr><td><strong>Kafka Streams</strong></td><td>Increase <code>num.stream.threads</code> or add more application instances (same <code>application.id</code>)</td><td>Larger heap, faster CPUs for state store operations</td></tr>
+        <tr><td><strong>Kafka Connect</strong></td><td>Add more worker nodes (same group.id) or increase <code>tasks.max</code></td><td>Allocate more memory to worker JVM, faster I/O</td></tr>
+        <tr><td><strong>Kafka brokers</strong></td><td>Add more brokers, reassign partitions</td><td>Increase heap, file descriptors, disk I/O</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-chart-line"></i> <strong>Key exam nuance:</strong> Horizontal scaling for consumers requires enough partitions. Adding more consumers than partitions results in idle consumers. For Kafka Streams, parallelism = number of partitions of input topics. For Connect, source tasks scalability depends on the source system's parallelism capabilities.
+  </div>
+
+  <!-- 7. Deployment frameworks -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🚢 Deployment frameworks and best practices</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Kubernetes + Strimzi</strong>
+        <ul>
+          <li>Strimzi Operator manages Kafka clusters, Connect, MirrorMaker, Streams.</li>
+          <li>Custom resources: <code>Kafka</code>, <code>KafkaConnect</code>, <code>KafkaTopic</code>.</li>
+          <li>Scales brokers, connectors declaratively.</li>
+        </ul>
+        <strong>Confluent Platform (on‑prem)</strong>
+        <ul>
+          <li>Includes Control Center, Schema Registry, ksqlDB, REST Proxy.</li>
+          <li>Ansible/Helm for automation.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Confluent Cloud (managed)</strong>
+        <ul>
+          <li>Fully managed Kafka, Schema Registry, Connect, ksqlDB.</li>
+          <li>Auto‑scaling, built‑in metrics, IAM integration.</li>
+          <li>Exam may ask about differences vs self‑managed.</li>
+        </ul>
+        <strong>Docker Compose (development)</strong>
+        <ul>
+          <li>Local cluster for testing: Confluent cp-all-in-one.</li>
+          <li>Not suitable for production.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong>Example: Strimzi KafkaConnect configuration (YAML)</strong>
+    <pre class="bg-light p-2 rounded"><code>apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: my-connect-cluster
+spec:
+  replicas: 3
+  bootstrapServers: my-cluster-kafka-bootstrap:9092
+  config:
+    group.id: connect-cluster
+    config.storage.topic: connect-configs
+    offset.storage.topic: connect-offsets
+    status.storage.topic: connect-status
+    tasks.max: 6</code></pre>
+  </div>
+
+  <!-- 8. Performance testing and benchmarking -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚡ Performance testing tools</div>
+  <div class="def-list mb-4">
+    <ul>
+      <li><code>kafka-producer-perf-test</code> – measure producer throughput and latency.</li>
+      <li><code>kafka-consumer-perf-test</code> – measure consumer throughput.</li>
+      <li><code>kafka-replica-verification</code> – validate replication consistency.</li>
+      <li>JMeter + Kafka plugin for load testing.</li>
+    </ul>
+    <strong>Example (producer perf test):</strong>
+    <pre class="bg-light p-2 rounded"><code>kafka-producer-perf-test --topic perf-test --num-records 1000000 --record-size 1024 --throughput 10000 --producer-props bootstrap.servers=localhost:9092 acks=all enable.idempotence=true</code></pre>
+  </div>
+
+  <!-- 9. Common exam questions on testing, CLI, scaling -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 Typical CCDAK questions</div>
+  <div class="def-list mb-4">
+    <ol>
+      <li><strong>Which tool would you use to unit‑test a Kafka Streams aggregation without starting a real broker?</strong> TopologyTestDriver.</li>
+      <li><strong>You need to reset a consumer group’s offset to the earliest message. Write the command.</strong> <code>kafka-consumer-groups --bootstrap-server ... --group my-group --reset-offsets --to-earliest --topic my-topic --execute</code>.</li>
+      <li><strong>How can you increase the parallelism of a Kafka Streams application?</strong> Increase <code>num.stream.threads</code>, increase partition count of input topics, or add more application instances.</li>
+      <li><strong>What is the main limitation of <code>MockConsumer</code>?</strong> It does not simulate rebalances, offset commits, or serialization; it's purely for unit testing consumer logic.</li>
+      <li><strong>Which deployment framework is recommended for running Kafka on Kubernetes?</strong> Strimzi.</li>
+    </ol>
+  </div>
+
+  <!-- 10. Best practices for testing -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Best practices – Testing</strong>
+        <ul>
+          <li>Use TopologyTestDriver for Streams unit tests; EmbeddedKafka for end‑to‑end integration tests.</li>
+          <li>Test error handling (e.g., serialization errors, DLQ).</li>
+          <li>Mock only when necessary; prefer real or embedded brokers for integration tests.</li>
+          <li>Use <code>Testcontainers</code> for close‑to‑production testing (e.g., Avro + Schema Registry).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Best practices – Scaling & deployment</strong>
+        <ul>
+          <li>Plan number of partitions ahead of time (cannot decrease).</li>
+          <li>Monitor consumer lag and scale out when needed.</li>
+          <li>Use Strimzi or Confluent Operator for production on K8s.</li>
+          <li>For Connect, use distributed mode with at least 2 workers for HA.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. Pitfalls to avoid -->
+  <div class="nuance-box mb-4">
+    <i class="fas fa-skull-crosswalk"></i> <strong>Common mistakes in testing/scaling:</strong>
+    <ul>
+      <li>Using TopologyTestDriver for testing exactly‑once or transactions (not supported).</li>
+      <li>Forgetting to close <code>EmbeddedKafka</code> resources leading to port conflicts.</li>
+      <li>Assuming adding consumers will always increase throughput without increasing partitions.</li>
+      <li>Not testing rebalance behavior (mock consumer doesn't simulate it).</li>
+      <li>Deploying Strimzi without sufficient resource limits.</li>
+    </ul>
+  </div>
+
+  <!-- 12. Self‑assessment questions -->
+  <div class="def-list mb-4">
+    <strong>📝 Verify your understanding:</strong>
+    <ol>
+      <li>What is the difference between <code>--reset-offsets --to-datetime</code> and <code>--to-earliest</code>?</li>
+      <li>Can you increase the number of partitions for a topic live? Yes, but never decrease. What effect does it have on existing keys?</li>
+      <li>How do you set up a test that includes a Schema Registry and Avro serialization?</li>
+      <li>What CLI command shows the current lag of all partitions for a consumer group?</li>
+      <li>Which Kubernetes operator is officially endorsed by Confluent for Kafka on K8s?</li>
+    </ol>
+  </div>
+
+  <!-- 13. Final checklist -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Competencies to validate:</strong>
+    <ul class="mt-2">
+      <li>✅ I can write unit tests for Kafka producers/consumers using MockProducer/Consumer.</li>
+      <li>✅ I can test Kafka Streams topologies with TopologyTestDriver.</li>
+      <li>✅ I know how to use Embedded Kafka for integration tests.</li>
+      <li>✅ I am comfortable with all essential CLI commands (topics, consumer groups, console tools).</li>
+      <li>✅ I understand horizontal vs vertical scaling and their limits.</li>
+      <li>✅ I am familiar with deployment frameworks (Strimzi, Confluent Cloud, Docker Compose).</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-check-circle"></i> Complete module – Testing, CLI, Scaling. Essential for the operations and testability domain of CCDAK.
+  </div>
+</div>
+
 
       <!-- Observability: lag, metrics, alerts, log4j -->
-      <div class="tab-pane fade" id="tabObs" role="tabpanel">
-        <div class="section-title">Consumer Lag, Performance Metrics, Log4j & Alerting</div>
-        <div class="def-list">Lag = producer offset - consumer offset. JMX metrics: request-latency, bytes-in, ISR shrinks. Log4j config for clients. Alerts: lag > threshold, under-replicated partitions.</div>
-        <div class="qa-item">🚨 Common errors: NotLeaderForPartition, TimeoutException, OffsetOutOfRange.</div>
-        <div class="nuance-box">📈 Lag spikes indicate consumer or processing bottleneck.</div>
-        <div class="best-card">🔔 Alert on consumer lag > 5000 for 10 min; use Prometheus + Grafana.</div>
+    
+<!-- OBSERVABILITY - LAG, METRICS, ALERTS, LOG4J - VERSION ULTRA DÉTAILLÉE -->
+<div class="tab-pane fade" id="tabObs" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-chart-simple me-2"></i> Observability – Consumer Lag, Performance Metrics, Alerting & Log4j
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Why observability is vital for the CCDAK exam and real-world Kafka?</strong><br>
+    Observability ensures your Kafka applications run reliably and efficiently. Key concepts include consumer lag (the difference between produced and consumed offsets), performance metrics (from JMX), proper logging (log4j), and proactive alerting. This domain covers approximately 10–15% of the exam, focusing on monitoring tools, CLI commands for lag, and common error resolution.
+  </div>
+
+  <!-- 2. Consumer lag – definition and calculation -->
+  <div class="section-title mt-3" style="font-size:1.3rem">📊 Consumer lag – what, why, how to measure</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-5">
+      <div class="best-card h-100">
+        <strong>Definition:</strong><br>
+        Lag = <code>LOG-END-OFFSET</code> (last produced offset) – <code>CURRENT-OFFSET</code> (last committed offset per consumer group partition).<br>
+        <strong>Example:</strong><br>
+        Partition 0: LOG-END-OFFSET = 1500, CURRENT-OFFSET = 1200 → lag = 300 messages.
       </div>
+    </div>
+    <div class="col-md-7">
+      <div class="def-list">
+        <strong>Why lag matters:</strong>
+        <ul>
+          <li>High lag indicates consumer cannot keep up with producer → potential data staleness.</li>
+          <li>Increasing lag may cause consumer to fall behind retention period → data loss.</li>
+          <li>Lag spikes after deployment or network issues.</li>
+        </ul>
+        <strong>Healthy lag :</strong> close to zero for low-latency applications, or stable low value for batch processing.
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-lightbulb"></i> <strong>Exam nuance:</strong> A consumer with <code>isolation.level=read_committed</code> may have lower visible lag compared to <code>read_uncommitted</code> because uncommitted messages are not counted as consumable.
+  </div>
+
+  <!-- 3. CLI to monitor lag (kafka-consumer-groups) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🖥️ CLI commands for lag monitoring</div>
+  <div class="best-card mb-4">
+    <pre class="bg-light p-2 rounded"><code># Show lag for all partitions of a consumer group
+kafka-consumer-groups --bootstrap-server localhost:9092 --group my-group --describe
+
+# Output example:
+GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG
+my-group        orders          0          1200            1500            300
+my-group        orders          1          800             800             0
+my-group        orders          2          4500            4520            20
+
+# For specific topic
+kafka-consumer-groups --bootstrap-server localhost:9092 --group my-group --describe --members --verbose</code></pre>
+    <small>💡 Lag can be reset using <code>--reset-offsets</code>.</small>
+  </div>
+
+  <!-- 4. Kafka JMX metrics – essential monitoring -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📈 Kafka metrics via JMX (Java Management Extensions)</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>MBean / metric</th><th>Description</th><th>What to alert on</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>kafka.consumer:type=consumer-fetch-manager-metrics,client-id=*</code><br><code>records-lag-max</code></td>
+          <td>Maximum lag across all partitions for this consumer. Non‑zero often indicates bottleneck.</td>
+          <td>> 1000 for 5 minutes</td>
+        </tr>
+        <tr>
+          <td><code>kafka.consumer:type=consumer-coordinator-metrics</code><br><code>assigned-partitions</code></td>
+          <td>Number of partitions assigned to this consumer (should be >0).</td>
+          <td>0 → consumer idle or stuck</td>
+        </tr>
+        <tr>
+          <td><code>kafka.server:type=BrokerTopicMetrics,name=BytesInPerSec</code></td>
+          <td>Inbound byte rate for broker/topic.</td>
+          <td>Sudden drop or peak beyond capacity</td>
+        </tr>
+        <tr>
+          <td><code>kafka.server:type=ReplicaManager,name=UnderReplicatedPartitions</code></td>
+          <td>Number of partitions whose replicas are not in sync. Critical for durability.</td>
+          <td>> 0</td>
+        </tr>
+        <tr>
+          <td><code>kafka.server:type=BrokerTopicMetrics,name=FailedProduceRequestsPerSec</code></td>
+          <td>Failed produce requests (e.g., NotEnoughReplicas).</td>
+          <td>> 0 sustained</td>
+        </tr>
+        <tr>
+          <td><code>kafka.controller:type=ControllerStats,name=ActiveControllerCount</code></td>
+          <td>Should be 1 exactly. >1 indicates split-brain (rare).</td>
+          <td>≠ 1</td>
+        </tr>
+        <tr>
+          <td><code>kafka.log:type=LogFlushStats,name=LogFlushRateAndTimeMs</code></td>
+          <td>Flush performance. High latency may indicate disk issues.</td>
+          <td>> threshold</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="def-list mb-4">
+    <strong>Enable JMX in Kafka brokers/connect/streams:</strong> Set <code>JMX_PORT=9999</code> environment variable. Or for Java apps: <code>-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false</code>
+  </div>
+
+  <!-- 5. Logging with log4j / log4j2 -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 Logging configuration – log4j for Kafka clients</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>log4j.properties example (producer/consumer app)</strong>
+        <pre class="bg-light p-2 rounded"><code>log4j.rootLogger=INFO, stdout
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%d{ISO8601} %-5p [%t] %c{1}: %m%n
+
+# Kafka client logging (avoid too verbose)
+log4j.logger.org.apache.kafka=WARN
+log4j.logger.org.apache.kafka.clients.consumer=INFO
+log4j.logger.org.apache.kafka.clients.producer=INFO
+
+# For debugging exactly‑once issues
+log4j.logger.org.apache.kafka.clients.producer.internals.TransactionManager=DEBUG</code></pre>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card">
+        <strong>Log4j2 (modern) example:</strong>
+        <pre class="bg-light p-2 rounded"><code>&lt;Configuration&gt;
+    &lt;Appenders&gt;
+        &lt;Console name="Console" target="SYSTEM_OUT"&gt;
+            &lt;PatternLayout pattern="%d{ISO8601} %-5p [%t] %c{1}: %m%n"/&gt;
+        &lt;/Console&gt;
+    &lt;/Appenders&gt;
+    &lt;Loggers&gt;
+        &lt;Root level="info"&gt;
+            &lt;AppenderRef ref="Console"/&gt;
+        &lt;/Root&gt;
+        &lt;Logger name="org.apache.kafka" level="warn"/&gt;
+    &lt;/Loggers&gt;
+&lt;/Configuration&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="nuance-box mb-4">
+    <i class="fas fa-terminal"></i> <strong>Exam tip:</strong> You can change log levels dynamically without restart (if using log4j2 with monitoring). For troubleshooting, set <code>org.apache.kafka.clients.consumer.ConsumerCoordinator</code> to DEBUG to see rebalance logs.
+  </div>
+
+  <!-- 6. Common errors and their resolution -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚠️ Common Kafka errors – identification & fixes</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Error</th><th>Typical cause</th><th>Fix / check</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>NotLeaderForPartitionException</code></td>
+          <td>Client tried to send to a follower broker (metadata outdated).</td>
+          <td>Refresh metadata (automatic with retries). Ensure <code>metadata.max.age.ms</code> not too high.</td>
+        </tr>
+        <tr>
+          <td><code>TimeoutException</code> (producer)</td>
+          <td>Network latency, broker overload, <code>request.timeout.ms</code> too low.</td>
+          <td>Increase timeout, check broker load, increase <code>linger.ms</code> for batching.</td>
+        </tr>
+        <tr>
+          <td><code>OffsetOutOfRangeException</code></td>
+          <td>Consumer requests offset older than retention (already deleted) or newer than current.</td>
+          <td>Set <code>auto.offset.reset=earliest</code> or change retention. Reset offsets manually.</td>
+        </tr>
+        <tr>
+          <td><code>CommitFailedException</code></td>
+          <td>Consumer rebalanced during commit, or committed offsets after <code>max.poll.interval.ms</code> elapsed.</td>
+          <td>Increase <code>max.poll.interval.ms</code> or reduce <code>max.poll.records</code>; implement commit retry.</td>
+        </tr>
+        <tr>
+          <td><code>GroupAuthorizationException</code></td>
+          <td>Consumer not authorized to access group (ACLs).</td>
+          <td>Add ACL: <code>--operation Read --group my-group --allow-principal User:app</code></td>
+        </tr>
+        <tr>
+          <td><code>UnknownTopicOrPartitionException</code></td>
+          <td>Topic does not exist or not yet created.</td>
+          <td>Create topic, or check <code>auto.create.topics.enable</code> on broker.</td>
+        </tr>
+        <tr>
+          <td><code>RecordTooLargeException</code></td>
+          <td>Message size exceeds <code>max.message.bytes</code> (topic) or <code>fetch.max.bytes</code> (consumer).</td>
+          <td>Split messages, or increase topic config <code>max.message.bytes</code> and consumer <code>fetch.max.bytes</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 7. Alerts configuration – thresholds and best practices -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🚨 Proactive alerting – what to monitor</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>Critical alerts (must-have):</strong>
+        <ul>
+          <li><strong>Consumer lag > threshold</strong> (e.g., 10,000 for 5 minutes).</li>
+          <li><strong>Under‑replicated partitions > 0</strong> (data at risk).</li>
+          <li><strong>Broker down</strong> (no heartbeat).</li>
+          <li><strong>ISR shrink rate high</strong> (replicas falling behind).</li>
+          <li><strong>Controller failover</strong> (should be rare).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Secondary alerts (performance):</strong>
+        <ul>
+          <li>High produce/fetch request latency (> 500ms).</li>
+          <li>Network bytes in/out near capacity.</li>
+          <li>High garbage collection time on brokers.</li>
+          <li>Connect task failures.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong>Example Prometheus + Grafana alert rule (PromQL):</strong>
+    <pre class="bg-light p-2 rounded"><code># Lag for consumer group 'my-group' exceeding 5000
+kafka_consumer_lag{group="my-group"} > 5000
+
+# Under‑replicated partitions
+kafka_cluster_partition_underreplicated > 0
+
+# Broker out of ISR (no leader)
+kafka_controller_kafka_controller_KafkaController_ActiveBrokerCount < 3</code></pre>
+  </div>
+
+  <!-- 8. Logging best practices for production -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📋 Logging best practices</div>
+  <div class="def-list mb-4">
+    <ul>
+      <li>Use structured logging (JSON) to integrate with ELK / Splunk.</li>
+      <li>Log <strong>consumer group rebalances</strong> at INFO level for debugging.</li>
+      <li>Enable <strong>topic deletion/creation logs</strong> for governance.</li>
+      <li>Set <code>log4j.logger.kafka.authorizer.logger=INFO</code> to audit ACL decisions.</li>
+      <li>For Connect, configure <code>connect.log4j.properties</code> to separate connector logs.</li>
+      <li>Avoid logging message payloads in production (privacy, performance).</li>
+    </ul>
+  </div>
+
+  <!-- 9. Tools for observability (external) -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="def-list">
+        <strong>Confluent Control Center</strong><br>
+        Provides UI for lag, consumer groups, topic health, and alerts.
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="def-list">
+        <strong>Kafka Lag Exporter (Lightbend)</strong><br>
+        Exports lag metrics to Prometheus; supports multiple clusters.
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="def-list">
+        <strong>Burrow (LinkedIn)</strong><br>
+        Lag checker with evaluation logic (sliding window). Can be used as alerting service.
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. Typical exam questions -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 CCDAK exam questions on observability</div>
+  <div class="nuance-box mb-4">
+    <ol>
+      <li><strong>How to programmatically detect consumer lag in a custom monitoring app?</strong> Use <code>AdminClient.listConsumerGroupOffsets()</code> and <code>AdminClient.listOffsets()</code> to compute difference.</li>
+      <li><strong>What log4j configuration would you set to debug exactly‑once issues?</strong> <code>log4j.logger.org.apache.kafka.clients.producer.internals.TransactionManager=DEBUG</code>.</li>
+      <li><strong>What JMX metric shows the maximum lag for a consumer?</strong> <code>records-lag-max</code> under <code>consumer-fetch-manager-metrics</code>.</li>
+      <li><strong>You see UnderReplicatedPartitions = 2. What does it mean and how to fix?</strong> Some partitions have replicas out of sync. Check broker health, network, and increase <code>replica.lag.time.max.ms</code> if transient.</li>
+      <li><strong>Which CLI command gives the lag for all topics of a consumer group?</strong> <code>kafka-consumer-groups --describe --group my-group</code>.</li>
+    </ol>
+  </div>
+
+  <!-- 11. Best practices and pitfalls -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Best practices for observability</strong>
+        <ul>
+          <li>Set up automated alerts for consumer lag and under‑replicated partitions.</li>
+          <li>Use structured logging and centralize logs.</li>
+          <li>Periodically review log levels (reduce DEBUG in production).</li>
+          <li>Monitor broker JMX with tools like Prometheus/Grafana.</li>
+          <li>Enable client‑side metrics in producers/consumers for end‑to‑end visibility.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <strong>⚠️ Pitfalls to avoid</strong>
+        <ul>
+          <li>Only monitoring broker metrics but ignoring consumer lag (most critical).</li>
+          <li>Setting <code>log4j.rootLogger=DEBUG</code> in production (disk space, performance).</li>
+          <li>Not having enough retention for lag analysis (metrics disappear).</li>
+          <li>Alert fatigue from noisy thresholds (e.g., lag spikes on batch jobs).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Hands‑on exercise: simulate lag -->
+  <div class="def-list mb-4">
+    <strong>🧪 Quick practice: Simulate lag and observe</strong>
+    <pre class="bg-light p-2 rounded"><code># Terminal 1: produce fast
+kafka-producer-perf-test --topic test --throughput 10000 --record-size 100 --num-records 100000
+
+# Terminal 2: consume slowly (--max-messages 1 per second)
+kafka-console-consumer --topic test --group slow-group --bootstrap-server ... --max-poll-records 1
+
+# Terminal 3: observe lag
+kafka-consumer-groups --bootstrap-server ... --group slow-group --describe</code></pre>
+  </div>
+
+  <!-- 13. Self‑assessment -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Check your understanding:</strong>
+    <ol>
+      <li>What is the difference between <code>records-lag-max</code> and <code>records-lead-min</code>?</li>
+      <li>How can you set up log4j to log only WARN and above for Kafka, but INFO for your application?</li>
+      <li>What does a negative lag indicate? (Should never happen; if seen, check for reset or clock skew).</li>
+      <li>Which tool from Confluent provides a UI for monitoring lag and rebalances?</li>
+      <li>How can you programmatically get the lag via Java AdminClient?</li>
+    </ol>
+    <details class="mt-2"><summary>Quick answers (expand)</summary>
+      <strong>1.</strong> <code>records-lag-max</code> = max lag, <code>records-lead-min</code> = how close consumer is to the end of the partition.<br>
+      <strong>2.</strong> <code>log4j.logger.org.apache.kafka=WARN</code> and <code>log4j.logger.com.myapp=INFO</code>.<br>
+      <strong>3.</strong> Negative lag indicates inconsistency (maybe wrong offset committed).<br>
+      <strong>4.</strong> Confluent Control Center.<br>
+      <strong>5.</strong> <code>AdminClient.listConsumerGroupOffsets()</code> and <code>AdminClient.listOffsets()</code>.
+    </details>
+  </div>
+
+  <!-- 14. Final checklist -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Competencies to validate:</strong>
+    <ul class="mt-2">
+      <li>✅ I can measure consumer lag via CLI and interpret the output.</li>
+      <li>✅ I know at least 5 essential JMX metrics and their significance.</li>
+      <li>✅ I can configure log4j for Kafka clients appropriately.</li>
+      <li>✅ I can identify and troubleshoot common Kafka errors (Timeout, NotLeader, OffsetOutOfRange).</li>
+      <li>✅ I can set up alerting thresholds for lag and under‑replicated partitions.</li>
+      <li>✅ I understand the role of Control Center, Burrow, and Lag Exporter.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-chart-line"></i> Complete observability module – essential for monitoring and maintaining Kafka applications in production (CCDAK exam).
+  </div>
+</div>
+
 
       <!-- Data Formats, Error Handling, Topic Modifications -->
-      <div class="tab-pane fade" id="tabDataErrors" role="tabpanel">
-        <div class="section-title">Data Formats (Avro/JSON/Protobuf), Error Handling & Topic Evolution</div>
-        <div class="def-list">Avro (schema evolution), JSON (schemaless), Protobuf (efficient). Error handling: retries, DLQ, error handlers. Modifying topics: increase partitions only (never decrease), dynamic config changes.</div>
-        <div class="qa-item">💡 Can we decrease partitions? No, it breaks ordering. Plan partition count for future.</div>
-        <div class="nuance-box">⚠️ Adding partitions can affect key order; use consistent hashing if needed.</div>
-        <div class="best-card">✅ Best practice: schema registry with compatibility BACKWARD; implement dead-letter topic for bad records.</div>
+    
+<!-- DATA FORMATS, ERROR HANDLING, TOPIC MODIFICATIONS - VERSION ULTRA DÉTAILLÉE -->
+<div class="tab-pane fade" id="tabDataErrors" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-file-alt me-2"></i> Data Formats, Error Handling & Topic Modifications – Complete Mastery
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Why this module is crucial for the CCDAK exam?</strong><br>
+    Data serialization formats (Avro, JSON, Protobuf) directly impact schema evolution and performance. Error handling strategies (retries, dead letter queues, idempotence) determine application resilience. Topic modifications (increasing partitions, changing configs) are operational tasks that appear frequently in scenario‑based questions. This domain spans multiple exam sections, with around 15% of questions touching these topics.
+  </div>
+
+  <!-- 2. Common data formats – in‑depth comparison -->
+  <div class="section-title mt-3" style="font-size:1.3rem">📦 Data formats for Kafka messages: Avro, JSON, Protobuf, String</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>Format</th><th>Schema required?</th><th>Key features</th><th>Schema Registry support</th><th>Performance (size/speed)</th><th>Exam focus</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Avro</strong></td>
+          <td>Yes (binary, but schema can be external)</td>
+          <td>Compact binary, fast, rich data types, supports schema evolution (backward/forward/full).</td>
+          <td>Native via <code>KafkaAvroSerializer</code> (Confluent).</td>
+          <td>Excellent (small size, fast).</td>
+          <td>Most recommended for production; evolution rules key.</td>
+        </tr>
+        <tr>
+          <td><strong>Protobuf (Protocol Buffers)</strong></td>
+          <td>Yes (.proto definition)</td>
+          <td>Binary, strongly typed, cross‑language, smaller than JSON.</td>
+          <td>Supported via Confluent Protobuf serializer.</td>
+          <td>Outstanding (similar to Avro).</td>
+          <td>Good alternative, less mature in Kafka ecosystem.</td>
+        </tr>
+        <tr>
+          <td><strong>JSON (plain or JSON Schema)</strong></td>
+          <td>No (plain JSON) or optional (JSON Schema)</td>
+          <td>Human‑readable, flexible, but verbose and no native evolution.</td>
+          <td>JSON Schema with Confluent serializer (avoids breaking changes).</td>
+          <td>Poor (large size, slower parsing).</td>
+          <td>Preferred for simple, low‑volume, or debugging scenarios.</td>
+        </tr>
+        <tr>
+          <td><strong>String / Primitive</strong></td>
+          <td>No</td>
+          <td>Simple, for PoC or logging.</td>
+          <td>Not needed.</td>
+          <td>Fast but limited.</td>
+          <td>Only for trivial cases.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong>Example: Avro configuration with Schema Registry (producer & consumer)</strong>
+    <pre class="bg-light p-2 rounded"><code>// Producer configuration
+props.put("key.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
+props.put("value.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
+props.put("schema.registry.url", "http://localhost:8081");
+
+// Consumer configuration
+props.put("key.deserializer", "io.confluent.kafka.serializers.KafkaAvroDeserializer");
+props.put("value.deserializer", "io.confluent.kafka.serializers.KafkaAvroDeserializer");
+props.put("schema.registry.url", "http://localhost:8081");
+props.put("specific.avro.reader", "true"); // for generated class
+
+// The message contains the schema ID, not the full schema.</code></pre>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-code-branch"></i> <strong>Schema evolution strategies (critical for exam):</strong>
+    <ul>
+      <li><strong>BACKWARD</strong>: consumers using old schema can read data written with new schema (add fields with default values).</li>
+      <li><strong>FORWARD</strong>: consumers using new schema can read data written with old schema (remove fields).</li>
+      <li><strong>FULL</strong>: both directions (combination of BACKWARD & FORWARD).</li>
+      <li><strong>NONE</strong>: no compatibility checks.</li>
+    </ul>
+    In exam: read a scenario and pick the right compatibility type.
+  </div>
+
+  <!-- 3. Error handling – producer side -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚠️ Error handling in Kafka producers</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Retries and idempotence</strong>
+        <pre class="bg-light p-2 rounded"><code>props.put("retries", Integer.MAX_VALUE);
+props.put("enable.idempotence", "true");
+props.put("delivery.timeout.ms", 120000); // global cap</code></pre>
+        <strong>Callback for handling send errors</strong>
+        <pre class="bg-light p-2 rounded"><code>producer.send(record, (metadata, exception) -> {
+    if (exception != null) {
+        log.error("Send failed", exception);
+        // DLQ: send to a dead letter topic
+        deadLetterProducer.send(new ProducerRecord<>("errors", record.value()));
+    }
+});</code></pre>
       </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card">
+        <strong>Handling non‑retriable errors</strong>
+        <ul>
+          <li><code>RecordTooLargeException</code> → split or increase <code>max.message.bytes</code>.</li>
+          <li><code>SerializationException</code> → fix serializer logic.</li>
+          <li><code>TimeoutException</code> after retries → check broker health, increase timeout.</li>
+        </ul>
+        <strong>Idempotent producer guarantees</strong><br>
+        No duplicates per partition, even with retries. Must also set <code>acks=all</code>.
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Error handling – consumer side -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🛡️ Consumer error handling strategies</div>
+  <div class="def-list mb-4">
+    <strong>Dead Letter Queue (DLQ) pattern:</strong> When a message cannot be processed (deserialization error, business logic error), send it to a separate topic (DLQ) and commit the original offset to avoid blocking.
+    <pre class="bg-light p-2 rounded"><code>try {
+    process(record);
+    consumer.commitSync();
+} catch (DeserializationException e) {
+    // Send to DLQ with original record
+    dlqProducer.send(new ProducerRecord<>("my-dlq", record.key(), record.value()));
+    consumer.commitSync(); // skip the bad record
+} catch (BusinessException e) {
+    // optionally retry or DLQ
+}</code></pre>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-exclamation-triangle"></i> <strong>Important nuance:</strong> Consumers with <code>enable.auto.commit=true</code> will automatically commit even if processing fails, leading to data loss. Always use <code>enable.auto.commit=false</code> and manual commit after successful processing.
+  </div>
+
+  <!-- 5. Error handling for Kafka Streams -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔁 Error handling in Kafka Streams</div>
+  <div class="best-card mb-4">
+    <strong>Deserialization error handlers:</strong>
+    <pre class="bg-light p-2 rounded"><code>props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG,
+          LogAndContinueExceptionHandler.class); // skip bad records
+// or: LogAndFailExceptionHandler (default)</code></pre>
+    <strong>Production exception handler (for processor API):</strong>
+    <pre class="bg-light p-2 rounded"><code>props.put(StreamsConfig.DEFAULT_PRODUCTION_EXCEPTION_HANDLER_CLASS_CONFIG,
+          ProductionExceptionHandlerUtil.LogAndContinueProductionExceptionHandler.class);</code></pre>
+    <small>💡 In Kafka Streams, you can also use <code>.mapValues()</code> with try‑catch to filter out errors.</small>
+  </div>
+
+  <!-- 6. Topic modifications – increasing partitions -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔧 Modifying topics: partition count, configuration changes</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-7">
+      <div class="def-list">
+        <strong>Increasing partitions (allowed, but never decrease!)</strong>
+        <pre class="bg-light p-2 rounded"><code>kafka-topics --bootstrap-server localhost:9092 --alter --topic my-topic --partitions 6</code></pre>
+        <strong>Important consequences:</strong>
+        <ul>
+          <li>Existing messages remain in old partitions; new messages distributed according to partitioner.</li>
+          <li>Key‑based partitioning may break: same key may go to different partitions after increase.</li>
+          <li>Consumer groups rebalance: new partitions are assigned to consumers (if using subscribe).</li>
+          <li>Can never decrease partitions (throws InvalidPartitionsException).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="best-card">
+        <strong>Changing topic configurations</strong>
+        <pre class="bg-light p-2 rounded"><code># Modify retention
+kafka-configs --bootstrap-server localhost:9092 --alter --entity-type topics --entity-name my-topic --add-config retention.ms=86400000
+
+# Remove a config
+kafka-configs --bootstrap-server localhost:9092 --alter --entity-type topics --entity-name my-topic --delete-config retention.ms</code></pre>
+        Configs change dynamically, no restart needed.
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-lightbulb"></i> <strong>Exam tip:</strong> Why can’t we decrease partitions? Kafka would lose ordering guarantees, and reassigning existing data would be complex. The partition count is part of the log segment filename structure.
+  </div>
+
+  <!-- 7. Best practices for topic design and evolution -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📏 Best practices for topic creation and modification</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Do's</strong>
+        <ul>
+          <li>Estimate peak throughput and set partitions accordingly (1 partition ≈ 10‑20 MB/s).</li>
+          <li>Use a naming convention (e.g., <code>env.app.entity.version</code>).</li>
+          <li>Enable compaction for tables (<code>cleanup.policy=compact</code>).</li>
+          <li>Set <code>min.insync.replicas=2</code> for important data.</li>
+          <li>Test configuration changes on a staging cluster first.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong>❌ Don'ts</strong>
+        <ul>
+          <li>Don't rely on auto‑topic creation in production (security risk).</li>
+          <li>Don't use a single partition for high‑throughput topics.</li>
+          <li>Don't decrease partitions – can't.</li>
+          <li>Don't change key semantics after creation.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Handling message size and large messages -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📦 Dealing with large messages</div>
+  <div class="def-list mb-4">
+    <strong>Limits:</strong>
+    <ul>
+      <li>Broker default: <code>message.max.bytes = 1MB</code>.</li>
+      <li>Topic override: <code>max.message.bytes</code>.</li>
+      <li>Consumer fetch: <code>fetch.max.bytes</code> (default 50MB) and <code>max.partition.fetch.bytes</code> (1MB).</li>
+    </ul>
+    <strong>Strategies for large messages:</strong>
+    <ul>
+      <li>Use compression (lz4, zstd) – reduces size significantly.</li>
+      <li>Store large payload in external storage (S3, HDFS) and send reference in Kafka.</li>
+      <li>Split into chunks with a custom serializer (complex).</li>
+      <li>Increase <code>max.message.bytes</code> and adjust related configs (replica fetch, etc.).</li>
+    </ul>
+  </div>
+
+  <!-- 9. Common exam scenarios and questions -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 Typical CCDAK questions on these topics</div>
+  <div class="nuance-box mb-4">
+    <ol>
+      <li><strong>Your Avro schema adds a new optional field. Which compatibility type must be used so that old consumers can read new data?</strong> BACKWARD (or FULL).</li>
+      <li><strong>A consumer encounters a deserialization error. How to avoid the consumer getting stuck?</strong> Use a DeserializationExceptionHandler (LogAndContinue) or DLQ pattern.</li>
+      <li><strong>You need to increase the throughput of a topic. What actions can you take?</strong> Increase partitions, increase replication factor (for read), tune producer batch settings.</li>
+      <li><strong>Can you change the cleanup policy from delete to compact on a live topic?</strong> Yes, using <code>kafka-configs --alter</code>. Data already in the topic will be compacted over time.</li>
+      <li><strong>What happens to existing key‑based partitioning after you add partitions?</strong> The same key may now hash to a different partition for new messages, breaking ordering across the new boundary. Existing messages remain in old partitions.</li>
+    </ol>
+  </div>
+
+  <!-- 10. CLI commands for topic inspection and modification -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Essential CLI commands:</strong>
+    <pre class="bg-light p-2 rounded"><code># List all topics
+kafka-topics --bootstrap-server localhost:9092 --list
+
+# Describe topic with partitions and configs
+kafka-topics --bootstrap-server localhost:9092 --describe --topic my-topic
+
+# Show topic configuration overrides
+kafka-configs --bootstrap-server localhost:9092 --describe --entity-type topics --entity-name my-topic
+
+# Increase partitions (careful)
+kafka-topics --bootstrap-server localhost:9092 --alter --topic my-topic --partitions 10
+
+# Add a configuration (e.g., retention)
+kafka-configs --bootstrap-server localhost:9092 --alter --entity-type topics --entity-name my-topic --add-config retention.bytes=10737418240</code></pre>
+  </div>
+
+  <!-- 11. Error handling in Connect (reminder) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔌 Error handling in Kafka Connect (summary)</div>
+  <div class="best-card mb-4">
+    <pre class="bg-light p-2 rounded"><code>errors.tolerance=all
+errors.deadletterqueue.topic.name=my-connect-dlq
+errors.deadletterqueue.context.headers.enable=true</code></pre>
+    <small>Connect uses DLQ for both source and sink connectors. This is separate from consumer DLQ patterns.</small>
+  </div>
+
+  <!-- 12. Self-assessment -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Check your understanding:</strong>
+    <ol>
+      <li>What command would you use to increase retention time on a topic without recreating it?</li>
+      <li>Why is JSON not recommended for high‑throughput production systems?</li>
+      <li>How can a producer application handle a <code>RecordTooLargeException</code> gracefully?</li>
+      <li>What is the impact of adding partitions on a Kafka Streams application?</li>
+      <li>Which Schema Registry compatibility allows consumers using an older schema to read data written with a new schema?</li>
+    </ol>
+    <details><summary>Answers (click)</summary>
+      1. <code>kafka-configs --alter --add-config retention.ms=...</code><br>
+      2. Verbose, slow parsing, no native schema evolution.<br>
+      3. Either send smaller messages, split, or increase <code>max.message.bytes</code> on topic.<br>
+      4. Streams will rebalance and create new tasks (one per new partition); state stores may be added.<br>
+      5. BACKWARD compatibility.
+    </details>
+  </div>
+
+  <!-- 13. Best practices summary -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Best practices recap</strong>
+        <ul>
+          <li>Always use Avro or Protobuf with Schema Registry for production.</li>
+          <li>Set <code>enable.auto.commit=false</code> in consumers; commit after processing.</li>
+          <li>For producers, enable idempotence to avoid duplicates.</li>
+          <li>Plan partition count at topic creation (can increase but not decrease).</li>
+          <li>Implement DLQ for error handling.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <strong>⚠️ Key pitfalls to avoid</strong>
+        <ul>
+          <li>Using JSON without schema registry → breaking schema changes.</li>
+          <li>Ignoring errors → consumer stuck or data loss.</li>
+          <li>Increasing partitions without understanding impact on key ordering.</li>
+          <li>Setting <code>retries=0</code> on critical producers.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. Final checklist -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Competencies to validate:</strong>
+    <ul class="mt-2">
+      <li>✅ I can choose the appropriate data format (Avro, JSON, Protobuf) based on requirements.</li>
+      <li>✅ I understand Schema Registry compatibility levels and can apply them.</li>
+      <li>✅ I can implement error handling (retries, DLQ) for producers and consumers.</li>
+      <li>✅ I know how to increase topic partitions and the consequences.</li>
+      <li>✅ I can modify topic configurations dynamically.</li>
+      <li>✅ I can handle deserialization errors in consumers and Kafka Streams.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-check-circle"></i> Complete module – Data Formats, Error Handling & Topic Modifications. Absolutely essential for the CCDAK exam and real‑world Kafka development.
+  </div>
+</div>
 
       <!-- 5 NEW ADVANCED TABS -->
-      <!-- Schema Registry & Evolution -->
-      <div class="tab-pane fade" id="tabSchema" role="tabpanel">
-        <div class="section-title"><i class="fas fa-registered"></i> Schema Registry & Compatibility</div>
-        <div class="def-list"><strong>Schema Registry:</strong> central store for Avro/Protobuf/JSON schemas. Compatibility types: BACKWARD (consumers read new schema), FORWARD, FULL, NONE. Schema IDs embedded in messages.</div>
-        <div class="qa-item">🔑 Exam Q: Which compatibility allows consumers using old schema to read new data? BACKWARD.</div>
-        <div class="nuance-box">🧩 Auto schema registration; subjects: topic-name-value/key. Use REST API for subject versions.</div>
-        <div class="best-card">📌 Best practice: use BACKWARD or FULL compatibility, enforce schema evolution rules.</div>
+     <!-- SCHEMA REGISTRY & EVOLUTION - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabSchema" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-registered me-2"></i> Schema Registry & Evolution – Complete Guide for CCDAK
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Why Schema Registry is critical for the CCDAK exam?</strong><br>
+    Schema Registry is a separate component that stores and manages schemas (Avro, Protobuf, JSON Schema) for Kafka topics. It enables schema evolution without breaking producers or consumers. Approximately 15% of questions in the “Application Development” and “Kafka Connect” domains focus on Schema Registry operations, compatibility levels, and error handling. Mastering this topic is essential for designing evolvable, production‑grade data pipelines.
+  </div>
+
+  <!-- 2. Schema Registry overview – architecture and roles -->
+  <div class="section-title mt-3" style="font-size:1.3rem">🏛️ Schema Registry – what, why, and where it fits</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-database"></i> Core concepts</strong>
+        <ul>
+          <li><strong>Schema Registry</strong> : centralized service storing schemas for Kafka messages (Avro, Protobuf, JSON Schema).</li>
+          <li><strong>Subject</strong> : logical name for a schema (e.g., <code>topic-value</code>, <code>topic-key</code>, or custom).</li>
+          <li><strong>Schema ID</strong> : unique integer assigned to each schema version.</li>
+          <li>Instead of sending full schema in every message, the producer sends a <strong>schema ID</strong>. The consumer fetches the schema from the registry.</li>
+        </ul>
       </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong>Benefits</strong>
+        <ul>
+          <li>✔️ Reduces message size (schema ID vs full schema).</li>
+          <li>✔️ Central schema governance and evolution.</li>
+          <li>✔️ Prevents incompatible changes.</li>
+          <li>✔️ Supports multiple formats (Avro, Protobuf, JSON).</li>
+          <li>✔️ Required for Kafka Connect with Avro/Protobuf converters.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-link"></i> <strong>Integration:</strong> Producers and consumers must be configured with <code>schema.registry.url</code>. The registry itself persists schemas in an internal Kafka topic (<code>_schemas</code>) and also caches in memory.
+  </div>
+
+  <!-- 3. Compatibility levels – detailed, with examples -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔄 Schema compatibility levels – exhaustive explanation</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>Compatibility</th><th>Rule (new schema vs old schema)</th><th>Allowed changes</th><th>Typical use case</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>BACKWARD</strong> (default)</strong>
+          <td>Consumers using the <strong>old schema</strong> can read data written with the <strong>new schema</strong>.</strong>
+          <td>Add optional fields; remove fields (if default values exist).<br>Changes must be backward compatible.</p>
+          <td>Safe for most scenarios; old apps still work. </strong>
+         </p>
+        <tr>
+          <td><strong>FORWARD</strong></strong>
+          <td>Consumers using the <strong>new schema</strong> can read data written with the <strong>old schema</strong>.</strong>
+          <td>Remove fields (consumers can ignore); add field with default value (old data missing field).</strong>
+          <td>When you always update consumers before producers. </strong>
+         </p>
+        <tr>
+          <td><strong>FULL</strong></strong>
+          <td>Both BACKWARD and FORWARD (bidirectional).</strong>
+          <td>Changes must be both backward and forward compatible (add optional fields, add fields with defaults, remove fields with defaults).</strong>
+          <td>When you cannot control upgrade order. </strong>
+         </p>
+        <tr>
+          <td><strong>NONE</strong></strong>
+          <td>No compatibility check (any change allowed).</strong>
+          <td>Any change, even breaking.</strong>
+          <td>Only for development or where consumers are always aligned. </strong>
+         </p>
+        <tr>
+          <td><strong>BACKWARD_TRANSITIVE</strong></strong>
+          <td>New schema must be backward compatible with all previous versions (not just immediate).</strong>
+          <td>Ensures all older consumers work with any newer version.</strong>
+          <td>Strict environments (regulated).</strong>
+         </p>
+        <tr>
+          <td><strong>FORWARD_TRANSITIVE</strong></strong>
+          <td>New schema must be forward compatible with all previous versions.</strong>
+          <td>Same as FORWARD but checked against all previous schemas.</strong>
+          <td>Very conservative evolution.</strong>
+         </p>
+        <tr>
+          <td><strong>FULL_TRANSITIVE</strong></strong>
+          <td>Bidirectional compatibility with all previous schemas.</strong>
+          <td>Strictest level.</strong>
+          <td>Critical data pipelines.</strong>
+         </p>
+      </tbody>
+     </div>
+
+  <div class="best-card mb-4">
+    <strong>Examples of allowed changes for BACKWARD compatibility:</strong>
+    <ul>
+      <li>✅ Add a new field with a default value (old consumers ignore it).</li>
+      <li>✅ Remove a field that was optional (old consumers just read the remaining fields).</li>
+      <li>✅ Rename a field if you provide an alias (Avro).</li>
+      <li>❌ Add a required field without default → breaks old consumers (they can’t provide a value).</li>
+      <li>❌ Change a field’s type from int to string → not compatible.</li>
+    </ul>
+    <small>💡 Use <code>compatibility=BACKWARD</code> for most production services where you update producers before consumers (or can’t guarantee consumer speed).</small>
+  </div>
+
+  <!-- 4. Schema subjects and naming strategies -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🏷️ Subjects and naming strategies (key, value, record)</div>
+  <div class="def-list mb-4">
+    <strong>Subject naming (determines where schema is stored):</strong>
+    <ul>
+      <li>For messages, the default subject is <code>&lt;topic&gt;-key</code> and <code>&lt;topic&gt;-value</code>.</li>
+      <li>For Kafka Connect, subjects can be based on topic name or custom via <code>value.converter</code> configuration.</li>
+    </ul>
+    <strong>Avro naming strategy (configured for producer/consumer):</strong>
+    <ul>
+      <li><code>io.confluent.kafka.serializers.subject.name.strategy</code> = <code>TopicNameStrategy</code> (default), <code>TopicRecordNameStrategy</code>, or <code>RecordNameStrategy</code>.</li>
+      <li><strong>TopicNameStrategy</strong> : subject = topic name + “-key”/“-value”. All records in the topic share one schema.</li>
+      <li><strong>TopicRecordNameStrategy</strong> : subject = topic name + record name (allows multiple schemas per topic).</li>
+      <li><strong>RecordNameStrategy</strong> : subject = full record name (ignores topic).</li>
+    </ul>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-lightbulb"></i> <strong>Exam nuance:</strong> Multiple schemas per topic are possible with <code>TopicRecordNameStrategy</code>. However, consumers must be configured to deserialize the correct record type (use <code>KafkaAvroDeserializer</code> with <code>specific.avro.reader</code>).
+  </div>
+
+  <!-- 5. Using Schema Registry with Avro (Java example) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 Java configuration – producer and consumer</div>
+  <div class="best-card mb-4">
+    <strong>Producer (Avro + Schema Registry)</strong>
+    <pre class="bg-light p-2 rounded"><code>Properties props = new Properties();
+props.put("bootstrap.servers", "localhost:9092");
+props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+// Avro serializer for value
+props.put("value.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
+props.put("schema.registry.url", "http://localhost:8081");
+props.put("auto.register.schemas", "true");   // automatically register new schemas
+props.put("compatibility", "BACKWARD");       // optional, per subject
+
+KafkaProducer<String, MyAvroRecord> producer = new KafkaProducer<>(props);
+MyAvroRecord record = MyAvroRecord.newBuilder().setId(1).setName("John").build();
+producer.send(new ProducerRecord<>("my-topic", "key1", record));</code></pre>
+    <strong>Consumer (Avro)</strong>
+    <pre class="bg-light p-2 rounded"><code>props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+props.put("value.deserializer", "io.confluent.kafka.serializers.KafkaAvroDeserializer");
+props.put("schema.registry.url", "http://localhost:8081");
+props.put("specific.avro.reader", "true");  // use generated class
+KafkaConsumer<String, MyAvroRecord> consumer = new KafkaConsumer<>(props);</code></pre>
+  </div>
+
+  <!-- 6. Schema Registry REST API – essential operations -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📡 Schema Registry REST API – manage schemas</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Method & endpoint</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>GET /subjects</code></td><td>List all subjects</td></tr>
+        <tr><td><code>GET /subjects/{subject}/versions</code></td><td>List versions of a subject</td></tr>
+        <tr><td><code>GET /subjects/{subject}/versions/latest</code></td><td>Latest schema for subject</td></tr>
+        <tr><td><code>POST /subjects/{subject}/versions</code></td><td>Register a new schema version (returns schema ID)</td></tr>
+        <tr><td><code>GET /schemas/ids/{id}</code></td><td>Get schema by global ID</td></tr>
+        <tr><td><code>POST /compatibility/subjects/{subject}/versions</code></td><td>Test compatibility of new schema against current version</td></tr>
+        <tr><td><code>PUT /config/{subject}</code></td><td>Change compatibility level for a subject</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="def-list mb-4">
+    <strong>Example: Register a schema via curl</strong>
+    <pre class="bg-light p-2 rounded"><code>curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" \
+  --data '{"schema": "{\"type\":\"record\",\"name\":\"User\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"}]}"}' \
+  http://localhost:8081/subjects/user-value/versions</code></pre>
+  </div>
+
+  <!-- 7. Schema evolution in practice – scenario walkthrough -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📈 Evolution scenario: adding a field</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-12">
+      <div class="best-card">
+        <strong>Initial schema (v1):</strong>
+        <pre class="bg-light p-2 rounded"><code>{"type":"record","name":"Order","fields":[{"name":"orderId","type":"string"}]}</code></pre>
+        <strong>New schema (v2) – add "customerEmail" with default:"unknown":</strong>
+        <pre class="bg-light p-2 rounded"><code>{"type":"record","name":"Order","fields":[
+  {"name":"orderId","type":"string"},
+  {"name":"customerEmail","type":"string","default":"unknown"}
+]}</code></pre>
+        <strong>Compatibility check:</strong> BACKWARD – succeeds because old consumers can read new messages (ignoring extra field).<br>
+        <strong>New consumers reading old messages:</strong> will see "customerEmail" = "unknown" (default).<br>
+        <strong>If we removed "orderId":</strong> would break backward compatibility (old consumers would miss required field).
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-exclamation-triangle"></i> <strong>Warning – Deleting a required field:</strong> Always ensure compatibility level allows the change. For BACKWARD, you cannot delete a field that was present and required. Convert it to optional first.
+  </div>
+
+  <!-- 8. Connecting Schema Registry with Kafka Connect -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔌 Kafka Connect + Schema Registry</div>
+  <div class="def-list mb-4">
+    <strong>For Avro/Protobuf converters inside Connect workers:</strong>
+    <pre class="bg-light p-2 rounded"><code>key.converter=io.confluent.connect.avro.AvroConverter
+value.converter=io.confluent.connect.avro.AvroConverter
+key.converter.schema.registry.url=http://localhost:8081
+value.converter.schema.registry.url=http://localhost:8081</code></pre>
+    <strong>For source connectors:</strong> schemas are automatically registered for each topic based on the source data structure. Sink connectors use schemas to deserialize messages.
+  </div>
+
+  <!-- 9. Error handling with Schema Registry -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚠️ Common errors and resolutions</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Error</th><th>Cause</th><th>Solution</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>SchemaRegistryException: Can't register schema – subject not found</code></strong>
+          <td>Subject does not exist, and auto-registration disabled. </strong>
+          <td>Set <code>auto.register.schemas=true</code> or manually register. </strong>
+         </p>
+        <tr>
+          <td><code>Incompatible schema exception</code></strong>
+          <td>New schema violates compatibility level. </strong>
+          <td>Change compatibility level (if safe) or adapt schema. </strong>
+         </p>
+        <tr>
+          <td><code>Unknown schema ID: 123</code></strong>
+          <td>Consumer cannot fetch schema (ID missing from Registry). </strong>
+          <td>Check that Registry is reachable and schema ID exists. Usually happens when Registry data lost. </strong>
+         </p>
+        <tr>
+          <td><code>SerializationException: Error retrieving Avro schema</code></strong>
+          <td>Network issue or Registry down. </strong>
+          <td>Validate <code>schema.registry.url</code> and network. </strong>
+         </p>
+      </tbody>
+     </div>
+
+  <!-- 10. Security and configuration best practices -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Best practices – Schema Registry</strong>
+        <ul>
+          <li>Use <code>BACKWARD</code> compatibility for most subjects (safe default).</li>
+          <li>Enable schema validation in CI/CD (e.g., using <code>schema-registry-test-compatibility</code>).</li>
+          <li>Secure Registry with HTTPS and authentication (Confluent Security Plugin).</li>
+          <li>Set <code>auto.register.schemas=false</code> in production to control changes.</li>
+          <li>Use references to share common schemas (e.g., CommonRecord).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong>⚠️ Pitfalls to avoid</strong>
+        <ul>
+          <li>Using <code>NONE</code> compatibility in production (leads to broken consumers).</li>
+          <li>Not handling forward compatibility when consumers are updated later.</li>
+          <li>Forgetting that changing namespace or name creates a new schema subject.</li>
+          <li>Overloading Registry memory with huge schemas (e.g., >10MB).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. Exam typical questions -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 CCDAK exam questions (Schema Registry)</div>
+  <div class="nuance-box mb-4">
+    <ol>
+      <li><strong>What is the default compatibility level of a new subject in Confluent Schema Registry?</strong> BACKWARD.</li>
+      <li><strong>You add a new required field to an Avro schema. Will a consumer with the old schema fail?</strong> Yes, because the old schema cannot provide the required field. You must use a default value or change compatibility temporarily.</li>
+      <li><strong>How to change the compatibility level for a specific subject via REST API?</strong> <code>PUT /config/{subject}</code> with JSON body <code>{"compatibility": "FORWARD"}</code>.</li>
+      <li><strong>What happens if you register a schema identical to an existing version?</strong> It returns the existing schema ID, no new version created.</li>
+      <li><strong>Which serializer sends the schema ID in the message?</strong> <code>KafkaAvroSerializer</code> (or Protobuf equivalent). The ID is part of the wire format.</li>
+    </ol>
+    <details><summary>Show answers</summary>
+      1. BACKWARD<br>2. Yes, they will fail to deserialize.<br>3. Use PUT with compatibility.<br>4. Returns existing version ID.<br>5. The Confluent Avro serializer includes the schema ID.
+    </details>
+  </div>
+
+  <!-- 12. CLI tools for Schema Registry -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Useful CLI commands (Confluent CLI)</strong>
+    <pre class="bg-light p-2 rounded"><code># List subjects
+confluent schema-registry subject list
+
+# Get latest schema for a subject
+confluent schema-registry schema get --subject my-topic-value
+
+# Register new version from file
+confluent schema-registry schema register --subject my-topic-value my-schema.avsc
+
+# Test compatibility of a schema file against subject
+confluent schema-registry schema compatibility --subject my-topic-value --schema my-schema.avsc
+
+# Change compatibility level
+confluent schema-registry config update --compatibility BACKWARD --subject my-topic-value</code></pre>
+  </div>
+
+  <!-- 13. Self‑assessment questions -->
+  <div class="def-list mb-4">
+    <strong>🧠 Verify your understanding</strong>
+    <ol>
+      <li>What is the difference between <code>TopicNameStrategy</code> and <code>RecordNameStrategy</code>?</li>
+      <li>Can you change the compatibility level of a subject after schemas are registered? Yes, it affects future checks.</li>
+      <li>If a consumer is using a newer schema but reads an old message, which compatibility level is required? FORWARD.</li>
+    </ol>
+  </div>
+
+  <!-- 14. Final checklist -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Competencies to validate:</strong>
+    <ul class="mt-2">
+      <li>✅ I can describe Schema Registry’s role and architecture.</li>
+      <li>✅ I understand each compatibility level (BACKWARD, FORWARD, FULL, NONE, transitive variants) and can choose the right one.</li>
+      <li>✅ I can configure producers and consumers to use Avro + Schema Registry.</li>
+      <li>✅ I can use the REST API and CLI to manage schemas.</li>
+      <li>✅ I can troubleshoot common schema evolution errors.</li>
+      <li>✅ I can explain the impact of subject naming strategies.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-code-branch"></i> Complete module – Schema Registry & Evolution. A critical component for schema governance and exam success.
+  </div>
+</div>
 
       <!-- Security Deep: ACLs, OAuth -->
-      <div class="tab-pane fade" id="tabSecurityDeep" role="tabpanel">
-        <div class="section-title"><i class="fas fa-lock"></i> Kafka Security Deep Dive: ACLs, OAuth, mTLS</div>
-        <div class="def-list">ACLs (Allow/Deny) on resources: Topic, Group, Cluster. Principal mapping. OAuth/OIDC with OAUTHBEARER; mTLS authentication. Super users bypass ACLs.</div>
-        <div class="qa-item">❓ How to list ACLs? kafka-acls --list --authorizer-properties. Define resource pattern: LITERAL/PREFIXED.</div>
-        <div class="nuance-box">⚠️ ACLs are evaluated in order; default DENY. OAuth requires token validation.</div>
-        <div class="best-card">✅ Grant least privilege; use SCRAM for dynamic user management; audit logs.</div>
+<!-- SECURITY DEEP: ACLs, OAUTH, mTLS - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabSecurityDeep" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-lock me-2"></i> Security Deep Dive – ACLs, OAuth, mTLS & Advanced Authentication
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Why advanced security is crucial for the CCDAK exam?</strong><br>
+    Production Kafka clusters require fine‑grained access control (ACLs), modern authentication (OAuth/OIDC), and mutual TLS. The exam tests your ability to configure, list, and troubleshoot ACLs, understand the OAUTHBEARER mechanism, and apply security best practices. Approximately 10-15% of the “Fundamentals” and “Development” sections cover security beyond basic SASL/SSL.
+  </div>
+
+  <!-- 2. ACLs – fundamentals and resource hierarchy -->
+  <div class="section-title mt-3" style="font-size:1.3rem">🔐 ACLs (Access Control Lists) – complete reference</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>Resource types in ACLs</strong>
+        <ul>
+          <li><strong>Topic</strong> – read, write, describe, create, delete, alter, alter configs, describe configs.</li>
+          <li><strong>Consumer Group</strong> – read (for group management).</li>
+          <li><strong>Cluster</strong> – cluster-level ops (e.g., create topics, describe cluster, idempotent write).</li>
+          <li><strong>Transactional ID</strong> – allow to use transactions.</li>
+        </ul>
       </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong>Operations & patterns</strong>
+        <ul>
+          <li><strong>Operation</strong> : Read, Write, Create, Delete, Alter, Describe, All.</li>
+          <li><strong>Pattern type</strong> : LITERAL (exact match) or PREFIXED (match beginning).</li>
+          <li><strong>Principal</strong> : User or Group (e.g., User:alice, Group:devs).</li>
+          <li><strong>Super users</strong> : bypass ACL checks (configured in broker <code>super.users</code>).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-info-circle"></i> <strong>ACL evaluation order:</strong> Kafka evaluates ACLs in a specific order: first DENY, then ALLOW based on most specific resource pattern. If no ALLOW matches, access is denied. Default behavior is DENY.
+  </div>
+
+  <!-- 3. ACL management with kafka-acls CLI -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🖥️ kafka-acls command – exhaustive examples</div>
+  <div class="def-list mb-4">
+    <strong>Basic syntax:</strong> <code>kafka-acls --bootstrap-server localhost:9092 --command-config admin-client.conf --add --allow-principal User:app --operation Read --topic my-topic</code>
+    <ul>
+      <li><strong>Add ACL:</strong> <code>--add --allow-principal User:app --operation Write --topic my-topic</code></li>
+      <li><strong>Remove ACL:</strong> <code>--remove --allow-principal User:app --operation Write --topic my-topic</code></li>
+      <li><strong>List ACLs:</strong> <code>--list --topic my-topic</code> or <code>--list --principal User:app</code></li>
+    </ul>
+    <strong>Real-world examples:</strong>
+    <pre class="bg-light p-2 rounded"><code># Allow user 'consumer1' to read from topic 'orders' and use group 'orders-group'
+kafka-acls --add --allow-principal User:consumer1 --operation Read --topic orders --group orders-group
+
+# Allow user 'producer1' to write to topic 'orders'
+kafka-acls --add --allow-principal User:producer1 --operation Write --topic orders
+
+# Allow user 'admin' to describe cluster config
+kafka-acls --add --allow-principal User:admin --operation DescribeConfigs --cluster
+
+# Allow user 'connector' to read using pattern (all topics starting with 'cdc-')
+kafka-acls --add --allow-principal User:connector --operation Read --topic cdc- --resource-pattern-type PREFIXED
+
+# Deny Write for a specific user (override)
+kafka-acls --add --deny-principal User:baduser --operation Write --topic sensitive-topic</code></pre>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong>Important flags:</strong>
+    <ul>
+      <li><code>--resource-pattern-type</code> : LITERAL (default) or PREFIXED.</li>
+      <li><code>--group</code> : consumer group resource.</li>
+      <li><code>--transactional-id</code> : for transactional producers.</li>
+      <li><code>--cluster</code> : cluster-level resource.</li>
+    </ul>
+  </div>
+
+  <!-- 4. Super users and ACL bypass -->
+  <div class="section-title mt-4" style="font-size:1.3rem">👑 Super users – configuration and impact</div>
+  <div class="def-list mb-4">
+    <strong>Define super users in broker configuration (server.properties):</strong>
+    <pre class="bg-light p-2 rounded"><code>super.users=User:admin;User:kafka;User:connect</code></pre>
+    <p>Super users are not subject to ACL checks. Use sparingly for administrative tools only. In production, avoid using super users for regular applications.</p>
+    <strong>Checking if a principal is super user:</strong> The broker logs show <code>Principal User:admin is super user</code> at startup. Also visible in metrics.
+  </div>
+
+  <!-- 5. OAuth / OIDC with OAUTHBEARER mechanism -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔑 OAuth/OIDC – OAUTHBEARER authentication</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>How OAUTHBEARER works in Kafka:</strong>
+        <ul>
+          <li>Client obtains a JWT token from an OAuth2/OIDC provider (e.g., Okta, Auth0, Azure AD).</li>
+          <li>The token is sent to the broker as part of SASL OAUTHBEARER authentication.</li>
+          <li>Broker validates the token signature and claims (audience, expiration, issuer).</li>
+          <li>Optionally, token is used to map to a principal (e.g., ‘token subject’).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card">
+        <strong>Configuration for clients (SASL OAUTHBEARER):</strong>
+        <pre class="bg-light p-2 rounded"><code>security.protocol=SASL_SSL
+sasl.mechanism=OAUTHBEARER
+sasl.login.callback.handler.class=io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler
+sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+  oauth.client.id="my-client" \
+  oauth.client.secret="secret" \
+  oauth.token.endpoint.uri="https://auth.example.com/oauth2/token"
+ssl.truststore.location=/path/to/truststore.jks</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-lightbulb"></i> <strong>Broker-side OAUTHBEARER validation:</strong> The broker uses a <code>OAuthBearerValidatorCallbackHandler</code> to verify tokens. You can implement custom validators or use the built‑in JWT validator (Confluent).<br>
+    <code>listener.name.sasl_ssl.oauthbearer.sasl.server.callback.handler.class=io.confluent.kafka.security.auth.server.validator.JwtValidatorCallbackHandler</code>
+  </div>
+
+  <!-- 6. Mutual TLS (mTLS) authentication -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔒 mTLS (Mutual TLS) – certificate-based authentication</div>
+  <div class="def-list mb-4">
+    <strong>How mTLS works:</strong> Both broker and client present certificates, and they verify each other's certificate chain. The client’s distinguished name (CN) becomes the principal.
+    <br><strong>Configuration (broker):</strong>
+    <pre class="bg-light p-2 rounded"><code>listeners=SSL://0.0.0.0:9093
+ssl.truststore.location=/etc/kafka/secrets/kafka.truststore.jks
+ssl.keystore.location=/etc/kafka/secrets/kafka.keystore.jks
+ssl.keystore.password=****
+ssl.key.password=****
+ssl.client.auth=required  # or requested
+ssl.principal.mapping.rules=RULE:^CN=(.*?),/,$1/</code></pre>
+    <strong>Client configuration (SSL without SASL):</strong>
+    <pre class="bg-light p-2 rounded"><code>security.protocol=SSL
+ssl.truststore.location=client.truststore.jks
+ssl.keystore.location=client.keystore.jks
+ssl.keystore.password=****
+ssl.key.password=****</code></pre>
+    <small>💡 mTLS is often combined with SASL (e.g., SASL_SSL) for both authentication (SASL) and encryption (TLS).</small>
+  </div>
+
+  <!-- 7. Principal mapping and authorization ID -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔄 Principal mapping – from certificate/SASL to username</div>
+  <div class="def-list mb-4">
+    <strong>Broker configuration <code>principal.builder.class</code> and <code>ssl.principal.mapping.rules</code> :</strong>
+    <ul>
+      <li>For SSL (mTLS), the CN (Common Name) is typically used as principal. You can extract it via mapping rules.</li>
+      <li>For SASL, the principal is the authenticated username (e.g., for PLAIN/SCRAM).</li>
+      <li>For OAUTHBEARER, the principal can be mapped from the token’s `sub` claim.</li>
+    </ul>
+    Example mapping rule to extract username from email:
+    <pre class="bg-light p-2 rounded"><code>ssl.principal.mapping.rules=RULE:^CN=(.*?),/,$1/,RULE:^.*@([a-z]*).com/$1/,DEFAULT</code></pre>
+  </div>
+
+  <!-- 8. Advanced security best practices -->
+  <div class="section-title mt-4" style="font-size:1.3rem">✅ Security best practices for the exam</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>Authorization best practices</strong>
+        <ul>
+          <li>Apply principle of least privilege – grant only necessary operations.</li>
+          <li>Use prefixed ACLs for topics to avoid managing individual topics (<code>--resource-pattern-type PREFIXED</code>).</li>
+          <li>Regularly audit ACLs with <code>kafka-acls --list</code>.</li>
+          <li>Never use super users for regular applications.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>Authentication best practices</strong>
+        <ul>
+          <li>Prefer OAUTHBEARER over PLAIN/SCRAM when you have an OIDC provider.</li>
+          <li>Always use TLS for encryption (SASL_SSL or SSL).</li>
+          <li>Rotate secrets and certificates frequently.</li>
+          <li>Monitor authentication failures (log alerts).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Common exam questions and scenarios -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 Typical CCDAK exam questions (security deep)</div>
+  <div class="nuance-box mb-4">
+    <ol>
+      <li><strong>You need to allow a consumer group “app-group” to read from any topic starting with “log-”. Write the ACL command.</strong><br>
+        <code>kafka-acls --add --allow-principal User:app --operation Read --topic log- --resource-pattern-type PREFIXED --group app-group</code>
+      </li>
+      <li><strong>How does OAUTHBEARER differ from SCRAM in terms of credential storage?</strong> SCRAM stores hashed secrets on the broker; OAUTHBEARER delegates authentication to external identity provider and uses short-lived tokens.</li>
+      <li><strong>What is the default ACL behavior if no ACL matches a request?</strong> Deny.</li>
+      <li><strong>What is the purpose of <code>ssl.client.auth=required</code>?</strong> It forces clients to present a valid certificate (mTLS).</li>
+      <li><strong>Which resource type is used to authorize transactions?</strong> Transactional ID (<code>--transactional-id</code>).</li>
+    </ol>
+  </div>
+
+  <!-- 10. Security with Confluent Cloud and RBAC (extra) -->
+  <div class="def-list mb-4">
+    <strong>Confluent Cloud RBAC (Role Based Access Control)</strong> – Note: CCDAK exam covers both ACLs (on‑prem) and RBAC for Confluent Cloud. RBAC uses roles (e.g., DeveloperRead, DeveloperWrite, ResourceOwner) assigned to principals, instead of granular ACLs. Exam may contrast ACL vs RBAC.
+  </div>
+
+  <!-- 11. Troubleshooting ACLs and authentication -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔧 Troubleshooting – logs and common errors</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Error</th><th>Likely cause</th><th>Check / solution</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>GroupAuthorizationException</code></strong>
+          <td>Consumer not authorized to access the group.</strong>
+          <td>Add ACL: <code>--group my-group --operation Read</code>. </strong>
+         </p>
+        <tr>
+          <td><code>TopicAuthorizationException</code></strong>
+          <td>No read/write permission on topic.</strong>
+          <td>Add <code>--topic my-topic --operation Read</code> or Write. </strong>
+         </p>
+        <tr>
+          <td><code>Authentication failed: Invalid credentials</code></strong>
+          <td>SASL PLAIN/SCRAM or OAUTHBEARER credentials wrong.</strong>
+          <td>Check JAAS config, token validity, client secret. </strong>
+         </p>
+        <tr>
+          <td><code>SSLHandshakeException</code></strong>
+          <td>TLS handshake error (certificate mismatch, truststore missing).</strong>
+          <td>Verify keystores, truststores, and hostname verification. </strong>
+         </p>
+      </tbody>
+     </div>
+
+  <!-- 12. CLI commands for security audit -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Useful audit commands</strong>
+    <pre class="bg-light p-2 rounded"><code># List all ACLs for a specific principal
+kafka-acls --list --principal User:app
+
+# List ACLs for a topic (including prefixed)
+kafka-acls --list --topic my-topic
+
+# List ACLs for consumer group
+kafka-acls --list --group my-group
+
+# Describe broker config (including super.users)
+kafka-configs --bootstrap-server localhost:9092 --describe --entity-type brokers --entity-default</code></pre>
+  </div>
+
+  <!-- 13. Self-assessment -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Check your understanding:</strong>
+    <ol>
+      <li>What is the difference between LITERAL and PREFIXED resource patterns?</li>
+      <li>How do you change the super.users list without restarting all brokers? (Hot update via dynamic config: <code>kafka-configs --alter --add-config 'super.users=...'</code>)</li>
+      <li>In OAUTHBEARER, who validates the token’s expiration time? The broker does, using the validator.</li>
+      <li>What does the <code>--allow-host</code> flag do in older Kafka versions? Used to restrict based on client IP (deprecated, not in exam focus).</li>
+    </ol>
+  </div>
+
+  <!-- 14. Final checklist -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Competencies to validate:</strong>
+    <ul class="mt-2">
+      <li>✅ I can write ACL commands for topics, groups, and transactional IDs.</li>
+      <li>✅ I understand the difference between ALLOW and DENY ACLs and evaluation order.</li>
+      <li>✅ I can configure OAUTHBEARER authentication for a producer/consumer.</li>
+      <li>✅ I understand mTLS and can explain the role of keystore/truststore.</li>
+      <li>✅ I know how to list and audit ACLs using CLI.</li>
+      <li>✅ I can troubleshoot common security errors.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-shield-alt"></i> Complete module – Security Deep: ACLs, OAuth, mTLS. Essential for securing Kafka clusters and passing the CCDAK exam.
+  </div>
+</div>
+
 
       <!-- MirrorMaker 2 & Replication -->
-      <div class="tab-pane fade" id="tabMirror" role="tabpanel">
-        <div class="section-title"><i class="fas fa-copy"></i> MirrorMaker 2 & Cross-Cluster Replication</div>
-        <div class="def-list">MM2 replicates topics across clusters, supports active/active, offset sync, ACL sync. Uses Connect framework. Config: source->target, heartbeat/checkpoints topics for consumer offset translation.</div>
-        <div class="qa-item">🌍 How to handle failover? Use MirrorMaker2 with bidirectional replication, consumer groups mirrored via offset sync.</div>
-        <div class="nuance-box">🧠 Must avoid cyclic replication; configuration: clusters, sync.topic.acls.</div>
-        <div class="best-card">✅ Best practice: enable replication of consumer groups, use exactly-once delivery for MM2.</div>
+   <!-- MIRRORMAKER 2 & REPLICATION - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabMirror" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-copy me-2"></i> MirrorMaker 2 (MM2) & Cross-Cluster Replication – Complete Guide
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Why MirrorMaker 2 is essential for the CCDAK exam?</strong><br>
+    MirrorMaker 2 (MM2) is the modern tool for replicating data between Kafka clusters (disaster recovery, aggregation, cloud migration). It replaces the deprecated MirrorMaker 1. The exam tests your understanding of its architecture (source → target, offset translation, ACL replication), configuration, failover scenarios, and differences from MM1. Approximately 5-10% of the “Operations” and “Fundamentals” sections may include MM2 questions, especially in the context of multi‑data center or hybrid cloud deployments.
+  </div>
+
+  <!-- 2. MirrorMaker 2 architecture – components and concepts -->
+  <div class="section-title mt-3" style="font-size:1.3rem">🏗️ MM2 architecture: Connectors, Heartbeats, Checkpoints</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-plug"></i> Built on Kafka Connect</strong>
+        <ul>
+          <li>MM2 runs as a set of Kafka Connect connectors: <strong>SourceConnector</strong> (reads from source cluster), <strong>SinkConnector</strong> (writes to target cluster).</li>
+          <li>Uses two internal topics per direction: <code>heartbeats</code> and <code>checkpoints</code> (stored in target cluster).</li>
+          <li>Supports active/passive (disaster recovery) and active/active (bidirectional replication).</li>
+        </ul>
       </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong>Key concepts</strong>
+        <ul>
+          <li><strong>Heartbeats</strong> : MM2 emits periodic heartbeats into the target cluster to measure replication latency and connectivity.</li>
+          <li><strong>Checkpoints</strong> : store offset mappings between source and target partitions, enabling consumer offset translation after failover.</li>
+          <li><strong>Remote topics</strong> : replicated topics are prefixed by default (e.g., <code>us-west.topic-name</code>).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-lightbulb"></i> <strong>Nuance:</strong> MM2 does not require source cluster changes. It uses Kafka’s consumer and producer APIs internally, and leverages Connect’s fault tolerance. The connectors scale by increasing <code>tasks.max</code>.
+  </div>
+
+  <!-- 3. MM2 configuration – key configuration file (mm2.properties) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚙️ MirrorMaker 2 configuration – detailed properties</div>
+  <div class="def-list mb-4">
+    <pre class="bg-light p-2 rounded"><code># clusters definition
+clusters = source, target
+source.bootstrap.servers = source-kafka:9092
+target.bootstrap.servers = target-kafka:9092
+
+# replication flow: which topics to mirror from source to target
+source->target.enabled = true
+source->target.topics = .*   # regex for topics (all by default)
+source->target.groups = .*   # replicate consumer groups (offsets)
+
+# replication factor for internal topics (heartbeats, checkpoints, offsets)
+target.heartbeats.topic.replication.factor = 3
+target.checkpoints.topic.replication.factor = 3
+target.offset.syncs.topic.replication.factor = 3
+
+# rate limiting and buffering
+source->target.producer.override.request.timeout.ms = 30000
+source->target.consumer.override.max.poll.records = 500
+source->target.sync.group.offsets.interval.seconds = 60
+
+# prefix for remote topics (default: source name + '.')
+source->target.topics.rename.format = ${source}.${topic}</code></pre>
+    <p>You can also run MM2 in <strong>dedicated mode</strong> (separate Connect cluster) or <strong>embedded mode</strong> (as a standalone process). Exam expects understanding of both.</p>
+  </div>
+
+  <!-- 4. Offset translation and consumer group failover -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔄 Offset translation: how consumers resume after failover</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-7">
+      <div class="def-list">
+        <strong>Mechanism:</strong>
+        <ol>
+          <li>MM2 periodically commits <strong>checkpoints</strong> for each source partition → target partition offset mapping.</li>
+          <li>When a consumer group fails over from source to target cluster, you configure the consumer to use the target cluster and set <code>offset.topic.replication.factor</code> (for the connector).</li>
+          <li>The consumer (or an admin tool) can translate source offsets to target offsets using the checkpoints topic.</li>
+        </ol>
+        <strong>Checkpoint example:</strong> Source partition offset 1000 corresponds to target partition offset 500. MM2 stores this pair.
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="best-card">
+        <strong>Offset sync CLI (Confluent) / manual translation</strong>
+        <pre class="bg-light p-2 rounded"><code># Using kafka-consumer-groups with --offset-export/--offset-import
+kafka-consumer-groups --bootstrap-server source --export --group my-group --offsets-file /tmp/offsets.json
+# adjust manually or use mm2-offset-sync tool</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-exclamation-triangle"></i> <strong>Exam nuance:</strong> Offset translation works per consumer group. MM2 replicates the offsets of active consumer groups from source to target. After failover, consumers must be restarted on the target cluster and will read from the translated offset. During active/active bidirectional replication, offsets are mapped independently per direction.
+  </div>
+
+  <!-- 5. Replication flows – active/passive vs active/active -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔄 Disaster recovery patterns: active/passive & active/active</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Pattern</th><th>Direction</th><th>Use case</th><th>Consumer failover</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Active/Passive</strong></strong>
+          <td>source → target (one way)</strong>
+          <td>Disaster recovery, backup cluster.</strong>
+          <td>Consumers switch from source to target; offsets translated. </strong>
+         </p>
+        <tr>
+          <td><strong>Active/Active</strong></strong>
+          <td>source → target AND target → source</strong>
+          <td>Multi‑region active clusters, data aggregation.</strong>
+          <td>Avoid cyclic replication: prefix topics (e.g., dc1.topic, dc2.topic) or use topic filtering. </strong>
+         </p>
+      </tbody>
+     </div>
+
+  <div class="best-card mb-4">
+    <strong>Active/active considerations:</strong>
+    <ul>
+      <li>To avoid replication loops, MM2 by default does not replicate topics that already have a remote prefix (e.g., <code>source.topic</code>).</li>
+      <li>You can also use the <code>topics.exclude</code> property to ignore remote topics.</li>
+      <li>Idempotent writes and distributed conflict resolution must be handled at application level.</li>
+    </ul>
+  </div>
+
+  <!-- 6. Replicating ACLs and configuration -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔐 ACL and configuration replication</div>
+  <div class="def-list mb-4">
+    <strong>MM2 can replicate ACLs from source to target (if both clusters support ACLs). Configure:</strong>
+    <pre class="bg-light p-2 rounded"><code>source->target.emit.backward.heartbeats.enabled = true
+sync.group.offsets.enabled = true
+sync.topic.acls.enabled = true
+sync.topic.configs.enabled = true</code></pre>
+    ACL replication uses the source cluster’s ACLs to create equivalent ACLs on the target (principal mapping may differ). Topic configurations (e.g., retention.ms, min.insync.replicas) can also be synced.
+  </div>
+
+  <!-- 7. MM2 monitoring and metrics -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📊 Monitoring MirrorMaker 2 – what to observe</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Key metrics (JMX):</strong>
+        <ul>
+          <li>Heartbeat latency: time between heartbeat sent and received (measure of replication lag).</li>
+          <li>Replication lag (in records) per topic.</li>
+          <li>Connector/task status (RUNNING, FAILED).</li>
+          <li>Checkpoint emission frequency.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card">
+        <strong>Using the heartbeats topic:</strong>
+        <pre class="bg-light p-2 rounded"><code>kafka-console-consumer --bootstrap-server target --topic source.heartbeats --from-beginning</code></pre>
+        Shows connectivity and timestamp differences.
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. MM1 vs MM2 – differences (exam hot topic) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚖️ MirrorMaker 1 vs MirrorMaker 2 – important distinctions</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Feature</th><th>MirrorMaker 1 (obsolete)</th><th>MirrorMaker 2 (current)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Architecture</strong></strong>: Consumes from source, produces to target using simple consumer/producer. </strong>: Built on Kafka Connect (source + sink connectors). </strong>
+         </p>
+        <tr><td><strong>Offset translation</strong></strong>: No (consumers cannot resume after failover). </strong>: Checkpoints + offset sync topics. </strong>
+         </p>
+        <tr><td><strong>ACL & config sync</strong></strong>: No. </strong>: Yes (optional). </strong>
+         </p>
+        <tr><td><strong>Active/Active support</strong></strong>: No (loops dangerous). </strong>: Yes (with prefixing). </strong>
+         </p>
+        <tr><td><strong>Scalability</strong></strong>: Single thread per partition (limited). </strong>: Tasks (multiple threads) via Connect. </strong>
+         </p>
+      </tbody>
+     </div>
+
+  <!-- 9. Common exam questions on MirrorMaker 2 -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 Typical CCDAK questions (MM2)</div>
+  <div class="nuance-box mb-4">
+    <ol>
+      <li><strong>What are the two internal topics created by MM2 in the target cluster?</strong> Heartbeats and checkpoints.</li>
+      <li><strong>How does MM2 enable exactly‑once semantics for cross‑cluster replication?</strong> MM2 uses idempotent producers and transactional writes (if source cluster supports). It can achieve at‑least‑once by default; exactly‑once requires configuration.</li>
+      <li><strong>You have an active/active deployment. How do you avoid replication loops?</strong> By default MM2 doesn’t replicate topics that contain the remote cluster prefix. Also use <code>topics.exclude</code>.</li>
+      <li><strong>What is the purpose of the <code>sync.group.offsets.interval.seconds</code> parameter?</strong> It controls how often MM2 commits consumer group offsets checkpoints.</li>
+      <li><strong>Can MM2 replicate data from multiple source clusters to one target cluster?</strong> Yes, define multiple clusters and flows (e.g., <code>clusterA->target</code>, <code>clusterB->target</code>).</li>
+    </ol>
+  </div>
+
+  <!-- 10. Running MM2 (commands) -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> How to run MirrorMaker 2 (standalone mode):</strong>
+    <pre class="bg-light p-2 rounded"><code># Using Confluent CLI
+confluent mirror maker 2 --config-file mm2.properties
+
+# Using Apache Kafka distribution (kafka-mirror-maker.sh deprecated, use connect-mirror-maker.sh)
+./bin/connect-mirror-maker.sh mm2.properties
+
+# For distributed mode, deploy the connectors to an existing Connect cluster via REST API.</code></pre>
+  </div>
+
+  <!-- 11. Best practices and pitfalls -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Best practices – MM2</strong>
+        <ul>
+          <li>Run MM2 in distributed mode for fault tolerance.</li>
+          <li>Use replication factors ≥3 for internal topics.</li>
+          <li>Monitor heartbeat lag; alert if > 1 minute.</li>
+          <li>Periodically test failover by redirecting consumers to target cluster.</li>
+          <li>Use <code>topics.blacklist</code> to exclude internal topics (e.g., <code>__consumer_offsets</code>).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <strong>⚠️ Pitfalls to avoid</strong>
+        <ul>
+          <li>Replicating __consumer_offsets (leads to consumer group conflicts).</li>
+          <li>Using MM2 without offset translation planning (consumers will not resume correctly).</li>
+          <li>Ignoring network latency between clusters (impacts checkpoint accuracy).</li>
+          <li>Not configuring exactly‑once idempotence for critical pipelines.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Failover procedure (step-by-step) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🚨 Disaster recovery failover with MM2 – step by step</div>
+  <div class="def-list mb-4">
+    <ol>
+      <li>Stop all producers and consumers on the source cluster (or redirect to target).</li>
+      <li>Wait for MM2 to replicate all pending messages (lag becomes zero).</li>
+      <li>Stop MM2 (if not already stopped).</li>
+      <li>Translate consumer offsets: either use <code>kafka-consumer-groups --offset-export</code> + custom script, or rely on MM2’s checkpoints and a helper tool.</li>
+      <li>Restart consumers on the target cluster, pointing to target bootstrap servers, and with translated offsets.</li>
+      <li>Restart producers on target (or keep source readonly).</li>
+    </ol>
+    <small>💡 Confluent provides a <code>mm2-offset-sync</code> utility to automate offset translation.</small>
+  </div>
+
+  <!-- 13. Self-assessment questions -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Check your MM2 knowledge:</strong>
+    <ol>
+      <li>What is the difference between heartbeat and checkpoint topics?</li>
+      <li>Can MM2 replicate data from a 2.0 cluster to a 3.0 cluster? (Yes, wire protocol compatible.)</li>
+      <li>What does <code>source->target.topics.rename.format = ${source}.${topic}</code> do?</li>
+      <li>How do you prevent MM2 from replicating a specific topic?</li>
+    </ol>
+    <details><summary>Answers (expand)</summary>
+      1. Heartbeats measure liveliness/latency; checkpoints store offset mappings.<br>
+      2. Yes, cross‑version replication works (API compatibility).<br>
+      3. It prefixes remote topics with the source cluster name (e.g., <code>source.my-topic</code>).<br>
+      4. Use <code>topics.exclude = my-topic-to-exclude</code>.
+    </details>
+  </div>
+
+  <!-- 14. Final checklist -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Competencies to validate – MirrorMaker 2</strong>
+    <ul class="mt-2">
+      <li>✅ I can explain MM2 architecture (connectors, heartbeats, checkpoints).</li>
+      <li>✅ I can configure a replication flow (mm2.properties).</li>
+      <li>✅ I understand offset translation and how to perform failover.</li>
+      <li>✅ I know the differences between MM1 and MM2.</li>
+      <li>✅ I can monitor MM2 via heartbeats and JMX metrics.</li>
+      <li>✅ I can avoid common pitfalls (topic loops, internal topics).</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-copy"></i> Complete module – MirrorMaker 2 & Replication. Vital for disaster recovery and multi‑cluster architectures in the CCDAK exam.
+  </div>
+</div>
 
       <!-- Tiered Storage, Quotas, Partition Reassignment -->
-      <div class="tab-pane fade" id="tabTiered" role="tabpanel">
-        <div class="section-title"><i class="fas fa-database"></i> Tiered Storage, Quotas & Reassignment</div>
-        <div class="def-list">Tiered storage: offload old segments to object storage (S3). Quotas: byte-rate (network), request rate, CPU throttling. Partition reassignment: kafka-reassign-partitions, throttle to avoid cluster impact.</div>
-        <div class="qa-item">🔧 How to move partitions? generate reassign JSON, execute with throttle.</div>
-        <div class="nuance-box">⚙️ Tiered storage reduces retention cost; quotas protect noisy neighbors.</div>
-        <div class="best-card">📌 Set client quotas to ensure fairness; use incremental reassignment.</div>
+<!-- TIERED STORAGE, QUOTAS, PARTITION REASSIGNMENT - VERSION ULTRA DÉTAILLÉE -->
+<div class="tab-pane fade" id="tabTiered" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-database me-2"></i> Tiered Storage, Quotas, Partition Reassignment – Deep Operational Guide
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Why these topics are essential for the CCDAK exam?</strong><br>
+    As Kafka clusters scale, you must manage storage costs (tiered storage), protect against noisy neighbors (quotas), and rebalance data across brokers (partition reassignment). These operational topics appear in the “Observability & Operations” domain and in scenario‑based questions. Understanding the trade‑offs and commands is critical for the exam and real‑world administration.
+  </div>
+
+  <!-- 2. Tiered Storage – concept and architecture -->
+  <div class="section-title mt-3" style="font-size:1.3rem">🏔️ Tiered Storage – offloading older segments to object storage</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>What is Tiered Storage?</strong>
+        <ul>
+          <li>Separates Kafka storage into a fast local tier (hot, e.g., SSD) and a cheaper remote tier (cold, e.g., S3, GCS, Azure Blob).</li>
+          <li>Older log segments are automatically moved from local disk to remote storage.</li>
+          <li>Consumers can still read from remote segments (transparently).</li>
+          <li>Reduces local storage requirements and costs, while keeping retention high.</li>
+        </ul>
       </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong>Key configurations (broker / topic)</strong>
+        <ul>
+          <li><code>remote.storage.enable=true</code> (topic‑level or broker default).</li>
+          <li><code>remote.log.storage.ms</code> : age threshold to move segments to remote (e.g., 24 hours).</li>
+          <li><code>remote.log.manager.task.interval.ms</code> : frequency of segment upload tasks.</li>
+          <li><code>remote.log.index.cache.size</code> : memory cache for remote segment indexes.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-lightbulb"></i> <strong>Exam nuance:</strong> Tiered storage is a Confluent enterprise/cloud feature, but the concept appears in the exam for cost‑effective long‑term retention. It does not replace replication; remote segments are still replicated per broker. Readers access remote data via direct fetch (broker acts as proxy).
+  </div>
+
+  <!-- 3. Quotas – client throttling to ensure fairness -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚖️ Quotas – network, request rate, CPU / broker‑side limits</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Quota type</th><th>Default</th><th>Scope</th><th>Configuration (dynamic)</th><th>Monitoring</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Network bandwidth</strong></strong>
+          <td>Unlimited</strong>
+          <td>Per client (producer/consumer) byte rate (bytes/sec).</strong>
+          <td><code>client_byte_rate</code> (producer/consumer override).</strong>
+          <td><code>kafka.server:type=BrokerTopicMetrics, name=BytesInPerSec</code> etc. </strong>
+         </p>
+        <tr>
+          <td><strong>Request rate</strong></strong>
+          <td>Unlimited</strong>
+          <td>Number of requests per second (to prevent broker overload).</strong>
+          <td><code>request_percentage</code> (limit as percentage of broker thread pool).</strong>
+          <td><code>kafka.network:type=RequestMetrics</code> </strong>
+         </p>
+        <tr>
+          <td><strong>CPU (controller / broker)</strong></strong>
+          <td>Unlimited</strong>
+          <td>Can limit by request rate or use quotas for specific clients.</strong>
+          <td>Not directly settable; use request rate as proxy.</strong>
+          <td>JMX <code>OperatingSystem.cpu</code> </strong>
+         </p>
+        <tr>
+          <td><strong>Global default</strong></strong>
+          <td>No limit</strong>
+          <td>Applies to all clients without specific overrides.</strong>
+          <td>Set dynamic default quota via <code>kafka-configs</code>.</strong>
+          <td>Measure per‑client metrics. </strong>
+         </p>
+      </tbody>
+     </div>
+
+  <div class="def-list mb-4">
+    <strong>Setting quotas using <code>kafka-configs</code> (dynamic, no broker restart):</strong>
+    <pre class="bg-light p-2 rounded"><code># Set network quota for user 'producer1' (102400 bytes/sec = 100 KB/s)
+kafka-configs --bootstrap-server localhost:9092 --alter \
+  --add-config 'producer_byte_rate=102400' \
+  --entity-type users --entity-name producer1
+
+# Set request rate quota for client-id 'consumer-app' (50 requests/sec)
+kafka-configs --bootstrap-server localhost:9092 --alter \
+  --add-config 'request_percentage=50' \
+  --entity-type clients --entity-name consumer-app
+
+# Delete quota
+kafka-configs --bootstrap-server localhost:9092 --alter \
+  --delete-config producer_byte_rate \
+  --entity-type users --entity-name producer1
+
+# Describe quotas for a specific user
+kafka-configs --bootstrap-server localhost:9092 --describe \
+  --entity-type users --entity-name producer1</code></pre>
+    <small>💡 Quotas are enforced on the broker side. Exceeding the limit results in throttling (delayed responses).</small>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong>📌 Real‑world quota scenario (exam favorite):</strong> A noisier producer saturates broker bandwidth, affecting other clients. Solution: Set a producer_byte_rate quota to limit its maximum throughput, ensuring fair sharing.
+  </div>
+
+  <!-- 4. Partition Reassignment – Why and When -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔄 Partition reassignment – rebalancing data across brokers</div>
+  <div class="def-list mb-4">
+    <strong>Reasons to reassign partitions:</strong>
+    <ul>
+      <li>Add new brokers (scale out) – redistribute load to new nodes.</li>
+      <li>Remove brokers (decommission) – move data off retiring brokers.</li>
+      <li>Correct imbalance (hotspots) – some brokers have more partitions or larger data volume.</li>
+      <li>Change replication factor (increase for durability).</li>
+    </ul>
+    <strong>Tools: <code>kafka-reassign-partitions</code></strong>
+    <ul>
+      <li>Generate a reassignment plan (JSON).</li>
+      <li>Execute with throttling to avoid performance impact.</li>
+      <li>Verify progress and cancel if needed.</li>
+    </ul>
+  </div>
+
+  <!-- 5. Partition reassignment – step-by-step commands -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🛠️ Partition reassignment: generate, execute, throttle, verify</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-12">
+      <div class="best-card">
+        <strong>Step 1: Generate candidate reassignment plan</strong>
+        <pre class="bg-light p-2 rounded"><code># Generate plan to move all partitions from broker 101 to brokers [102,103,104]
+kafka-reassign-partitions --bootstrap-server localhost:9092 \
+  --generate --topics-to-move-json-file topics.json \
+  --broker-list "102,103,104" --throttle 10485760</code></pre>
+        <strong>Step 2: Execute reassignment</strong>
+        <pre class="bg-light p-2 rounded"><code>kafka-reassign-partitions --bootstrap-server localhost:9092 \
+  --execute --reassignment-json-file reassignment.json --throttle 10485760</code></pre>
+        <strong>Step 3: Monitor progress</strong>
+        <pre class="bg-light p-2 rounded"><code>kafka-reassign-partitions --bootstrap-server localhost:9092 \
+  --verify --reassignment-json-file reassignment.json</code></pre>
+        <strong>Step 4: (Optional) alter throttle dynamically</strong>
+        <pre class="bg-light p-2 rounded"><code># Increase throttle to 50 MB/s
+kafka-reassign-partitions --bootstrap-server localhost:9092 \
+  --alter --reassignment-json-file reassignment.json --throttle 52428800</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-exclamation-triangle"></i> <strong>Critical nuance:</strong> Partition reassignment is a heavyweight operation that copies data between brokers. Always use <code>--throttle</code> to limit network impact. The throttle applies to both inbound and outbound traffic. After reassignment completes, you must remove the throttle with <code>--throttle 0</code> and verify.
+  </div>
+
+  <!-- 6. Reassignment JSON format -->
+  <div class="def-list mb-4">
+    <strong>Example of reassignment.json (manual or generated):</strong>
+    <pre class="bg-light p-2 rounded"><code>{
+  "partitions": [
+    {"topic": "orders", "partition": 0, "replicas": [102, 103, 104]},
+    {"topic": "orders", "partition": 1, "replicas": [102, 104, 105]},
+    {"topic": "payments", "partition": 0, "replicas": [103, 104, 106]}
+  ],
+  "version": 1
+}</code></pre>
+    <p>You can also include <code>log_dirs</code> to assign specific log directories (for JBOD).</p>
+  </div>
+
+  <!-- 7. Monitoring reassignment – metrics and lag -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📊 Monitoring partition reassignment progress</div>
+  <div class="def-list mb-4">
+    <ul>
+      <li>Use <code>kafka-reassign-partitions --verify</code> – shows remaining bytes to move.</li>
+      <li>JMX metric <code>kafka.server:type=BrokerTopicMetrics,name=ReassignmentBytesInPerSec</code>.</li>
+      <li>Check under‑replicated partitions (<code>UnderReplicatedPartitions</code>) during reassignment – some partitions may be temporarily under‑replicated.</li>
+      <li>Check broker logs for “Moving partition X from ...” messages.</li>
+    </ul>
+  </div>
+
+  <!-- 8. Common exam questions on these topics -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 Typical CCDAK questions</div>
+  <div class="nuance-box mb-4">
+    <ol>
+      <li><strong>Your cluster has 3 brokers, you add a 4th broker. How do you redistribute existing partitions?</strong> Use <code>kafka-reassign-partitions</code> with a plan that moves some partitions to the new broker.</li>
+      <li><strong>How do you ensure that a low‑priority producer does not consume too much broker bandwidth?</strong> Set a producer_byte_rate quota for its user or client ID.</li>
+      <li><strong>What is the purpose of tiered storage?</strong> To move old log segments to cheaper remote storage, reducing local disk usage while keeping data available.</li>
+      <li><strong>True or false: You can change the replication factor of a topic only by partition reassignment.</strong> True – there is no direct command to change replication factor; you create a reassignment JSON with the new replicas list.</li>
+      <li><strong>During partition reassignment, why is throttling important?</strong> To prevent the data movement from saturating broker network and impacting normal client requests.</li>
+    </ol>
+  </div>
+
+  <!-- 9. Best practices and pitfalls -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Best practices</strong>
+        <ul>
+          <li>Set quotas for known noisy producers/consumers before incidents occur.</li>
+          <li>Perform partition reassignments during low‑traffic windows.</li>
+          <li>Always test reassignment plan in a staging environment.</li>
+          <li>Monitor broker CPU and disk I/O during reassignment; adjust throttle if needed.</li>
+          <li>Enable tiered storage only on topics with large historical data and acceptable latency for reads from remote.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <strong>⚠️ Pitfalls to avoid</strong>
+        <ul>
+          <li>Forgetting to remove throttle after reassignment completes (throttle remains active).</li>
+          <li>Reassigning partitions on a cluster with under‑replicated partitions (may worsen situation).</li>
+          <li>Setting quotas too low, causing client timeouts.</li>
+          <li>Assuming tiered storage automatically deletes local data (local retention still applies).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. Advanced: adjusting replication factor via reassignment -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📈 Increase or decrease replication factor</div>
+  <div class="def-list mb-4">
+    <strong>Example: Increase replication factor from 2 to 3 for topic 'orders':</strong>
+    <pre class="bg-light p-2 rounded"><code># Generate a plan with 3 replicas for each partition
+# Create a JSON file 'increase-rf.json' with content:
+{
+  "partitions": [
+    {"topic": "orders", "partition": 0, "replicas": [0,1,2]},
+    {"topic": "orders", "partition": 1, "replicas": [0,2,3]}
+  ],
+  "version": 1
+}
+# Execute
+kafka-reassign-partitions --bootstrap-server localhost:9092 --execute --reassignment-json-file increase-rf.json</code></pre>
+    <small>💡 Decreasing replication factor is also possible (remove a replica). Ensure you don't violate <code>min.insync.replicas</code>.</small>
+  </div>
+
+  <!-- 11. CLI reference card -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Essential commands summary</strong>
+    <pre class="bg-light p-2 rounded"><code># Quotas
+kafka-configs --alter --add-config 'producer_byte_rate=1048576' --entity-type users --entity-name app
+kafka-configs --describe --entity-type users
+
+# Partition reassignment
+kafka-reassign-partitions --generate --topics-to-move-json-file topics.json --broker-list "0,1,2"
+kafka-reassign-partitions --execute --reassignment-json-file reassign.json --throttle 52428800
+kafka-reassign-partitions --verify --reassignment-json-file reassign.json
+kafka-reassign-partitions --cancel --reassignment-json-file reassign.json
+
+# Tiered storage (broker config)
+remote.storage.enable=true
+remote.log.storage.ms=86400000</code></pre>
+  </div>
+
+  <!-- 12. Self-assessment questions -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Verify your understanding:</strong>
+    <ol>
+      <li>What is the difference between <code>producer_byte_rate</code> and <code>request_percentage</code> quotas?</li>
+      <li>You need to decommission broker 101. How do you move all its partition leadership and replicas to other brokers?</li>
+      <li>What metric indicates that a partition reassignment has finished? The <code>--verify</code> command shows "completed". Also JMX shows no bytes in flight.</li>
+      <li>Can you set a quota for a specific client ID without affecting others? Yes, using <code>--entity-type clients --entity-name my-client-id</code>.</li>
+      <li>Does tiered storage work with all Kafka versions? No, it requires Confluent Platform 7.0+ or Confluent Cloud.</li>
+    </ol>
+    <details><summary>Expand for answers</summary>
+      1. <code>producer_byte_rate</code> limits bytes/sec, <code>request_percentage</code> limits request rate.<br>
+      2. Generate a reassignment plan that excludes broker 101, then execute.<br>
+      3. Yes, verify shows "reassignment completed".<br>
+      4. Yes, quotas are per (user, client‑id) or default.<br>
+      5. Only in Confluent Platform or Cloud.
+    </details>
+  </div>
+
+  <!-- 13. Final checklist -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Competencies to validate</strong>
+    <ul class="mt-2">
+      <li>✅ I can explain the benefits and operations of tiered storage.</li>
+      <li>✅ I can set and describe dynamic quotas for users and clients.</li>
+      <li>✅ I can generate, execute, and verify a partition reassignment plan with throttling.</li>
+      <li>✅ I understand when to use reassignment (broker addition, decommission, rebalancing).</li>
+      <li>✅ I can monitor reassignment progress via CLI and JMX.</li>
+      <li>✅ I know the difference between per‑client quotas and dynamic update.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-chart-line"></i> Complete module – Tiered Storage, Quotas, Partition Reassignment. Essential for operations and scaling Kafka clusters in the CCDAK exam.
+  </div>
+</div>
+
 
       <!-- Advanced Monitoring & Logging Patterns -->
-      <div class="tab-pane fade" id="tabMonDeep" role="tabpanel">
-        <div class="section-title">Advanced Monitoring: JMX, Log4j patterns, Metrics Analysis</div>
-        <div class="def-list">Expose JMX metrics: MBean kafka.consumer:type=consumer-fetch-manager-metrics (records-lag-max). Log4j configuration per logger (kafka.authorizer.logger). Use Burrow or Kafka Lag Exporter.</div>
-        <div class="qa-item">📊 Metric for consumer group health: `kafka.consumer:type=consumer-coordinator-metrics` (assigned-partitions).</div>
-        <div class="nuance-box">⚠️ High `request‑queue‑size` indicates broker overload; `ISR` shrinks signal replica issues.</div>
-        <div class="best-card">✅ Set up structured logging (JSON), monitor critical metrics: under-replicated partitions, request latency, consumer lag, GC pauses.</div>
+<!-- ADVANCED MONITORING & LOGGING PATTERNS - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabMonDeep" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-chart-line me-2"></i> Advanced Monitoring & Logging Patterns – Metrics, Logs & Alerting Mastery
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Why advanced monitoring and logging are essential for the CCDAK exam?</strong><br>
+    Production Kafka requires deep observability. Beyond basic lag, advanced monitoring covers JMX metrics, log analysis, log4j configuration, structured logging, and integration with systems like Prometheus, Grafana, ELK. Exam questions test your ability to interpret metrics, configure log levels for debugging, and set up proactive alerting. This domain spans the “Observability” section and appears in troubleshooting scenarios.
+  </div>
+
+  <!-- 2. JMX metrics deep dive – most important MBeans -->
+  <div class="section-title mt-3" style="font-size:1.3rem">📊 Critical JMX Metrics for Kafka (Broker, Consumer, Producer, Streams)</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>Component</th><th>MBean / Metric</th><th>Description</th><th>Action if abnormal</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Broker</strong></strong>
+          <td><code>kafka.server:type=BrokerTopicMetrics,name=BytesInPerSec</code>, <code>BytesOutPerSec</code>, <code>MessagesInPerSec</code></strong>
+          <td>Throughput in bytes/messages per second.</strong>
+          <td>Sudden drop: producer problem; spike: capacity issue.</strong>
+         </p>
+        <tr>
+          <td>Broker</strong>
+          <td><code>kafka.server:type=ReplicaManager,name=UnderReplicatedPartitions</code></strong>
+          <td>Number of partitions whose replicas are not in sync. Should be 0.</strong>
+          <td>> 0 → check broker health, network, replication throttle.</strong>
+         </p>
+        <tr>
+          <td>Broker</strong>
+          <td><code>kafka.controller:type=ControllerStats,name=ActiveControllerCount</code></strong>
+          <td>Controller presence (should be 1).</strong>
+          <td>>1: split-brain; =0: no controller.</strong>
+         </p>
+        <tr>
+          <td><strong>Consumer</strong></strong>
+          <td><code>kafka.consumer:type=consumer-fetch-manager-metrics,client-id=*</code><br><code>records-lag-max</code>, <code>records-consumed-rate</code></strong>
+          <td>Max lag per consumer and consumption rate.</strong>
+          <td>Lag high: increase consumers or optimize processing.</strong>
+         </p>
+        <tr>
+          <td><strong>Producer</strong></strong>
+          <td><code>kafka.producer:type=producer-metrics,client-id=*</code><br><code>request-latency-avg</code>, <code>outgoing-byte-rate</code>, <code>record-error-rate</code></strong>
+          <td>Latency, throughput, error rate.</strong>
+          <td>High latency: network or broker overload; error rate: check retries.</strong>
+         </p>
+        <tr>
+          <td><strong>Kafka Streams</strong></strong>
+          <td><code>kafka.streams:type=stream-metrics,client-id=*</code><br><code>commit-latency-avg</code>, <code>process-latency-avg</code>, <code>suppression-emit-total</code></strong>
+          <td>Processing latency, commit performance, state store metrics.</strong>
+          <td>High latency: increase threads, adjust buffer sizes.</strong>
+         </p>
+        <tr>
+          <td><strong>Connect</strong></strong>
+          <td><code>kafka.connect:type=connector-metrics,connector=*</code><br><code>task-count</code>, <code>connector-status</code></strong>
+          <td>Number of tasks, state (running/failed).</strong>
+          <td>Task failure: check connector logs.</strong>
+         </p>
+      </tbody>
+     </div>
+
+  <div class="best-card mb-4">
+    <strong>Exposing JMX metrics for scraping (Prometheus JMX exporter):</strong>
+    <pre class="bg-light p-2 rounded"><code># Start broker with JMX port
+export JMX_PORT=9999
+bin/kafka-server-start.sh config/server.properties
+
+# JMX Exporter config (YAML) to map important beans
+jmx_exporter:
+  rules:
+    - pattern: "kafka.server<type=BrokerTopicMetrics, name=(BytesInPerSec|BytesOutPerSec)><>OneMinuteRate"
+      name: kafka_broker_bytes_$1
+      type: GAUGE</code></pre>
+  </div>
+
+  <!-- 3. Log4j deep configuration – dynamic log levels, appenders -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 Advanced log4j configuration for Kafka clients and brokers</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong>log4j.xml / log4j2.xml for production (rolling files, JSON layout)</strong>
+        <pre class="bg-light p-2 rounded"><code>&lt;Configuration&gt;
+    &lt;Appenders&gt;
+        &lt;RollingFile name="RollingFile" fileName="kafka.log"
+                     filePattern="kafka-%d{yyyy-MM-dd}-%i.log.gz"&gt;
+            &lt;JsonLayout compact="true" eventEol="true"/&gt;
+            &lt;Policies&gt;
+                &lt;TimeBasedTriggeringPolicy/&gt;
+                &lt;SizeBasedTriggeringPolicy size="100 MB"/&gt;
+            &lt;/Policies&gt;
+        &lt;/RollingFile&gt;
+    &lt;/Appenders&gt;
+    &lt;Loggers&gt;
+        &lt;Root level="info"&gt;
+            &lt;AppenderRef ref="RollingFile"/&gt;
+        &lt;/Root&gt;
+        &lt;Logger name="org.apache.kafka" level="warn"/&gt;
+        &lt;Logger name="kafka.controller" level="info"/&gt;
+        &lt;Logger name="kafka.log.LogCleaner" level="info"/&gt;
+    &lt;/Loggers&gt;
+&lt;/Configuration&gt;</code></pre>
       </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>Dynamic log level changes (without restart)</strong>
+        <pre class="bg-light p-2 rounded"><code># Using Kafka's dynamic logging (broker)
+kafka-broker-api-versions --bootstrap-server localhost:9092 --alter --log-levels 'kafka.controller=DEBUG'
+
+# For Java client apps (log4j2), use JMX or controller
+# Set system property: -Dlog4j2.debug=true</code></pre>
+        <strong>Typical loggers to enable for debugging:</strong>
+        <ul>
+          <li><code>org.apache.kafka.clients.consumer.ConsumerCoordinator</code> (rebalances)</li>
+          <li><code>org.apache.kafka.clients.producer.Producer</code></li>
+          <li><code>kafka.server.ReplicaManager</code> (replication)</li>
+          <li><code>kafka.controller</code> (controller activities)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-lightbulb"></i> <strong>Exam nuance:</strong> Structured logging (JSON) is recommended for centralized log management (ELK, Splunk). Avoid logging message payloads in production for security and performance reasons.
+  </div>
+
+  <!-- 4. Monitoring consumer lag in detail -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📈 Consumer lag – advanced monitoring and alerting</div>
+  <div class="def-list mb-4">
+    <strong>Tools beyond CLI:</strong>
+    <ul>
+      <li><strong>Burrow (LinkedIn)</strong> – evaluates consumer lag status (OK, WARNING, ERROR, STALL) based on sliding window. Exposes HTTP API.</li>
+      <li><strong>Kafka Lag Exporter (Lightbend)</strong> – exports lag metrics to Prometheus, supports per‑consumer‑group alerts.</li>
+      <li><strong>Confluent Control Center</strong> – visual lag graphs and anomaly detection.</li>
+      <li><strong>Custom JMX with Grafana</strong> – use <code>records-lag-max</code> metric.</li>
+    </ul>
+    <strong>Alert threshold recommendations:</strong>
+    <ul>
+      <li>Critical: lag > 10,000 for > 5 minutes (data backlog risk).</li>
+      <li>Warning: lag > 1000 for > 10 minutes.</li>
+      <li>Rate of change of lag > 100 per second (alert on consumer slowdown).</li>
+    </ul>
+  </div>
+
+  <!-- 5. Metrics aggregation and visualization stack -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📊 Typical monitoring stack for Kafka</div>
+  <div class="best-card mb-4">
+    <pre class="bg-light p-2 rounded"><code>Kafka Brokers/Connect/Streams (JMX) → JMX Exporter (or Prometheus JMX Agent) → Prometheus → Grafana (dashboards) + Alertmanager</code></pre>
+    <p>Additionally: log aggregation with Filebeat + Elasticsearch + Kibana (ELK) for logs.</p>
+    <strong>Prometheus queries (examples):</strong>
+    <pre class="bg-light p-2 rounded"><code># Maximum lag across consumer group
+max(kafka_consumer_lag{group="my-group"})
+
+# Under‑replicated partitions
+kafka_cluster_partition_underreplicated > 0
+
+# Broker produce request rate
+rate(kafka_server_brokertopicmetrics_oneminuterate{name="MessagesInPerSec"}[5m])</code></pre>
+  </div>
+
+  <!-- 6. Common errors and logs analysis patterns -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔍 Log analysis patterns – what to search for</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Log message fragment</th><th>Indicates</th><th>Suggested action</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ERROR [ReplicaManager]</code> + <code>NotLeaderForPartitionException</code></strong>
+          <td>Temporary leader epoch mismatch.</strong>
+          <td>Usually harmless; ensure <code>retries</code> configured; force metadata refresh.</strong>
+         </p>
+        <tr>
+          <td><code>WARN [ConsumerCoordinator] Auto offset commit failed</code></strong>
+          <td>Commit fails due to rebalance or timeout.</strong>
+          <td>Increase <code>max.poll.interval.ms</code> or reduce <code>max.poll.records</code>.</strong>
+         </p>
+        <tr>
+          <td><code>INFO [Controller] starting leadership transfer</code></strong>
+          <td>Controller performing partition reassignment or broker failure.</strong>
+          <td>Monitor under‑replicated partitions.</strong>
+         </p>
+        <tr>
+          <td><code>ERROR [kafka-request-handler]</code> + <code>NetworkException</code></strong>
+          <td>Network connectivity problem.</strong>
+          <td>Check firewall, DNS, broker ports.</strong>
+         </p>
+        <tr>
+          <td><code>FATAL [KafkaServer] Fatal error during KafkaServer startup</code></strong>
+          <td>Configuration error or port conflict.</strong>
+          <td>Review server.log, check <code>server.properties</code>.</strong>
+         </p>
+      </tbody>
+     </div>
+
+  <!-- 7. Proactive alerting – defining SLOs -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🚨 Proactive alerting based on metrics</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Service Level Indicators (SLIs) for Kafka:</strong>
+        <ul>
+          <li>Produce request latency (p99 < 100ms).</li>
+          <li>Consumer lag < 5000 messages.</li>
+          <li>Broker availability (uptime > 99.9%).</li>
+          <li>Under‑replicated partitions = 0.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card">
+        <strong>Alert rules examples (Prometheus):</strong>
+        <pre class="bg-light p-2 rounded"><code>- alert: HighConsumerLag
+  expr: max(kafka_consumer_lag) by (group) > 5000
+  for: 5m
+  annotations:
+    summary: "Consumer group {{ $labels.group }} lag is high"
+
+- alert: UnderReplicatedPartition
+  expr: kafka_cluster_partition_underreplicated > 0
+  for: 2m
+  annotations:
+    summary: "Partition under‑replicated"</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Logging best practices for Kafka applications -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📋 Best practices for logging in Kafka clients and Streams</div>
+  <div class="def-list mb-4">
+    <ul>
+      <li>Use <strong>MDC (Mapped Diagnostic Context)</strong> to inject correlation IDs (e.g., trace ID) into each log entry.</li>
+      <li>Log consumer group rebalances at INFO level: useful for tracking scale events.</li>
+      <li>For Streams, enable changelog restoration logs (<code>org.apache.kafka.streams.processor.internals.StreamTask</code>).</li>
+      <li>Avoid logging entire message payloads in production (privacy/performance). Use DEBUG level only for development.</li>
+      <li>Centralize logs: send to ELK or Splunk, and set up alerts on error patterns (e.g., “ERROR”, “CommitFailedException”).</li>
+    </ul>
+  </div>
+
+  <!-- 9. Monitoring Kafka clients programmatically (AdminClient) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📡 Programmatic monitoring with AdminClient API</div>
+  <div class="best-card mb-4">
+    <pre class="bg-light p-2 rounded"><code>// Describe consumer group offsets and lag
+AdminClient admin = AdminClient.create(props);
+ListConsumerGroupOffsetsResult offsetsResult = admin.listConsumerGroupOffsets("my-group");
+Map<TopicPartition, OffsetAndMetadata> offsets = offsetsResult.partitionsToOffsetAndMetadata().get();
+
+// Describe log end offsets
+Map<TopicPartition, OffsetSpec> requestMap = new HashMap<>();
+for (TopicPartition tp : offsets.keySet()) {
+    requestMap.put(tp, OffsetSpec.latest());
+}
+ListOffsetsResult latestOffsets = admin.listOffsets(requestMap);
+// Compute lag by subtracting current offset from end offset</code></pre>
+  </div>
+
+  <!-- 10. Common exam questions on advanced monitoring -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 Typical CCDAK questions</div>
+  <div class="nuance-box mb-4">
+    <ol>
+      <li><strong>What MBean would you query to get the total number of messages produced per second on a broker?</strong> <code>kafka.server:type=BrokerTopicMetrics,name=MessagesInPerSec</code> (OneMinuteRate).</li>
+      <li><strong>How can you change the log level of a running Kafka broker without restart?</strong> Use <code>kafka-broker-api-versions --alter --log-levels</code> or via JMX (log4j MBean).</li>
+      <li><strong>You see consumer lag but no errors. What might be the cause?</strong> Consumer may be processing slower than producer, or partition count insufficient, or <code>max.poll.records</code> too high causing rebalance.</li>
+      <li><strong>Which tool exports Kafka metrics to Prometheus in a non‑invasive way?</strong> JMX Exporter or Prometheus JMX Agent.</li>
+      <li><strong>What log4j2 configuration appender would you use to send logs to Elasticsearch directly?</strong> <code>ElasticsearchAppender</code> (or use Filebeat as sidecar).</li>
+    </ol>
+  </div>
+
+  <!-- 11. Self-assessment -->
+  <div class="def-list mb-4">
+    <strong>📝 Verify your knowledge:</strong>
+    <ol>
+      <li>How do you monitor the health of Kafka Connect tasks (running/failed)?</li>
+      <li>What does a persistent <code>UnderReplicatedPartitions</code> = 2 indicate?</li>
+      <li>What is the difference between <code>records-lag-max</code> and <code>records-lag-avg</code>?</li>
+      <li>How can you set up a custom alert when a consumer group’s lag grows by more than 1000 records per minute?</li>
+    </ol>
+    <details><summary>Answers</summary>
+      1. Via Connect REST API <code>/connectors/{name}/status</code> or JMX metrics.<br>
+      2. Two partitions have replicas out of sync; risk of data loss if leader fails.<br>
+      3. <code>max</code> is the highest lag across partitions; <code>avg</code> is average.<br>
+      4. Derive rate of lag change using Prometheus derivative (<code>deriv</code>) or custom script.
+    </details>
+  </div>
+
+  <!-- 12. Final checklist -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Competencies to validate</strong>
+    <ul class="mt-2">
+      <li>✅ I can identify key JMX metrics for broker, consumer, producer, Streams.</li>
+      <li>✅ I can configure log4j for structured logging and dynamic level changes.</li>
+      <li>✅ I can set up Prometheus/Grafana monitoring for Kafka.</li>
+      <li>✅ I understand advanced lag monitoring tools (Burrow, Lag Exporter).</li>
+      <li>✅ I can interpret common log error patterns and correlate with metrics.</li>
+      <li>✅ I can propose alert thresholds for production Kafka clusters.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-chart-simple"></i> Complete module – Advanced Monitoring & Logging Patterns. Master these to confidently answer observability questions on the CCDAK exam.
+  </div>
+</div>
+
+	  
+	
     </div>
   </div>
   <footer class="text-center text-muted py-3 mt-3 mb-4">
