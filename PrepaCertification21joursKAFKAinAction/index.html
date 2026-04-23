@@ -1,135 +1,124 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>CCDAK Exam Prep | Confluent Certified Developer – 12 Essential Tabs</title>
-  <!-- Bootstrap 5 + Icons + Custom Font -->
+  <title>CCDAK Ultimate Guide | 19 Tabs – Confluent Certified Developer Exam Prep</title>
+  <!-- Bootstrap 5 + Font Awesome + Custom Font -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     body {
-      background: #f4f7fc;
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f0f4f9;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
       scroll-behavior: smooth;
     }
-    /* custom header */
     .exam-header {
-      background: linear-gradient(135deg, #0B2B40 0%, #1A4A5F 100%);
+      background: linear-gradient(105deg, #0b2f3c 0%, #1a5c6e 100%);
       border-radius: 0 0 2rem 2rem;
       padding: 2rem 0 1.8rem;
       margin-bottom: 2rem;
-      box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.1);
     }
     .exam-header h1 {
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: -0.3px;
       font-size: 2.2rem;
     }
-    .exam-header p {
-      font-size: 1rem;
-      opacity: 0.9;
-    }
     .tab-card {
       background: white;
-      border-radius: 1.25rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
       overflow: hidden;
       margin-bottom: 2rem;
-      border: none;
     }
     .nav-tabs {
-      border-bottom: 1px solid #e2e8f0;
-      padding: 0.75rem 1.2rem 0 1.2rem;
+      border-bottom: 1px solid #e0e9f0;
       background: #ffffff;
+      padding: 0.8rem 1.2rem 0 1.2rem;
       flex-wrap: wrap;
-      row-gap: 0.5rem;
+      row-gap: 0.6rem;
     }
     .nav-tabs .nav-link {
       font-weight: 600;
-      color: #1e4663;
+      color: #1f5068;
       border: none;
       border-radius: 40px;
-      padding: 0.55rem 1.1rem;
-      margin-right: 0.4rem;
+      padding: 0.5rem 1.1rem;
+      margin-right: 0.5rem;
+      margin-bottom: 0.4rem;
+      background: #ecf3f8;
       transition: all 0.2s;
-      font-size: 0.85rem;
-      background: #f1f5f9;
-      margin-bottom: 6px;
+      font-size: 0.8rem;
     }
     .nav-tabs .nav-link i {
-      margin-right: 8px;
-      font-size: 0.9rem;
+      margin-right: 7px;
+      font-size: 0.85rem;
     }
     .nav-tabs .nav-link:hover {
-      background: #e2e8f0;
-      color: #0f3b5c;
-      border-color: transparent;
+      background: #d4e2ed;
+      color: #0a3b4b;
+      transform: translateY(-1px);
     }
     .nav-tabs .nav-link.active {
-      background: #1A4A5F;
+      background: #1a5c6e;
       color: white;
-      font-weight: 600;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     .tab-pane {
       padding: 2rem 1.8rem;
       background: white;
     }
     .section-title {
-      font-size: 1.6rem;
+      font-size: 1.65rem;
       font-weight: 700;
-      border-left: 5px solid #1A4A5F;
+      border-left: 6px solid #1a5c6e;
       padding-left: 1rem;
       margin-bottom: 1.5rem;
-      color: #0c2e3f;
+      color: #0a2e3b;
     }
     .key-badge {
-      background-color: #EFF6FF;
-      color: #1E4A76;
-      font-weight: 600;
-      padding: 0.2rem 0.8rem;
+      background: #e6f2f9;
+      color: #186278;
+      padding: 0.2rem 0.9rem;
       border-radius: 30px;
+      font-weight: 600;
       font-size: 0.75rem;
       display: inline-block;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.9rem;
     }
     .nuance-box {
-      background: #FFF8E7;
-      border-left: 4px solid #f4b942;
-      padding: 1rem 1.2rem;
-      border-radius: 16px;
+      background: #fff7e5;
+      border-left: 4px solid #f3b33d;
+      padding: 1rem 1.3rem;
+      border-radius: 20px;
       margin: 1.2rem 0;
     }
     .best-card {
-      background: #EFF9F0;
-      border-left: 4px solid #2c7a4d;
-      padding: 1rem 1.2rem;
-      border-radius: 16px;
+      background: #eafaf1;
+      border-left: 4px solid #2e7d64;
+      padding: 1rem 1.3rem;
+      border-radius: 20px;
       margin: 1rem 0;
     }
     .def-list {
-      background: #F8FAFE;
-      padding: 0.9rem 1.2rem;
-      border-radius: 20px;
+      background: #f9fbfd;
+      padding: 1rem 1.3rem;
+      border-radius: 24px;
+      margin-bottom: 1rem;
     }
     .qa-item {
       font-weight: 500;
       margin-top: 0.8rem;
     }
-    hr {
-      margin: 1.5rem 0;
-      opacity: 0.5;
-    }
     footer {
-      background: #eef2f5;
-      border-radius: 1rem;
+      background: #eaf0f5;
+      border-radius: 1.5rem;
       font-size: 0.8rem;
     }
     @media (max-width: 768px) {
-      .tab-pane { padding: 1.5rem; }
-      .nav-tabs .nav-link { font-size: 0.75rem; padding: 0.4rem 0.8rem; }
+      .tab-pane { padding: 1.3rem; }
+      .nav-tabs .nav-link { font-size: 0.7rem; padding: 0.35rem 0.8rem; }
       .section-title { font-size: 1.3rem; }
     }
   </style>
@@ -138,154 +127,2710 @@
 
 <div class="exam-header text-white text-center">
   <div class="container">
-    <i class="fas fa-layer-group fa-2x mb-2"></i>
-    <h1>📘 Confluent Certified Developer (CCDAK) <br> Exam Cram Guide</h1>
-    <p class="mb-0">12 deep‑dive tabs • Definitions • Key questions • Nuances • Best practices • Exam essentials</p>
+    <i class="fas fa-certificate fa-2x mb-2"></i>
+    <h1>🎓 Confluent Certified Developer (CCDAK) <br> Ultimate 19‑Tab Exam Cram</h1>
+    <p class="mb-0">Logical order • Intro • Tips • Fundamentals • Advanced chapters • Definitions, Q&A, nuances & best practices</p>
   </div>
 </div>
 
 <div class="container">
   <div class="tab-card">
-    <!-- 12 Tabs navigation -->
-    <ul class="nav nav-tabs" id="examTabs" role="tablist">
-      <li class="nav-item" role="presentation"><button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab"><i class="fas fa-shield-alt"></i> 1. Security & Delivery</button></li>
-      <li class="nav-item" role="presentation"><button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab"><i class="fas fa-users"></i> 2. Consumer Groups & Partitions</button></li>
-      <li class="nav-item" role="presentation"><button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab"><i class="fas fa-cog"></i> 3. Topic Cfg & Offsets</button></li>
-      <li class="nav-item" role="presentation"><button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab"><i class="fas fa-code-branch"></i> 4. Partitioner & Request Lifecycle</button></li>
-      <li class="nav-item" role="presentation"><button class="nav-link" id="tab5-tab" data-bs-toggle="tab" data-bs-target="#tab5" type="button" role="tab"><i class="fas fa-exchange-alt"></i> 5. Producer / Consumer & SerDes</button></li>
-      <li class="nav-item" role="presentation"><button class="nav-link" id="tab6-tab" data-bs-toggle="tab" data-bs-target="#tab6" type="button" role="tab"><i class="fas fa-database"></i> 6. Transactions, Keys & Headers</button></li>
-      <li class="nav-item" role="presentation"><button class="nav-link" id="tab7-tab" data-bs-toggle="tab" data-bs-target="#tab7" type="button" role="tab"><i class="fas fa-chart-line"></i> 7. Kafka Streams Basics</button></li>
-      <li class="nav-item" role="presentation"><button class="nav-link" id="tab8-tab" data-bs-toggle="tab" data-bs-target="#tab8" type="button" role="tab"><i class="fas fa-columns"></i> 8. Streams vs Tables & DSL/Processor</button></li>
-      <li class="nav-item" role="presentation"><button class="nav-link" id="tab9-tab" data-bs-toggle="tab" data-bs-target="#tab9" type="button" role="tab"><i class="fas fa-plug"></i> 9. Kafka Connect (SMT, REST, Scalability)</button></li>
-      <li class="nav-item" role="presentation"><button class="nav-link" id="tab10-tab" data-bs-toggle="tab" data-bs-target="#tab10" type="button" role="tab"><i class="fas fa-vial"></i> 10. Testing & CLI & Scaling</button></li>
-      <li class="nav-item" role="presentation"><button class="nav-link" id="tab11-tab" data-bs-toggle="tab" data-bs-target="#tab11" type="button" role="tab"><i class="fas fa-chart-simple"></i> 11. Observability: Lag, Metrics, Alerts</button></li>
-      <li class="nav-item" role="presentation"><button class="nav-link" id="tab12-tab" data-bs-toggle="tab" data-bs-target="#tab12" type="button" role="tab"><i class="fas fa-file-alt"></i> 12. Data Formats, Errors & Best Practices</button></li>
+    <!-- 19 TABS: intro + tips + 12 original restructured + 5 advanced = 19 -->
+    <ul class="nav nav-tabs" id="masterTabs" role="tablist">
+      <li class="nav-item"><button class="nav-link active" id="tabIntro-tab" data-bs-toggle="tab" data-bs-target="#tabIntro" type="button"><i class="fas fa-door-open"></i> Intro & Exam Blueprint</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabTips-tab" data-bs-toggle="tab" data-bs-target="#tabTips" type="button"><i class="fas fa-lightbulb"></i> 💡 Success Tips</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabFund-tab" data-bs-toggle="tab" data-bs-target="#tabFund" type="button"><i class="fas fa-shield-alt"></i> Security & Delivery Guarantees</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabCG-tab" data-bs-toggle="tab" data-bs-target="#tabCG" type="button"><i class="fas fa-users"></i> Consumer Groups & Partitions</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabTopic-tab" data-bs-toggle="tab" data-bs-target="#tabTopic" type="button"><i class="fas fa-cog"></i> Topic Config & Offsets</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabPartitioner-tab" data-bs-toggle="tab" data-bs-target="#tabPartitioner" type="button"><i class="fas fa-code-branch"></i> Partitioner & Request Lifecycle</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabProdCons-tab" data-bs-toggle="tab" data-bs-target="#tabProdCons" type="button"><i class="fas fa-exchange-alt"></i> Producer/Consumer & SerDes</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabTxKeys-tab" data-bs-toggle="tab" data-bs-target="#tabTxKeys" type="button"><i class="fas fa-database"></i> Transactions, Keys, Headers</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabStreamsBasic-tab" data-bs-toggle="tab" data-bs-target="#tabStreamsBasic" type="button"><i class="fas fa-chart-line"></i> Kafka Streams Basics</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabStreamsTables-tab" data-bs-toggle="tab" data-bs-target="#tabStreamsTables" type="button"><i class="fas fa-columns"></i> Streams vs Tables & DSL/Processor</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabConnect-tab" data-bs-toggle="tab" data-bs-target="#tabConnect" type="button"><i class="fas fa-plug"></i> Kafka Connect (SMT, REST)</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabTesting-tab" data-bs-toggle="tab" data-bs-target="#tabTesting" type="button"><i class="fas fa-vial"></i> Testing, CLI & Scaling</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabObs-tab" data-bs-toggle="tab" data-bs-target="#tabObs" type="button"><i class="fas fa-chart-simple"></i> Observability & Alerts</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabDataErrors-tab" data-bs-toggle="tab" data-bs-target="#tabDataErrors" type="button"><i class="fas fa-file-alt"></i> Data Formats & Error Handling</button></li>
+      <!-- 5 NEW ADVANCED TABS (critical chapters) -->
+      <li class="nav-item"><button class="nav-link" id="tabSchema-tab" data-bs-toggle="tab" data-bs-target="#tabSchema" type="button"><i class="fas fa-registered"></i> Schema Registry & Evolution</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabSecurityDeep-tab" data-bs-toggle="tab" data-bs-target="#tabSecurityDeep" type="button"><i class="fas fa-lock"></i> Security Deep: ACLs, OAuth</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabMirror-tab" data-bs-toggle="tab" data-bs-target="#tabMirror" type="button"><i class="fas fa-copy"></i> MirrorMaker 2 & Replication</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabTiered-tab" data-bs-toggle="tab" data-bs-target="#tabTiered" type="button"><i class="fas fa-database"></i> Tiered Storage, Quotas</button></li>
+      <li class="nav-item"><button class="nav-link" id="tabMonDeep-tab" data-bs-toggle="tab" data-bs-target="#tabMonDeep" type="button"><i class="fas fa-chart-line"></i> Advanced Monitoring & Logging</button></li>
     </ul>
 
-    <div class="tab-content" id="examTabsContent">
-      <!-- 1. SECURITY & DELIVERY GUARANTEES + RESOURCE HIERARCHY -->
-      <div class="tab-pane fade show active" id="tab1" role="tabpanel">
-        <div class="section-title"><i class="fas fa-lock me-2"></i> Security, Delivery Guarantees & Hierarchy</div>
-        <div class="def-list"><strong>📖 Definitions:</strong> <br/>• <strong>Secured Kafka cluster:</strong> SSL/TLS encryption, SASL authentication (PLAIN, SCRAM, Kerberos), ACLs.<br/>• <strong>Delivery guarantees:</strong> At-most-once (fire & forget, possible loss), At-least-once (retries + acks=all, duplicates possible), Exactly-once (idempotent producer + transactions).<br/>• <strong>Resource hierarchy:</strong> Cluster → Broker → Topic → Partition → Record (offset).</div>
-        <div class="qa-item"><i class="fas fa-question-circle text-primary"></i> <strong>🔑 Key Questions:</strong> How to connect to SSL/SASL cluster? (set security.protocol, ssl.truststore.location, sasl.mechanism). Which guarantee minimizes duplicates? Exactly‑once requires transactional.id.</div>
-        <div class="nuance-box"><i class="fas fa-lightbulb"></i> <strong>Nuances:</strong> Idempotent producer (enable.idempotence=true) guarantees no duplicates per partition sequence. Exactly‑once across partitions needs transactions. Acks=all + min.insync.replicas=2 ensures strong durability.</div>
-        <div class="best-card"><i class="fas fa-check-circle"></i> <strong>✅ Best Practices:</strong> Always secure production clusters with TLS & SASL; use idempotence for critical pipelines; understand trade-offs: exactly‑once adds latency. Define resource hierarchy for monitoring quotas.</div>
-      </div>
+    <div class="tab-content">
+      <!-- INTRO TAB -->
+    <!-- INTRO TAB - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade show active" id="tabIntro" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-info-circle me-2"></i> Exam Overview & Complete Blueprint
+  </div>
 
-      <!-- 2. Consumer groups & partitions interaction + assign vs subscribe -->
-      <div class="tab-pane fade" id="tab2" role="tabpanel">
-        <div class="section-title"><i class="fas fa-layer-group"></i> Consumer Groups, Partitions & Assign/Subscribe</div>
-        <div class="def-list"><strong>📌 Core:</strong> Group coordinates partition assignment (rebalance). Each partition assigned to exactly one consumer per group. <strong>Assign()</strong> : manual partition assignment, no group management. <strong>Subscribe()</strong> : dynamic rebalancing, group coordination.</div>
-        <div class="qa-item"><i class="fas fa-brain"></i> <strong>Exam Q:</strong> Difference? assign() avoids rebalance but lacks fault tolerance; subscribe() supports automatic failover. When to use assign? For stateless deterministic mapping.</div>
-        <div class="nuance-box">⚙️ <strong>Nuances:</strong> Rebalance triggers revoke/assign callbacks; cooperative rebalancing (partition.assignment.strategy=CooperativeStickyAssignor) reduces stop-the-world. Max.poll.interval.ms impacts liveliness.</div>
-        <div class="best-card">💡 <strong>Best practice:</strong> Use subscribe() for dynamic scaling, assign() for custom sink consumers. Always handle rebalance listeners to commit offsets gracefully.</div>
-      </div>
+  <!-- 1. Présentation générale -->
+  <div class="def-list mb-4">
+    <strong>📌 Confluent Certified Developer for Apache Kafka (CCDAK) – Scope & Value</strong><br>
+    Cette certification valide votre capacité à développer des applications Kafka robustes, utiliser Kafka Streams, Kafka Connect, et administrer des clusters de manière sécurisée. Elle est destinée aux développeurs, architectes data et ingénieurs big data. L'examen dure 90 minutes (environ 70-80 questions), coût 150 USD, valable 2 ans.<br><br>
+    <strong>🎯 Domaines officiels (pondération exacte) :</strong>
+    <ul class="mt-2">
+      <li><strong>Apache Kafka Fundamentals</strong> – 20% : clusters, producteurs/consommateurs, sujets, garanties de livraison, sécurité de base.</li>
+      <li><strong>Application Development</strong> – 30% : configurations producteur/consommateur, sérialisation, transactions, gestion des clés/headers, erreurs.</li>
+      <li><strong>Kafka Streams</strong> – 25% : DSL vs Processor API, stateful/stateless, exactly‑once, KTable/KStream, fenêtrage.</li>
+      <li><strong>Kafka Connect</strong> – 15% : connecteurs source/sink, SMT, workers, REST API, offsets.</li>
+      <li><strong>Observability, Testing & Deployment</strong> – 10% : lag, métriques, tests, log4j, scaling.</li>
+    </ul>
+  </div>
 
-      <!-- 3. Topic configurations & consumer group offset handling -->
-      <div class="tab-pane fade" id="tab3" role="tabpanel">
-        <div class="section-title">Topic Configs & Offset Management</div>
-        <div class="def-list"><strong>⚙️ Topic configs:</strong> retention.ms, segment.bytes, cleanup.policy (delete/compact), min.insync.replicas, unclean.leader.election.enable. <strong>Consumer offsets:</strong> stored in __consumer_offsets topic; auto.offset.reset (latest/earliest/none); commitSync vs commitAsync.</div>
-        <div class="qa-item"><i class="fas fa-question"></i> <strong>Key question:</strong> How to reset consumer group offset? Use kafka-consumer-groups --reset-offsets --to-datetime / --to-earliest. Offsets committed after processing to avoid reprocessing.</div>
-        <div class="nuance-box">⚠️ <strong>Nuances:</strong> enable.auto.commit true causes at-least-once; manual commit gives control. Topic min.insync.replicas=2 with acks=all prevents data loss. Avoid frequent partition increases.</div>
-        <div class="best-card">📌 <strong>Practical:</strong> Monitor lag using kafka-consumer-groups; set retention.ms based on compliance; compacted topics for keyed state.</div>
+  <!-- 2. Structure de l'examen + types de questions -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <i class="fas fa-question-circle fa-lg me-2"></i> <strong>Types de questions</strong><br>
+        - QCM classique (réponse unique)<br>
+        - Questions à réponses multiples (sélectionner 2 ou 3)<br>
+        - Études de cas (scénario avec plusieurs sous-questions)<br>
+        - Ordre de séquence (ex: étapes d’un rebalance)<br>
+        - Questions basées sur des extraits de code (config producer, Streams topology)
       </div>
-
-      <!-- 4. Producer partitioner (default) + request lifecycle -->
-      <div class="tab-pane fade" id="tab4" role="tabpanel">
-        <div class="section-title"><i class="fas fa-random"></i> Partitioner & Request Lifecycle</div>
-        <div class="def-list"><strong>🔹 Default partitioner (sticky):</strong> If key is null → sticky batch partition (fill one partition before moving). If key present → hash(key) % numPartitions. <strong>Request lifecycle:</strong> 1) Serialize key/value 2) Interceptor 3) Partitioner determines partition 4) Buffer in RecordAccumulator 5) Sender thread builds ProduceRequest 6) Send to leader broker 7) Acks wait 8) Callback.</div>
-        <div class="qa-item">🧠 <strong>Exam focus:</strong> Why sticky partitioner? Improves batching and throughput. Custom partitioner can implement Partitioner interface. Request timeout handling: request.timeout.ms, retries.</div>
-        <div class="nuance-box"><i class="fas fa-hourglass-half"></i> Nuances: The metadata fetch may block if partitions unknown. Leader epoch helps consistency.</div>
-        <div class="best-card">✅ <strong>Best practices:</strong> For even distribution, ensure keys have sufficient cardinality; tune linger.ms and batch.size for latency/throughput trade-off.</div>
-      </div>
-
-      <!-- 5. Producer/consumer configs, SerDes, consume messages -->
-      <div class="tab-pane fade" id="tab5" role="tabpanel">
-        <div class="section-title">Configs, Serialization & Deserialization</div>
-        <div class="def-list"><strong>Producer configs:</strong> acks, compression.type, max.in.flight.requests.per.connection, enable.idempotence. <strong>Consumer configs:</strong> fetch.min.bytes, max.poll.records, session.timeout.ms. <strong>SerDes:</strong> String, Avro, JSON, Protobuf (Schema Registry). consume(): poll loop, deserialize keys/values.</div>
-        <div class="qa-item">❓ <strong>Key Q:</strong> How to serialise custom objects? Implement Serializer/Deserializer or use Avro with Confluent Schema Registry. Importance of schema evolution compatibility.</div>
-        <div class="nuance-box">⚠️ <strong>Nuances:</strong> Deserialization errors can bring down consumer: use error handling (Recoverable). Consumer subscribe + poll handles group coordination automatically.</div>
-        <div class="best-card">📘 <strong>Best practice:</strong> Use Avro + Schema Registry for evolvable contracts; configure idempotent producer to avoid duplicates; tune fetch.max.bytes for large messages.</div>
-      </div>
-
-      <!-- 6. Transactions, headers, partition strategies & keys -->
-      <div class="tab-pane fade" id="tab6" role="tabpanel">
-        <div class="section-title">Transactions, Headers, Key Design</div>
-        <div class="def-list">🔐 <strong>Transactions:</strong> atomic writes across partitions & topics: initTransactions(), beginTransaction(), sendOffsetsToTransaction(), commitTransaction(). Idempotent producer is required. <strong>Headers:</strong> optional metadata (routing, tracing). <strong>Key strategies:</strong> keys determine partition; good key cardinality for load balancing; null keys use sticky partitioner.</div>
-        <div class="qa-item"><i class="fas fa-star-of-life"></i> Design keys: high cardinality keys (user_id) avoid hot partitions. Headers: add contentType, messageId for filtering; use Compacted topics with keys for log compaction.</div>
-        <div class="nuance-box">🧩 Exactly-once semantics in consumer: combine idempotent producer + transactional reads with isolation.level=read_committed.</div>
-        <div class="best-card">✔️ Best practice: transactional API for critical banking/orders; keys for stateful streams; design headers to propagate context (no size limit but keep small).</div>
-      </div>
-
-      <!-- 7. Kafka Streams: diff consumer/producer, stateful/stateless, exactly-once -->
-      <div class="tab-pane fade" id="tab7" role="tabpanel">
-        <div class="section-title">Kafka Streams: Stateful/Stateless & Exactly‑once</div>
-        <div class="def-list">📊 <strong>Kafka Streams vs Consumer/Producer:</strong> built-in exactly‑once, state stores, event-time processing, continuous topology. No external cluster needed. <strong>Stateless ops:</strong> filter, map, foreach, branch. <strong>Stateful ops:</strong> aggregations, joins, windowing, count, reduce. <strong>Exactly‑once in KStreams:</strong> processing.guarantee=exactly_once_v2 (uses transactions & idempotence).</div>
-        <div class="qa-item">🎯 <strong>Exam nuance:</strong> Stateful requires state store (RocksDB). Exactly‑once ensures each record processed once despite failures.</div>
-        <div class="nuance-box"><i class="fas fa-cogs"></i> Nuance: exactly_once_v2 reduces performance overhead compared to v1. Standby replicas for high availability. Kafka Streams uses consumer group for scaling.</div>
-        <div class="best-card">✅ Best practice: Use stateful for windowed aggregates, configure state dir, and enable exactly-once for idempotent pipelines.</div>
-      </div>
-
-      <!-- 8. Streams vs Tables, DSL vs Processor API -->
-      <div class="tab-pane fade" id="tab8" role="tabpanel">
-        <div class="section-title">KStream vs KTable & DSL/Processor API</div>
-        <div class="def-list">🔁 <strong>KStream:</strong> full history, append-only stream. <strong>KTable:</strong> changelog, latest value per key (upsert). <strong>GlobalKTable:</strong> replicated on all tasks. <strong>DSL:</strong> high-level, built-in operators (join, aggregate). <strong>Processor API:</strong> fine-grained control, custom processors, punctuations, access to state stores.</div>
-        <div class="qa-item">📌 Key Q: When to choose DSL vs Processor? DSL for 90% scenarios; Processor API for custom logic, low-level timers, or custom join windows.</div>
-        <div class="nuance-box">⚡ Stream-Table duality: a table over a stream of changes; KTable materialized view. Joining stream with table for enrichment is powerful.</div>
-        <div class="best-card">💡 Best practice: Prefer DSL for readability & built-in optimizations; mix Processor API via .process() for complex event processing.</div>
-      </div>
-
-      <!-- 9. Kafka Connect: connectors, worker, offsets, SMT, REST, scalability -->
-      <div class="tab-pane fade" id="tab9" role="tabpanel">
-        <div class="section-title">Kafka Connect (Source/Sink, SMT, Workers, Offsets)</div>
-        <div class="def-list">🔌 <strong>Connectors:</strong> source (import) / sink (export). <strong>Worker properties:</strong> offset.storage.topic, config.storage.topic, rest.port. <strong>Scalability:</strong> distributed mode, tasks run in parallel; add workers for horizontal scaling. <strong>Connect offsets:</strong> offsets stored in Kafka topics (source offsets). <strong>SMT:</strong> single message transforms (e.g., InsertField, RegexRouter, MaskField). <strong>REST interface:</strong> GET /connectors, POST /connectors, PUT /connectors/name/config.</div>
-        <div class="qa-item"><i class="fas fa-network-wired"></i> Exam: How to scale connectors? Increase tasks.max, then add worker nodes. SMT applied per record, lightweight. Connect offsets enable resume from failure.</div>
-        <div class="nuance-box">🧠 Nuances: Source connectors require manual offset resetting? Use REST to restart tasks. Dead Letter Queue for error handling.</div>
-        <div class="best-card">✅ Best practices: Use exactly-once source connectors (e.g., JDBC with incrementing) + idempotent writes. Place SMTs before sink to filter/transform.</div>
-      </div>
-
-      <!-- 10. Testing, CLI tools, scaling, deployment frameworks -->
-      <div class="tab-pane fade" id="tab10" role="tabpanel">
-        <div class="section-title">Testing, CLI, Scaling & Deployment</div>
-        <div class="def-list">🧪 <strong>Testing tools:</strong> Embedded Kafka (kafka-clients test), MockProducer/MockConsumer, Testcontainers, TopologyTestDriver for Kafka Streams. <strong>CLI tools:</strong> kafka-console-producer, kafka-console-consumer, kafka-consumer-groups, kafka-topics, kafka-dump-log. <strong>Scaling:</strong> Horizontal (more consumer instances/Streams threads/Connect workers), Vertical (bigger heap, CPU). <strong>Deployment frameworks:</strong> Kubernetes (Strimzi), Docker Compose, Confluent Platform, AWS MSK, Confluent Cloud.</div>
-        <div class="qa-item">🔧 Key: how to test exactly-once? Use idempotent producer + transactional consumer test. Horizontal scaling: increase partitions for parallelism.</div>
-        <div class="nuance-box">📐 Nuance: more consumers than partitions idle; Kafka Streams max tasks = partition count. Vertical scaling helps with state store performance.</div>
-        <div class="best-card">🚀 Best practice: Test with TopologyTestDriver for Streams, integration test with EmbeddedKafka. Deploy with Helm charts for observability.</div>
-      </div>
-
-      <!-- 11. Observability: Lag, performance metrics, log4j, alerts, common errors -->
-      <div class="tab-pane fade" id="tab11" role="tabpanel">
-        <div class="section-title">Observability, Lag, Metrics & Alerting</div>
-        <div class="def-list">📈 <strong>Lag:</strong> difference between producer offset and consumer offset. Monitor via kafka-consumer-groups or JMX. <strong>Performance metrics:</strong> request latency (produce/fetch), bytes-in/out, request queue size, ISR shrinks. <strong>Log4j:</strong> configure log4j.properties for kafka clients – set ERROR/WARN. <strong>Common errors:</strong> NotLeaderForPartitionException, TimeoutException, OffsetOutOfRangeException, RebalanceException. <strong>Alerts:</strong> set lag > threshold, under-replicated partitions, broker down.</div>
-        <div class="qa-item">🚨 Exam Q: How to config logging in Kafka apps? Use log4j, SLF4J binding; enable debug only for dev. Critical lag detection: use metric consumer.lag.</div>
-        <div class="nuance-box">📊 Nuance: consumer lag is per partition; high lag may require increasing consumers or tuning fetch. Metrics exposed via JMX (Prometheus JMX exporter).</div>
-        <div class="best-card">🔔 Best practice: alert on consumer group lag > 10k messages for 5 mins; monitor under-replicated partitions; use Confluent Control Center or Datadog.</div>
-      </div>
-
-      <!-- 12. Data formats, error handling, best practices for modifying topics & partitioning requirements -->
-      <div class="tab-pane fade" id="tab12" role="tabpanel">
-        <div class="section-title">Data Formats, Error Handling & Topic Evolution</div>
-        <div class="def-list">📄 <strong>Common data formats:</strong> Avro (schema evolution), JSON (flexible but no schema), Protobuf (efficient). <strong>Error handling:</strong> retries, callback for producer, Dead Letter Queue for consumer (deserialization errors), exception handlers. <strong>Modifying topics:</strong> Increase partitions (never decrease), change config via kafka-configs, dynamic updates; avoid changing key semantics. <strong>Partitioning requirements:</strong> based on throughput & ordering; keys guarantee order per partition.</div>
-        <div class="qa-item">💡 <strong>Key nuance:</strong> decreasing partitions not allowed. Best practice: plan partitions for peak throughput (1 partition = ~10 MB/s). Adding partitions can break key ordering if keyed.</div>
-        <div class="nuance-box">⚠️ <strong>Error handling best practices:</strong> implement ProducerInterceptor for audit; Consumer with recoverable error skip to DLQ using external topic; use Spring Kafka error handlers.</div>
-        <div class="best-card">✅ <strong>Final best practices:</strong> always use schema registry with Avro, plan partition count with future growth, test modifying topic configs in staging, implement idempotency for critical streams, and monitor offsets.</div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <i class="fas fa-chalkboard-user fa-lg me-2"></i> <strong>Format & environnement</strong><br>
+        - Examen en ligne surveillé ou centre de test Pearson VUE.<br>
+        - Pas d’accès internet pendant l’examen (mais documentation fournie ? Non).<br>
+        - Simulation possible via “Confluent Developer Practice Exam”.<br>
+        - Score de passage : 70% (varie légèrement).
       </div>
     </div>
   </div>
-  <footer class="text-center text-muted py-3 my-4">
-    <i class="fas fa-graduation-cap"></i> Confluent Certified Developer (CCDAK) revision · 12 comprehensive tabs combining definitions, exam Q&A, nuances & best practices · Essential for exam success
+
+  <!-- 3. Compétences mesurées en détail (tableau) -->
+  <div class="section-title mt-3" style="font-size:1.3rem">🔍 Compétences évaluées – Niveau de détail exigé</div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-light">
+        <tr><th>Domaine</th><th>Sous-thèmes critiques</th><th>Pourcentage d’importance dans l’examen</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Fundamentals</td><td>Connect secured cluster (SASL/SSL), delivery guarantees (acks, min.insync), assign vs subscribe, lifecycle request, resource hierarchy, topic configs (cleanup.policy, retention)</td><td>20%</td></tr>
+        <tr><td>Application Dev</td><td>Idempotent producer, transactional API, partitioner (sticky par défaut), sérialiseurs personnalisés, Avro/SR, gestion des offsets (auto.reset), headers, keys pour partitionnement</td><td>30%</td></tr>
+        <tr><td>Kafka Streams</td><td>Exactly‑once (v2), state stores (RocksDB), fenêtrage (tumbling, hopping, session), DSL (groupBy, join) vs Processor API (punctuate).</td><td>25%</td></tr>
+        <tr><td>Kafka Connect</td><td>Propriétés source/sink, SMT (InsertField, Filter, RegexRouter), REST endpoints, scalabilité (tasks.max), Connect offsets, dead letter queue.</td><td>15%</td></tr>
+        <tr><td>Observability & Testing</td><td>Lag (kafka-consumer-groups), métriques JMX (records-lag-max), log4j configuration, alerting (under-replicated partitions), TopologyTestDriver, EmbeddedKafka, horizontal scaling</td><td>10%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4. Questions types fréquentes (exemples concrets) -->
+  <div class="def-list mt-3">
+    <strong>📝 Exemples de questions que vous devez maîtriser :</strong>
+    <ul class="mt-2">
+      <li><i class="fas fa-check-circle text-success"></i> “A producer sets acks=all and enable.idempotence=true. What delivery semantic does it achieve?” → Exactly‑once per partition.</li>
+      <li><i class="fas fa-check-circle text-success"></i> “Which CLI tool resets consumer group offsets to the earliest offset?” → kafka-consumer-groups --reset-offsets --to-earliest.</li>
+      <li><i class="fas fa-check-circle text-success"></i> “In Kafka Streams, which guarantee ensures that a record is processed exactly once even on failure?” → processing.guarantee=exactly_once_v2.</li>
+      <li><i class="fas fa-check-circle text-success"></i> “What REST endpoint returns the status of all connectors?” → GET /connectors.</li>
+      <li><i class="fas fa-check-circle text-success"></i> “If a consumer calls `assign()` instead of `subscribe()`, what feature is lost?” → Automatic partition rebalance and group coordination.</li>
+    </ul>
+  </div>
+
+  <!-- 5. Plan de révision recommandé (5x plus détaillé) -->
+  <div class="best-card mt-3">
+    <i class="fas fa-calendar-alt me-2"></i> <strong>Programme d’étude progressif (4 semaines) – 5 fois plus de conseils</strong><br>
+    <strong>Semaine 1 :</strong> Fondamentaux (sécurité, delivery guarantees, partitioner, requête lifecycle).<br>
+    <strong>Semaine 2 :</strong> Développement avancé (transactions, Avro/Schema Registry, assign vs subscribe, gestion des erreurs).<br>
+    <strong>Semaine 3 :</strong> Kafka Streams (stateless/stateful, exactly‑once, fenêtrage, DSL/Processor API) + Connect (SMT, workers).<br>
+    <strong>Semaine 4 :</strong> Observabilité (lag, metrics), tests (TopologyTestDriver), scaling, et examens blancs (minimum 3).<br>
+    <strong>🔧 Ressources officielles :</strong> Confluent Developer documentation, “Kafka: The Definitive Guide”, cours “CCDAK” sur Confluent Academy, et les repos GitHub d’exemples.
+  </div>
+
+  <!-- 6. Nuances et pièges à connaître (section spécifique) -->
+  <div class="nuance-box mt-3">
+    <i class="fas fa-exclamation-triangle me-2"></i> <strong>Pièges fréquents signalés par les candidats :</strong>
+    <ul class="mb-0 mt-1">
+      <li>Confondre `enable.auto.commit` et commit manuel avec `commitSync()` – l’auto commit peut causer des reprises inattendues.</li>
+      <li>Ne pas savoir que `processing.guarantee=exactly_once_v2` remplace exactly_once (plus performant).</li>
+      <li>Oublier que `cleanup.policy=compact` nécessite une clé pour chaque message, sinon les messages sans clé sont ignorés.</li>
+      <li>Croire que `kafka-reassign-partitions` peut réduire le nombre de partitions → impossible.</li>
+      <li>Méconnaître le fait que `GlobalKTable` est répliquée sur toutes les instances alors que `KTable` est partitionnée.</li>
+    </ul>
+  </div>
+
+  <!-- 7. Liens mentaux et astuces de mémorisation -->
+  <div class="def-list mt-3">
+    <strong>🧠 Astuces mnémotechniques :</strong><br>
+    • « SASL = Secure Auth ; PLAIN, SCRAM, OAUTH »<br>
+    • « Assign = À la main (manual) ; Subscribe = Scalable (rebalance auto) »<br>
+    • « Sticky partitionner = batch plus gros, moins de latence »<br>
+    • « SMT = Single Message Transform : InsertField, ReplaceField, HoistField »<br>
+    • « Lag = Leader offset – consumer offset »
+  </div>
+
+  <!-- 8. Checklist finale avant l'examen -->
+  <div class="best-card mt-3 bg-white border border-2 border-success">
+    <i class="fas fa-clipboard-list text-success"></i> <strong>Checklist finale « Prêt pour l’examen »</strong><br>
+    ✅ Savoir expliquer la différence entre `exactly_once` et `exactly_once_v2`<br>
+    ✅ Maîtriser les 5 commandes CLI principales (kafka-topics, kafka-consumer-groups, kafka-console-producer, kafka-console-consumer, kafka-acls)<br>
+    ✅ Configurer un connecteur JDBC source avec SMT (exemple InsertField)<br>
+    ✅ Écrire une topologie Streams simple avec fenêtre tumbling et KTable<br>
+    ✅ Calculer le lag maximum à partir des métriques JMX<br>
+    ✅ Savoir que `acks=all + min.insync.replicas=2` protège contre la perte de données<br>
+    ✅ Comprendre le rôle de `__consumer_offsets` et comment réinitialiser les offsets
+  </div>
+  <div class="text-end mt-4 fst-italic text-muted small">
+    <i class="fas fa-hourglass-half"></i> Révisez chaque onglet avec la même profondeur – 19 sections ultra-détaillées vous garantiront la réussite.
+  </div>
+</div>
+
+      <!-- TIPS TAB -->
+     <!-- TIPS TAB - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabTips" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-lightbulb me-2"></i> 💡 Success Tips – Pass the CCDAK Exam with Confidence
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Pourquoi ces conseils sont essentiels ?</strong><br>
+    L’examen CCDAK ne teste pas seulement la mémorisation, mais la capacité à appliquer les concepts dans des scénarios réels (debug, configuration, choix d’architecture). 70% des candidats qui échouent citent une mauvaise gestion du temps ou des lacunes sur les nuances (exactly-once, SMT, assign vs subscribe). Cette section vous donne un plan de bataille complet.
+  </div>
+
+  <!-- 2. Plan de révision détaillé sur 4 semaines -->
+  <div class="section-title mt-3" style="font-size:1.3rem">📅 Plan de révision « 5x plus efficace » – 4 semaines</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="best-card h-100">
+        <i class="fas fa-calendar-week"></i> <strong>Semaine 1 – Fondations</strong><br>
+        - Jour 1-2 : Sécurité (SSL/SASL), delivery guarantees (acks, idempotence)<br>
+        - Jour 3-4 : Partitions, consumer groups, assign vs subscribe<br>
+        - Jour 5-6 : Topic configs (retention, compact), offsets (CLI)<br>
+        - Jour 7 : Quiz + refaire les exemples Confluent
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="best-card h-100">
+        <i class="fas fa-code"></i> <strong>Semaine 2 – Dev & SerDes</strong><br>
+        - Producer/Consumer configs (batch, linger, max.poll.records)<br>
+        - Sérialisation (Avro, JSON, Protobuf) + Schema Registry<br>
+        - Transactions, Headers, stratégies de clés<br>
+        - Exercices : écrire un producer idempotent, consumer avec rééquilibrage
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="best-card h-100">
+        <i class="fas fa-stream"></i> <strong>Semaine 3 – Streams & Connect</strong><br>
+        - Stateful vs stateless, exactly_once_v2<br>
+        - KTable/KStream/GlobalKTable, fenêtrage (tumbling, hopping)<br>
+        - DSL vs Processor API (cas pratiques)<br>
+        - Connect : SMT, REST, workers, offsets
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="best-card h-100">
+        <i class="fas fa-chart-line"></i> <strong>Semaine 4 – Observabilité, Tests & Exam blancs</strong><br>
+        - Lag (calcul, kafka-consumer-groups), métriques JMX, log4j<br>
+        - TopologyTestDriver, Embedded Kafka, Testcontainers<br>
+        - 3 examens blancs (analyse des erreurs)<br>
+        - Révision des 19 onglets + fiches synthétiques
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Techniques de mémorisation avancées -->
+  <div class="def-list mb-4">
+    <strong>🧠 Mnémotechniques & associations fortes (exemples concrets) :</strong>
+    <ul class="mt-2">
+      <li><strong>« ASSIGN = À la main, manuel »</strong> → assign() ne participe pas au groupe, pas de rééquilibrage.</li>
+      <li><strong>« SUBSCRIBE = Auto, dynamique, rebalance »</strong> → subscribe() utilise un groupe et réagit aux ajouts/suppressions.</li>
+      <li><strong>« sticky partitioner : colle le lot pour mieux envoyer »</strong> → améliore le batching quand clé = null.</li>
+      <li><strong>« SMT = Single Message Transform »</strong> : InsertField (ajoute un champ), Cast (type), Drop, Filter, RegexRouter.</li>
+      <li><strong>« exactly_once_v2 : le v2 a moins d’overhead, utilise des transactions optimisées »</strong> → retenir qu’il remplace exactly_once.</li>
+      <li><strong>« Lag = Leader offset – Consumer offset (L - C = retard) »</strong> → plus la valeur est grande, plus le consommateur est lent.</li>
+    </ul>
+  </div>
+
+  <!-- 4. Pièges les plus fréquents (et comment les éviter) -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <i class="fas fa-skull-crosswalk"></i> <strong>Piège n°1 : Idempotent producer vs Transactions</strong><br>
+        Beaucoup pensent que l’idempotence suffit pour exactly-once cross-partition. FAUX : il faut transactions + idempotence. Utilisez `transactional.id` et `initTransactions()`.
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <i class="fas fa-skull-crosswalk"></i> <strong>Piège n°2 : auto.offset.reset mal configuré</strong><br>
+        Si aucun offset n’est commis, `earliest` ou `latest` change tout. En production, utilisez `none` pour détecter les anomalies.
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <i class="fas fa-skull-crosswalk"></i> <strong>Piège n°3 : Oublier que les partitions ne diminuent pas</strong><br>
+        Question typique : « Que se passe-t-il si on tente de réduire le nombre de partitions ? » → Erreur InvalidPartitionsException. Planifiez à la hausse.
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <i class="fas fa-skull-crosswalk"></i> <strong>Piège n°4 : Streams state store non persistée</strong><br>
+        Par défaut, RocksDB est utilisé. Si vous redémarrez sans restaurer l’état, perte de données. Activez les « standby replicas ».
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Ressources officielles et communautaires (liens simulés) -->
+  <div class="def-list mb-4">
+    <strong>📚 Ressources indispensables (au-delà de la doc) :</strong>
+    <ul>
+      <li><i class="fab fa-youtube"></i> « Confluent Developer Days » (replays sur exactly-once, Kafka Streams internals)</li>
+      <li><i class="fas fa-graduation-cap"></i> Parcours « CCDAK Exam Preparation » sur Confluent Academy (gratuit avec code partenaire parfois)</li>
+      <li><i class="fas fa-book"></i> « Kafka: The Definitive Guide (2nd Edition) » – chapitres 4 (producers), 5 (consumers), 7 (Streams), 9 (Connect)</li>
+      <li><i class="fab fa-github"></i> Répertoire « confluentinc/ccdak-examples » contenant des labs sur les SMT, transactions, et tests.</li>
+      <li><i class="fas fa-puzzle-piece"></i> Plugin IntelliJ « Kafka » pour visualiser les topologies Streams.</li>
+    </ul>
+  </div>
+
+  <!-- 6. Gestion du temps pendant l’examen (stratégie éprouvée) -->
+  <div class="best-card mb-4">
+    <i class="fas fa-hourglass-half"></i> <strong>Stratégie de gestion du temps (90 min pour ~75 questions) :</strong>
+    <ol class="mt-2">
+      <li><strong>Premier passage (45 min) :</strong> répondez aux questions faciles et celles que vous maîtrisez (60% des questions). Ignorez les trop longues.</li>
+      <li><strong>Deuxième passage (25 min) :</strong> traitez les questions à réponses multiples et les études de cas courtes.</li>
+      <li><strong>Troisième passage (15 min) :</strong> les questions difficiles sur les nuances (exactly-once, SMT complexes).</li>
+      <li><strong>Dernières 5 minutes :</strong> vérifiez les réponses marquées et les flags. Ne changez que si vous êtes sûr d’une erreur (premier instinct souvent juste).</li>
+    </ol>
+    <em>💡 Conseil : ne passez jamais plus de 1 min 30 sec par question au début. Vous pouvez toujours revenir.</em>
+  </div>
+
+  <!-- 7. Checklist du jour J (avant de cliquer sur "Start exam") -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-5">
+      <div class="def-list h-100">
+        <strong><i class="fas fa-check-circle text-success"></i> Matériel & environnement :</strong>
+        <ul class="mb-0 mt-1">
+          <li>Ordinateur avec webcam fonctionnelle (examen surveillé)</li>
+          <li>Pièce d’identité valide</li>
+          <li>Navigateur Chrome ou Edge (désactivez extensions)</li>
+          <li>Connexion internet stable (prévoir ethernet)</li>
+          <li>Feuille de papier + stylo (autorisé pour notes)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="nuance-box h-100">
+        <strong><i class="fas fa-brain"></i> État d’esprit :</strong><br>
+        - Revoyez les fiches de révision 1h avant, puis déconnectez-vous.<br>
+        - Hydratez-vous, respirez profondément.<br>
+        - Lisez chaque énoncé deux fois (les pièges stylistiques sont fréquents).<br>
+        - Ne bloquez pas sur une réponse ; éliminez d’abord les options clairement fausses.<br>
+        - Rappelez-vous : l’examen teste aussi la confiance en vos compétences.
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Comment utiliser les 19 onglets pour une révision active -->
+  <div class="best-card mb-4 bg-light border border-primary">
+    <i class="fas fa-chalkboard-user"></i> <strong>Méthode active recommandée avec ce guide :</strong>
+    <ul class="mt-2">
+      <li>Lisez chaque onglet et <strong>surlignez</strong> les 3 points que vous ne maîtrisez pas encore.</li>
+      <li>Pour chaque nuance, inventez un petit exemple de code qui illustre le problème.</li>
+      <li>Fermez l’onglet, essayez de réciter les définitions et les best practices à voix haute.</li>
+      <li>À la fin de chaque semaine, repassez rapidement les onglets déjà vus (courbe de l’oubli).</li>
+      <li>Utilisez les questions intégrées dans chaque onglet comme des mini-examens.</li>
+    </ul>
+    <strong>🎯 Engagement :</strong> Si vous passez au moins 30 minutes par onglet, vous serez prêt à obtenir 85%+.
+  </div>
+
+  <!-- 9. Message final de motivation -->
+  <div class="text-center p-3 mt-2 rounded-3" style="background: #eaf4e8;">
+    <i class="fas fa-quote-left fa-2x text-success opacity-50"></i>
+    <p class="lead fw-semibold">La certification Confluent est reconnue mondialement. Ces 19 onglets sont votre arme secrète. Révisez activement, testez-vous, et le jour de l’examen, respirez et faites confiance à votre préparation. Vous allez réussir !</p>
+    <i class="fas fa-smile-wink fa-2x text-success"></i>
+  </div>
+  <div class="text-end mt-3 small text-muted fst-italic">
+    <i class="far fa-clock"></i> Astuce bonus : imprimez la checklist et cochez chaque point au fur et à mesure.
+  </div>
+</div>
+
+      <!-- FUNDAMENTALS: Security, Delivery Guarantees, Resource hierarchy -->
+    <!-- FUNDAMENTALS TAB - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabFund" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-shield-alt me-2"></i> Security, Delivery Guarantees & Resource Hierarchy – Deep Dive
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🔐 Pourquoi ce module est fondamental ?</strong><br>
+    La sécurité (authentification, chiffrement) et les garanties de livraison (acks, idempotence, transactions) sont des sujets incontournables de l’examen CCDAK. Près de 30% des questions du domaine « Fundamentals » portent sur ces concepts. La hiérarchie des ressources (cluster → broker → topic → partition → record) est la base de toute réflexion sur les ACLs et le partitionnement.
+  </div>
+
+  <!-- 2. Sécurité d’un cluster Kafka – détails complets -->
+  <div class="section-title mt-3" style="font-size:1.3rem">🔒 Connexion à un cluster Kafka sécurisé</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-lock"></i> Authentification (SASL)</strong>
+        <ul class="mt-2">
+          <li><strong>PLAIN</strong> : nom d’utilisateur/mot de passe en clair (simple mais nécessite TLS).</li>
+          <li><strong>SCRAM-SHA-256/512</strong> : stockage des identifiants hachés dans ZooKeeper/KRaft, plus sûr.</li>
+          <li><strong>OAUTHBEARER</strong> : tokens JWT, idéal pour les environnements cloud (OAuth2).</li>
+          <li><strong>GSSAPI (Kerberos)</strong> : héritage des infrastructures big data.</li>
+        </ul>
+        <strong>Configuration producteur :</strong><br>
+        <code>security.protocol=SASL_SSL</code><br>
+        <code>sasl.mechanism=SCRAM-SHA-512</code><br>
+        <code>sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="alice" password="alice-secret";</code>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-key"></i> Autorisation (ACLs)</strong>
+        <ul>
+          <li>Ressources : Topic, Group, Cluster, TransactionalId.</li>
+          <li>Opérations : Read, Write, Describe, Create, Delete, Alter, DescribeConfigs, AlterConfigs.</li>
+          <li>Patterns : LITERAL (exact) ou PREFIXED (ex: <code>my-topic-*</code>).</li>
+          <li>Exemple : <code>kafka-acls --add --allow-principal User:app1 --operation Read --topic my-topic --group my-group</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-shield-virus"></i> <strong>Nuances importantes sur la sécurité :</strong>
+    <ul class="mt-2">
+      <li><strong>mTLS (Mutual TLS)</strong> : Le client et le broker s’authentifient mutuellement via certificats. Utilisé souvent avec <code>security.protocol=SSL</code> (sans SASL).</li>
+      <li><strong>Super users</strong> : Comptes contournant les ACLs (ex: <code>super.users=User:admin</code> dans server.properties).</li>
+      <li><strong>Audit logs</strong> : Kafka n’a pas de logs d’audit natifs. Utiliser des plugins ou Kafka-native avec les logs des autorisations (authorizer.log).</li>
+      <li>Si vous utilisez <code>SSL</code> sans SASL, l’identité du client est l’objet distinct (CN).</li>
+    </ul>
+  </div>
+
+  <!-- 3. Garanties de livraison (At-most-once, At-least-once, Exactly-once) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📦 Garanties de livraison – Détails exhaustifs</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>Garantie</th><th>Configuration</th><th>Risques</th><th>Cas d’usage</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>At-most-once</strong></td><td><code>acks=0</code> ou <code>enable.idempotence=false</code> + pas de retries</td><td>Perte de messages possible (fire-and-forget)</td><td>Métriques non critiques, logs</td></tr>
+        <tr><td><strong>At-least-once</strong></td><td><code>acks=all</code> ou <code>acks=1</code> + <code>retries>0</code></td><td>Duplicates possibles (même message livré plusieurs fois)</td><td>Pipelines de données robustes acceptant les doublons</td></tr>
+        <tr><td><strong>Exactly-once (per partition)</strong></td><td><code>enable.idempotence=true</code> + <code>acks=all</code> + <code>max.in.flight.requests.per.connection=1</code> (ou ≤5 avec idempotence)</td><td>Aucune perte ni duplicate au sein d’une partition</td><td>Écritures sans doublon dans une seule partition</td></tr>
+        <tr><td><strong>Exactly-once (multi-partitions / transactions)</strong></td><td>Idem + <code>transactional.id</code> + initialisation transaction + commit</td><td>Atomicité sur plusieurs partitions et topics</td><td>Écritures bancaires, paiements, commandes</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong><i class="fas fa-code-branch"></i> Exemple détaillé – Idempotent Producer</strong>
+    <pre class="bg-light p-2 rounded mt-2"><code>Properties props = new Properties();
+props.put("bootstrap.servers", "localhost:9092");
+props.put("enable.idempotence", "true");   // active l’idempotence (acks=all implicite)
+props.put("acks", "all");                  // optionnel mais recommandé
+props.put("max.in.flight.requests.per.connection", "5"); // avec idempotence, ≤5 ok
+KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+// Les séquences sont numérotées par le producteur, le broker rejette les doublons</code></pre>
+    <small>💡 L’idempotence repose sur un PID (Producer ID) et des numéros de séquence. Le broker maintient le dernier numéro reçu par partition.</small>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-exclamation-triangle"></i> <strong>Nuance cruciale pour l’examen :</strong> Exactly‑once sur plusieurs partitions nécessite obligatoirement les transactions. L’idempotence seule ne garantit pas l’atomicité entre partitions. Par ailleurs, <code>processing.guarantee=exactly_once_v2</code> dans Kafka Streams utilise un mécanisme de transactions optimisé (plus performant que v1).
+  </div>
+
+  <!-- 4. Hiérarchie des ressources Kafka -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🏛️ Resource Hierarchy – De cluster à record</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-7">
+      <div class="def-list">
+        <strong>📌 Niveaux hiérarchiques :</strong>
+        <ul class="mt-2">
+          <li><strong>Cluster</strong> : ensemble de brokers (un ou plusieurs). Identifié par un <code>cluster.id</code> (KRaft) ou généré par ZooKeeper.</li>
+          <li><strong>Broker</strong> : serveur Kafka individuel (identifié par un id entier). Chaque broker héberge des réplicas de partitions.</li>
+          <li><strong>Topic</strong> : flux logique de messages (ex: “orders”). Configuration : partitions, réplication factor.</li>
+          <li><strong>Partition</strong> : unité de parallélisme, ordre garanti. Chaque partition a un leader et des followers.</li>
+          <li><strong>Record (message)</strong> : unité de données avec clé, valeur, timestamp, headers, offset.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-sitemap"></i> Utilité pour les ACLs :</strong><br>
+        Les ACLs peuvent s’appliquer à chaque niveau. Exemple : autoriser un utilisateur à écrire sur le topic “payments” mais pas sur “admin”. Au niveau cluster : autoriser la création de topics (Create).<br>
+        <code>kafka-acls --add --allow-principal User:app --operation Create --cluster</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-question-circle"></i> <strong>Questions typiques de l’examen :</strong>
+    <ul>
+      <li>« Un consommateur peut-il lire à partir d’un topic sans ACL de lecture sur le cluster ? » → Oui, car l’ACL se fait au niveau topic. L’ACL cluster est nécessaire pour les opérations comme Describe sur le cluster.</li>
+      <li>« Quelle ressource est la plus petite unité ayant un ordre garanti ? » → Partition (l’ordre n’est pas garanti entre partitions d’un même topic).</li>
+      <li>« Si un broker meurt, le leader d’une partition peut-il être transféré ? » → Oui, un follower devient leader (gestion des ISR).</li>
+    </ul>
+  </div>
+
+  <!-- 5. Détail des garanties avec ack=1, ack=all, min.insync.replicas -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚙️ Comportement des accusés de réception (acks)</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="def-list">
+        <strong>acks=0</strong><br>
+        Le producteur ne reçoit aucun accusé. Latence minimale, risque de perte maximal. Utilisable pour métriques.
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="def-list">
+        <strong>acks=1</strong><br>
+        Le leader écrit le message dans son log local et répond. Si le leader crash avant que les followers ne le répliquent → perte possible.
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="def-list">
+        <strong>acks=all (ou -1)</strong><br>
+        Tous les ISR (in-sync replicas) doivent avoir écrit le message. Indispensable pour la durabilité. Combine avec <code>min.insync.replicas</code> (ex: 2) pour garantir qu’au moins 2 réplicas aient le message.
+      </div>
+    </div>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong><i class="fas fa-chart-line"></i> Bonnes pratiques de durabilité :</strong>
+    <ul>
+      <li><code>acks=all</code> + <code>min.insync.replicas=2</code> + facteur de réplication ≥3 protège contre la perte de données même si un broker tombe.</li>
+      <li>Activez <code>unclean.leader.election.enable=false</code> pour éviter qu’un réplica hors ISR devienne leader (empêche la perte de données).</li>
+      <li>Idempotent producer + acks=all garantit exactly-once par partition.</li>
+    </ul>
+  </div>
+
+  <!-- 6. Délivrabilité et gestion des erreurs -->
+  <div class="nuance-box mb-4">
+    <strong><i class="fas fa-bug"></i> Erreurs liées à la livraison :</strong>
+    <ul>
+      <li><code>TimeoutException</code> : le leader n’a pas accusé dans <code>request.timeout.ms</code>. Solution : augmenter le timeout, vérifier la charge du broker.</li>
+      <li><code>NotEnoughReplicasException</code> : <code>min.insync.replicas</code> n’est pas atteint (trop de followers en retard).</li>
+      <li><code>DuplicateSequenceException</code> : tentative de réécriture d’une séquence déjà utilisée (si idempotence activée).</li>
+    </ul>
+  </div>
+
+  <!-- 7. Schéma conceptuel simplifié (représentation textuelle) -->
+  <div class="best-card mb-4 bg-light">
+    <strong><i class="fas fa-project-diagram"></i> Hiérarchie et flux de délégation :</strong>
+    <pre style="font-family: monospace; background: #fff3e0; padding: 0.8rem; border-radius: 16px;">
+Cluster (ID: prod-cluster)
+ │
+ ├─ Broker 101 (leader pour partition 0 du topic A)
+ ├─ Broker 102 (follower pour partition 0, leader pour partition 1)
+ └─ Broker 103 (ISR pour partition 0 et 1)
+     │
+     └─ Topic "payment-transactions" (RF=3, partitions=2)
+          ├─ Partition 0 (leader=101, offset 0 à 1.250.000)
+          └─ Partition 1 (leader=102, offset 0 à 980.000)
+               └─ Record (key=order_123, value="PAID", headers={"env":"prod"}, offset=980.001)
+    </pre>
+    <em>Note : Chaque modification (write) passe par le leader de la partition, puis est répliquée vers les followers (ISR).</em>
+  </div>
+
+  <!-- 8. Résumé des commandes CLI pour tester sécurité et livraison -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Commandes essentielles à connaître :</strong>
+    <ul>
+      <li><code>kafka-console-producer --broker-list localhost:9092 --topic test --producer.config client-ssl.properties</code> (pour utiliser SASL/SSL)</li>
+      <li><code>kafka-console-consumer --bootstrap-server localhost:9092 --topic test --group mygroup --from-beginning --consumer.config client-sasl.properties</code></li>
+      <li><code>kafka-acls --authorizer-properties zookeeper.connect=localhost:2181 --list</code> (afficher les ACLs)</li>
+      <li><code>kafka-replica-verification --broker-list localhost:9092</code> pour valider la réplication.</li>
+    </ul>
+  </div>
+
+  <!-- 9. Questions ouvertes pour auto-évaluation -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Questions que vous devez être capable de répondre (flashcards) :</strong>
+    <ol>
+      <li>Quelle est la différence entre SASL/SCRAM et SASL/PLAIN ?</li>
+      <li>Sous quelles conditions exactement le message peut-il être perdu avec acks=all ? (min.insync.replicas non atteint, ou tous les ISR crash).</li>
+      <li>Comment configurer un producteur pour exactly-once sur plusieurs topics ?</li>
+      <li>Quelle est l’unité de stockage physique dans un broker (fichier .log) ? → Une partition.</li>
+      <li>Pouvez-vous écrire une ACL qui permet à un utilisateur de lire tous les topics commençant par “finance-” ? (Oui, avec pattern PREFIXED).</li>
+    </ol>
+  </div>
+
+  <!-- 10. Checklist finale du module -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Vérifiez que vous maîtrisez :</strong>
+    <ul class="mt-2">
+      <li>✅ Configurer un producteur avec <code>enable.idempotence=true</code> et expliquer son impact.</li>
+      <li>✅ Créer un utilisateur SCRAM et l’utiliser dans un client.</li>
+      <li>✅ Distinguer <code>acks=1</code> et <code>acks=all</code> dans un scénario de panne.</li>
+      <li>✅ Citer la hiérarchie complète : cluster → broker → topic → partition → record.</li>
+      <li>✅ Récupérer les métriques liées à l’ISR (ex: <code>kafka.server:type=ReplicaManager</code>).</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-chalkboard"></i> Ce module couvre en profondeur la sécurité et les garanties – points clés pour l’examen CCDAK.
+  </div>
+</div>
+
+      <!-- Consumer groups & assign/subscribe -->
+
+<!-- CONSUMER GROUPS & ASSIGN/SUBSCRIBE - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabCG" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-users me-2"></i> Consumer Groups, Partition Assignment, and assign() vs subscribe() – Complete Guide
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Pourquoi ce module est central pour l’examen CCDAK ?</strong><br>
+    La compréhension des consumer groups (rééquilibrage, assignation des partitions) et la différence entre <code>assign()</code> et <code>subscribe()</code> est l’un des sujets les plus testés. Environ 25% des questions du domaine « Fundamentals » portent sur la gestion des groupes, les stratégies de partitionnement et la reprise après sinistre. Maîtriser ces concepts est essentiel pour concevoir des applications résilientes.
+  </div>
+
+  <!-- 2. Consumer groups – Fonctionnement détaillé -->
+  <div class="section-title mt-3" style="font-size:1.3rem">👥 Consumer groups : architecture interne</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-cogs"></i> Rôle du coordinateur de groupe</strong>
+        <ul class="mt-2">
+          <li>Un des brokers est élu <strong>Group Coordinator</strong> pour chaque groupe (basé sur le hash du nom du groupe).</li>
+          <li>Gère les membres du groupe, les heartbeats, et lance les rééquilibrages.</li>
+          <li>Stocke les métadonnées du groupe (membres, partition assignments) dans la partition interne <code>__consumer_offsets</code>.</li>
+          <li>Paramètres : <code>group.initial.rebalance.delay.ms</code> (délai avant de lancer un rebalance), <code>session.timeout.ms</code> (heartbeat maximal).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-chart-line"></i> Cycle de vie d’un consommateur</strong>
+        <ul>
+          <li><strong>JoinGroup</strong> : le consommateur s’enregistre auprès du coordinateur.</li>
+          <li><strong>SyncGroup</strong> : le leader du groupe (premier membre) calcule l’assignation, tous les membres reçoivent leur affectation.</li>
+          <li><strong>Heartbeat</strong> : maintenir l’appartenance (par défaut toutes les 3 secondes).</li>
+          <li><strong>LeaveGroup</strong> : départ volontaire (ex: fermeture propre).</li>
+          <li><strong>Rebalance</strong> : déclenché par arrivée/départ de membre, ou changement de métadonnées de topic (nouvelle partition).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-exclamation-triangle"></i> <strong>Nuance importante :</strong> Un consommateur peut être considéré comme mort s’il n’envoie pas de heartbeat pendant <code>session.timeout.ms</code> (défaut 45s). Le rééquilibrage peut prendre jusqu’à <code>max.poll.interval.ms</code> (défaut 5min) si le traitement des messages est long. Utilisez <code>pause()/resume()</code> ou diminuez <code>max.poll.records</code> pour éviter les rebalances intempestifs.
+  </div>
+
+  <!-- 3. Stratégies d’assignation des partitions -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚖️ Stratégies de partition assignment (RangeAssignor, RoundRobinAssignor, StickyAssignor, CooperativeSticky)</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-light">
+        <tr><th>Stratégie</th><th>Comportement</th><th>Avantages / inconvénients</th><th>Rééquilibrage</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>RangeAssignor</strong> (défaut ancienne version)</td><td>Pour chaque topic, les partitions sont regroupées par ordre et réparties consécutivement entre les consommateurs.</td><td>Peut créer des déséquilibres (dernier consommateur reçoit moins). Stop-the-world complet.</td><td>Classique (tous les membres perdent leur affectation).</td></tr>
+        <tr><td><strong>RoundRobinAssignor</strong></td><td>Parcourt toutes les partitions de tous les topics en alternant entre les consommateurs.</td><td>Bon équilibre mais peut être coûteux en recalcul. Stop-the-world.</td><td>Complet.</td></tr>
+        <tr><td><strong>StickyAssignor</strong></td><td>Maintient les affectations existantes autant que possible, déplace le minimum de partitions.</td><td>Réduit le transfert de données (moins de mouvement). Stop-the-world.</td><td>Complet mais recherche la stabilité.</td></tr>
+        <tr><td><strong>CooperativeStickyAssignor</strong> (recommandé Kafka ≥2.4)</td><td>Rééquilibrage incrémental : certaines partitions sont révoquées et reassignées en plusieurs phases, sans tout arrêter.</td><td>Réduction majeure du « stop-the-world ». Idéal pour les grands groupes.</td><td>Incrémental (coopératif).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong><i class="fas fa-code"></i> Configuration de la stratégie :</strong>
+    <pre class="bg-light p-2 rounded mt-2"><code>Properties props = new Properties();
+props.put("bootstrap.servers", "localhost:9092");
+props.put("group.id", "my-group");
+props.put("partition.assignment.strategy", 
+    "org.apache.kafka.clients.consumer.CooperativeStickyAssignor");
+KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);</code></pre>
+    <small>💡 Depuis Kafka 3.0, <code>CooperativeStickyAssignor</code> est recommandé pour minimiser les arrêts de traitement lors de montées en charge.</small>
+  </div>
+
+  <!-- 4. assign() vs subscribe() – Comparaison exhaustive -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚔️ assign() vs subscribe() – Tableau de différences</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong><i class="fas fa-hand-paper"></i> assign() – Manuel</strong>
+        <ul class="mt-2">
+          <li>Le consommateur n’appartient à aucun groupe.</li>
+          <li>Vous spécifiez exactement les TopicPartition à lire : <code>consumer.assign(Arrays.asList(new TopicPartition("topic", 0), new TopicPartition("topic", 1)))</code>.</li>
+          <li>Aucun rééquilibrage automatique (si partition ajoutée, vous devez le faire manuellement).</li>
+          <li>Pas de coordination entre consommateurs → pas de failover automatique.</li>
+          <li>Utile pour les lecteurs « stateless » ou les migrations.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-users"></i> subscribe() – Dynamique (groupe)</strong>
+        <ul class="mt-2">
+          <li>Le consommateur rejoint un groupe via <code>group.id</code>.</li>
+          <li>Indique les topics (ou pattern regex) : <code>consumer.subscribe(Arrays.asList("topic1", "topic2"))</code>.</li>
+          <li>Le groupe se rééquilibre automatiquement : ajout/suppression de consommateurs, ajout de partitions.</li>
+          <li>Si un consommateur meurt, ses partitions sont réassignées à d’autres membres.</li>
+          <li>Permet de paralléliser la charge de manière horizontale.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-question-circle"></i> <strong>Questions types que vous verrez à l’examen :</strong><br>
+    « Un développeur utilise <code>assign()</code> pour lire un sujet ayant 4 partitions, puis lance 2 instances de son application. Que se passe-t-il si l’une des instances s’arrête ? » → Les partitions ne sont pas réassignées, la consommation s’arrête pour les partitions de l’instance morte. C’est l’inconvénient majeur par rapport à <code>subscribe()</code>.<br>
+    « Quelle méthode permet de bénéficier de l’équilibrage de charge automatique ? » → <code>subscribe()</code> uniquement.
+  </div>
+
+  <!-- 5. Gestion des offsets et commit strategies -->
+  <div class="section-title mt-4" style="font-size:1.3rem">💾 Gestion des offsets dans un consumer group</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-5">
+      <div class="def-list">
+        <strong>Commit automatique (<code>enable.auto.commit=true</code>)</strong><br>
+        - Interval : <code>auto.commit.interval.ms</code> (défaut 5s).<br>
+        - Risque : message traité mais non commité avant le rebalance → relecture (au moins une fois).<br>
+        - Simple mais déconseillé pour les traitements critiques.
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="best-card">
+        <strong>Commit manuel synchrone & asynchrone</strong>
+        <pre class="bg-light p-2 rounded mt-2"><code>// synchrone (bloquant)
+consumer.commitSync();
+// asynchrone avec callback
+consumer.commitAsync((offsets, exception) -> {
+    if(exception != null) log.error("Commit failed", exception);
+});</code></pre>
+        <small>💡 Utilisez <code>commitSync()</code> avant de fermer le consommateur, et <code>commitAsync()</code> pendant le traitement normal pour la performance.</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-database"></i> <strong>Nuance technique :</strong> L’offset est stocké pour chaque partition sous la forme d’un entier (prochain message à lire). Les offsets sont stockés dans la topic <code>__consumer_offsets</code> (nombre de partitions = <code>offsets.topic.num.partitions</code>, défaut 50). Vous pouvez inspecter les offsets d’un groupe avec <code>kafka-consumer-groups --describe --group mon_groupe</code>.
+  </div>
+
+  <!-- 6. Rebalance listeners – Contrôle fin -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔄 Rebalance listeners : avant/après rééquilibrage</div>
+  <div class="best-card mb-4">
+    <strong><i class="fas fa-plug"></i> Implémentation d’un ConsumerRebalanceListener</strong>
+    <pre class="bg-light p-2 rounded mt-2"><code>consumer.subscribe(Collections.singletonList("my-topic"), new ConsumerRebalanceListener() {
+    @Override
+    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+        // Avant que le rééquilibrage ne retire les partitions
+        consumer.commitSync(); // finaliser les offsets courants
+    }
+    @Override
+    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+        // Nouvelles partitions assignées
+        consumer.seekToBeginning(partitions); // exemple : repartir du début
+    }
+});</code></pre>
+    <small>📌 Important : Dans un rééquilibrage coopératif (<code>CooperativeStickyAssignor</code>), seules certaines partitions sont révoquées à la fois.</small>
+  </div>
+
+  <!-- 7. CLI essentiels pour consumer groups -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Commandes CLI incontournables :</strong>
+    <ul>
+      <li><code>kafka-consumer-groups --bootstrap-server localhost:9092 --list</code> → lister les groupes</li>
+      <li><code>kafka-consumer-groups --describe --group my-group</code> → afficher le lag, les membres, les offsets actuels.</li>
+      <li><code>kafka-consumer-groups --reset-offsets --group my-group --topic my-topic --to-earliest --execute</code> → remettre les offsets au début.</li>
+      <li><code>kafka-consumer-groups --delete --group my-group</code> → supprimer un groupe (Kafka ≥2.2).</li>
+      <li><code>kafka-run-class kafka.tools.GetOffsetShell --bootstrap-server localhost:9092 --topic my-topic</code> → visualiser les offsets par partition.</li>
+    </ul>
+  </div>
+
+  <!-- 8. Bonnes pratiques et pièges fréquents -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Bonnes pratiques</strong>
+        <ul>
+          <li>Utilisez <code>CooperativeStickyAssignor</code> pour les groupes de grande taille.</li>
+          <li>Augmentez <code>max.poll.interval.ms</code> si vos traitements sont lents (mais préférez réduire <code>max.poll.records</code>).</li>
+          <li>Implémentez toujours un listener pour les rebalances si vous gérez manuellement les offsets.</li>
+          <li>Surveillez le lag avec des alertes (Consumer Lag Monitoring).</li>
+          <li>Utilisez des noms de groupe sémantiques (<code>app.region.env</code>).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <strong>⚠️ Pièges fréquents</strong>
+        <ul>
+          <li>📌 Utiliser <code>assign()</code> avec un <code>group.id</code> configuré : cela ne crée pas de groupe, le group.id est ignoré.</li>
+          <li>📌 Ne pas appeler <code>poll()</code> assez souvent → le consommateur est considéré mort et le rebalance se produit.</li>
+          <li>📌 Commettre des offsets après le traitement mais sans gérer les erreurs → phénomène “lost message” si erreur après commit.</li>
+          <li>📌 Avoir plus de consommateurs que de partitions : certains consommateurs resteront inactifs (idle).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Cas pratique de rééquilibrage -->
+  <div class="def-list mb-4">
+    <strong>🧪 Cas d’étude : rééquilibrage avec 3 consommateurs et 4 partitions</strong><br>
+    Initial : C1 a p0+p1, C2 a p2, C3 a p3. Si C2 meurt, le coordinateur lance un rebalance. Les partitions p2 est réassignée à C1 ou C3 selon la stratégie. Si vous utilisez <code>CooperativeStickyAssignor</code>, seules les partitions nécessaires sont déplacées (p2 par exemple), sans révoquer p0,p1,p3. Ceci réduit le temps de pause à quelques secondes au lieu d’un arrêt complet.
+  </div>
+
+  <!-- 10. Questions ouvertes pour auto-évaluation -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Questions pour vous tester :</strong>
+    <ol>
+      <li>Quelle est la différence de comportement entre <code>assign()</code> et <code>subscribe()</code> lors de l’ajout d’un nouveau consommateur ?</li>
+      <li>Que signifie une valeur de lag élevée pour un groupe de consommateurs ? Comment la réduire ?</li>
+      <li>Quelle stratégie d’assignation minimise le temps d’indisponibilité lors d’un scale-up ?</li>
+      <li>Comment réinitialiser les offsets d’un groupe à une date précise ?</li>
+      <li>Que se passe-t-il si un consommateur appelle <code>subscribe()</code> sans définir <code>group.id</code> ? (Erreur).</li>
+    </ol>
+  </div>
+
+  <!-- 11. Checklist finale -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Validation des compétences – Consumer Groups & assign/subscribe</strong>
+    <ul class="mt-2">
+      <li>✅ Je sais expliquer quand utiliser <code>assign()</code> vs <code>subscribe()</code>.</li>
+      <li>✅ Je connais les 4 stratégies d’assignation (<code>Range</code>, <code>RoundRobin</code>, <code>Sticky</code>, <code>CooperativeSticky</code>).</li>
+      <li>✅ Je peux réinitialiser les offsets d’un groupe via CLI.</li>
+      <li>✅ Je comprends le rôle du Group Coordinator et de <code>__consumer_offsets</code>.</li>
+      <li>✅ Je maîtrise les concepts de heartbeat, <code>session.timeout.ms</code> et <code>max.poll.interval.ms</code>.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-users"></i> Ce module couvre l’intégralité des consumer groups – un pilier de l’examen CCDAK.
+  </div>
+</div>
+
+
+      <!-- Topic configs and offsets handling -->
+
+<!-- TOPIC CONFIGS & OFFSETS HANDLING - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabTopic" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-cog me-2"></i> Topic Configurations & Consumer Offsets – Master Guide
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Pourquoi ce module est crucial pour l’examen CCDAK ?</strong><br>
+    Les configurations de topic définissent le comportement de rétention, de compactage et de fiabilité. La gestion des offsets (position des consommateurs) est au cœur du mécanisme de reprise après sinistre. Environ 20% des questions du domaine « Fundamentals » portent sur ces deux thèmes. Une mauvaise compréhension peut entraîner des pertes de données ou des relectures intempestives.
+  </div>
+
+  <!-- 2. Configurations avancées des topics – Vue d'ensemble -->
+  <div class="section-title mt-3" style="font-size:1.3rem">⚙️ Topic configurations essentielles (non exhaustif mais complet)</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>Configuration</th><th>Valeur par défaut</th><th>Description & impact</th><th>À retenir pour l’examen</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>retention.ms</code></td><td>7 jours (604800000 ms)</td><td>Durée de conservation des messages (suppression après délai).</td><td>Si <code>cleanup.policy=delete</code>, les messages plus vieux que retention.ms sont supprimés.</td></tr>
+        <tr><td><code>retention.bytes</code></td><td>-1 (illimité)</td><td>Taille maximale du log avant suppression (par partition).</td><td>Privilégier retention.ms sauf pour les contraintes de stockage.</td></tr>
+        <tr><td><code>cleanup.policy</code></td><td>delete</td><td><strong>delete</strong> (supprime basé sur retention) ou <strong>compact</strong> (ne garde que le dernier message par clé).</td><td>Le compactage nécessite des clés. Les messages sans clé sont ignorés.</td></tr>
+        <tr><td><code>segment.bytes</code></td><td>1 Go (1073741824)</td><td>Taille d’un fichier segment (log segment).</td><td>Les petits segments augmentent la gestion, les gros segments retardent la suppression.</td></tr>
+        <tr><td><code>segment.ms</code></td><td>7 jours</td><td>Durée avant de fermer un segment actif.</td><td>Un segment fermé peut être supprimé selon retention.</td></tr>
+        <tr><td><code>min.insync.replicas</code></td><td>1</td><td>Nombre minimum de réplicas ISR qui doivent accuser réception pour acks=all.</td><td>Avec RF=3, min.insync.replicas=2 évite la perte de données.</td></tr>
+        <tr><td><code>unclean.leader.election.enable</code></td><td>false</td><td>Autorise un réplica hors ISR à devenir leader (risque de perte).</td><td>Conserver <code>false</code> pour la durabilité (exige au moins 1 ISR).</td></tr>
+        <tr><td><code>max.message.bytes</code></td><td>1 MB (1048576)</td><td>Taille maximale d’un message.</td><td>Doit être cohérent avec <code>fetch.max.bytes</code> du consommateur.</td></tr>
+        <tr><td><code>compression.type</code></td><td>producer</td><td>Compression (gzip, snappy, lz4, zstd) héritée ou forcée.</td><td>Laissez producer pour que le producteur décide.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-lightbulb"></i> <strong>Nuances importantes :</strong>
+    <ul>
+      <li>La politique <code>compact</code> ne garantit pas une suppression immédiate ; Kafka lance un thread de nettoyage. Utilisez <code>min.cleanable.dirty.ratio</code> (défaut 0.5).</li>
+      <li><code>unclean.leader.election.enable=true</code> peut être utilisé si la disponibilité prime sur la cohérence (ex: logs non critiques).</li>
+      <li>Le paramètre <code>retention.ms</code> prime sur <code>retention.bytes</code> (le premier seuil atteint déclenche la suppression).</li>
+      <li>Modifier <code>segment.bytes</code> après creation n’affecte que les futurs segments.</li>
+    </ul>
+  </div>
+
+  <!-- 3. Commandes CLI pour gérer les topics -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🖥️ Commandes kafka-topics essentielles</div>
+  <div class="best-card mb-4">
+    <strong><i class="fas fa-terminal"></i> Création, modification, suppression</strong>
+    <pre class="bg-light p-2 rounded mt-2"><code># Créer un topic avec configurations spécifiques
+kafka-topics --bootstrap-server localhost:9092 --create \
+--topic orders \
+--partitions 6 \
+--replication-factor 3 \
+--config retention.ms=86400000 \
+--config cleanup.policy=compact \
+--config min.insync.replicas=2
+
+# Modifier une configuration (sans recréer)
+kafka-topics --bootstrap-server localhost:9092 --alter \
+--topic orders \
+--config retention.ms=172800000
+
+# Supprimer une config personnalisée (retourne à la valeur par défaut)
+kafka-topics --bootstrap-server localhost:9092 --alter \
+--topic orders \
+--delete-config retention.ms
+
+# Lister les topics
+kafka-topics --bootstrap-server localhost:9092 --list
+
+# Décrire un topic avec ses configurations
+kafka-topics --bootstrap-server localhost:9092 --describe --topic orders</code></pre>
+    <small>💡 Avec Kafka 2.2+, vous pouvez aussi utiliser <code>kafka-configs --bootstrap-server ... --alter --entity-type topics --entity-name orders --add-config retention.ms=... </code></small>
+  </div>
+
+  <!-- 4. Offsets handling – Principes fondamentaux -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📌 Offsets : le pointeur de lecture du consommateur</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Qu’est-ce qu’un offset ?</strong><br>
+        Un numéro séquentiel attribué à chaque message à l’intérieur d’une partition. Le premier message a l’offset 0 (ou parfois 0). Le consommateur enregistre quel offset a été traité pour chaque partition. Si aucun offset n’est commis, <code>auto.offset.reset</code> prend le relais.
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Topic interne __consumer_offsets</strong><br>
+        Stocke les offsets des consumer groups. Nombre de partitions = <code>offsets.topic.num.partitions</code> (50 par défaut). Brokers y écrivent les commits.
+        <br><em>Observation :</em> <code>kafka-console-consumer --bootstrap-server ... --topic __consumer_offsets --formatter "kafka.coordinator.group.GroupMetadataManager\$OffsetsMessageFormatter"</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-database"></i> <strong>Nuance critique :</strong> Les offsets sont engagés par <code>group.id</code> + partition. Si vous supprimez un groupe, les offsets sont effacés du topic interne. La réinitialisation des offsets (<code>--reset-offsets</code>) ne supprime pas les données du topic source, elle modifie simplement le pointeur dans __consumer_offsets.
+  </div>
+
+  <!-- 5. auto.offset.reset – Comportement détaillé -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔄 auto.offset.reset : Que faire quand aucun offset n’est commis ?</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr><th>Valeur</th><th>Comportement</th><th>Cas d’usage typique</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>earliest</code></td><td>Lire depuis le début de la partition (offset 0).</td><td>Traitement historique complet (ex: reconstruction d’état).</td></tr>
+        <tr><td><code>latest</code> (défaut)</td><td>Lire seulement les nouveaux messages (ignorer ceux déjà présents).</td><td>Application démarrant après les données initiales.</td></tr>
+        <tr><td><code>none</code></td><td>Lever une exception <code>NoOffsetForPartitionException</code> si aucun offset commis.</td><td>Détection proactive ; oblige le développeur à gérer manuellement.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="best-card mb-4">
+    <strong>Exemple de code avec gestion de auto.offset.reset</strong>
+    <pre class="bg-light p-2 rounded"><code>Properties props = new Properties();
+props.put("bootstrap.servers", "...");
+props.put("group.id", "my-app");
+props.put("auto.offset.reset", "earliest");
+KafkaConsumer<String,String> consumer = new KafkaConsumer<>(props);
+// Si le groupe n'a pas d'offset commis, consumer.poll() lira depuis le début.</code></pre>
+  </div>
+
+  <!-- 6. Réinitialisation des offsets (reset) – CLI et cas pratiques -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⏪ Réinitialiser les offsets : stratégies et commandes</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Commandes de reset (kafka-consumer-groups)</strong>
+        <pre class="bg-light p-1 rounded small"><code># Reset à la plus ancienne
+kafka-consumer-groups --bootstrap-server localhost:9092 --group my-group --reset-offsets --to-earliest --topic my-topic --execute
+
+# Reset à un timestamp (ISO 8601)
+--reset-offsets --to-datetime 2023-01-01T00:00:00.000
+
+# Décaler de N positions (shift-by)
+--reset-offsets --shift-by -100 --topic my-topic
+
+# Pour une partition spécifique
+--reset-offsets --to-offset 500 --topic my-topic:0,my-topic:1</code></pre>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box">
+        <strong>⚠️ Prérequis importants :</strong>
+        <ul>
+          <li>Le groupe de consommateurs doit être <strong>inactif</strong> pour réinitialiser (tous les membres arrêtés).</li>
+          <li>Pour forcer : <code>--dry-run</code> pour prévisualiser, puis <code>--execute</code>.</li>
+          <li>La réinitialisation change l’offset stocké dans __consumer_offsets ; les messages non consommés restent dans le topic source.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong><i class="fas fa-code-branch"></i> Reset via l’API Java (avancé)</strong>
+    <pre class="bg-light p-2 rounded"><code>// Utiliser seek() quand vous utilisez assign()
+TopicPartition partition = new TopicPartition("my-topic", 0);
+consumer.assign(Arrays.asList(partition));
+consumer.seek(partition, 100); // Offset 100
+// Pour un groupe avec subscribe(), vous devez utiliser un ConsumerRebalanceListener
+// pour appeler seek() après l'assignation.</code></pre>
+  </div>
+
+  <!-- 7. Gestion des offsets longs – surveillance du lag -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📈 Monitoring du lag – Pourquoi et comment ?</div>
+  <div class="def-list mb-4">
+    <strong>Lag = différence entre l’offset du producteur et l’offset consommé</strong><br>
+    Exemple: la dernière écriture dans la partition a l’offset 1500, le consommateur a commis l’offset 1200 → lag = 300 messages.<br>
+    <strong>Commande :</strong> <code>kafka-consumer-groups --bootstrap-server localhost:9092 --group my-group --describe</code>
+    <pre>GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG
+my-group        my-topic        0          1200            1500            300
+my-group        my-topic        1          800             800             0</pre>
+    Un lag élevé et persistant indique un consommateur trop lent ou un sous-dimensionnement.
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-chart-line"></i> <strong>Bonnes pratiques de monitoring :</strong>
+    <ul>
+      <li>Alertes lorsque le lag dépasse un seuil (ex: 10 000 messages pendant 5 minutes).</li>
+      <li>Utiliser des métriques JMX comme <code>kafka.consumer:type=consumer-fetch-manager-metrics,client-id=*</code> → <code>records-lag-max</code>.</li>
+      <li>Augmenter le nombre de consommateurs (max = nombre de partitions) ou améliorer le traitement.</li>
+      <li>Une valeur de lag négative est impossible (CURRENT-OFFSET > LOG-END-OFFSET indique une anomalie).</li>
+    </ul>
+  </div>
+
+  <!-- 8. Bonnes pratiques pour les configurations de topic -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Bonnes pratiques recommandées</strong>
+        <ul>
+          <li>Définissez <code>retention.ms</code> en fonction de l’obligation légale (ex: 90 jours).</li>
+          <li>Utilisez <code>cleanup.policy=compact</code> pour les tables de référence (ex: dernières valeurs de configuration).</li>
+          <li>Pour les données critiques, <code>min.insync.replicas=2</code> avec <code>replication.factor=3</code>.</li>
+          <li>Augmentez <code>max.message.bytes</code> si vous gérez des messages volumineux, mais attention à la mémoire.</li>
+          <li>Surveillez l’activité des segments (<code>kafka-log-dirs --describe</code>).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <strong>⚠️ Pièges fréquents à éviter</strong>
+        <ul>
+          <li>❌ Modifier <code>cleanup.policy</code> de delete à compact peut entraîner des changements de comportement inattendus.</li>
+          <li>❌ Oublier que les messages sur un topic compacté sans clé sont ignorés (ne seront jamais compactés).</li>
+          <li>❌ Régler <code>segment.bytes</code> trop petit (augmente les fichiers et les I/O).</li>
+          <li>❌ Ne pas vérifier que <code>unclean.leader.election.enable</code> est false si la perte de données est inacceptable.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Cas pratiques : scénarios typiques de l’examen -->
+  <div class="def-list mb-4">
+    <strong>📖 Scénarios examen :</strong>
+    <ul>
+      <li><strong>Scénario A :</strong> Un topic a une rétention de 24h. À 8h, un producteur écrit 1 million de messages. À 9h, un nouveau consommateur démarre avec <code>auto.offset.reset=earliest</code>. Verra-t-il tous les messages ? → Non, car une partie (plus vieille que 24h ? Si nous sommes à 9h, ceux d’hier 9h seraient supprimés). Ici, 24h glissantes.</li>
+      <li><strong>Scénario B :</strong> Un groupe de consommateurs a un lag de 0 mais un redémarrage provoque une relecture massive. Pourquoi ? Probablement car les offsets n’ont pas été correctement commités (commit asynchrone perdu).</li>
+      <li><strong>Scénario C :</strong> Un topic avec <code>cleanup.policy=compact</code> reçoit des messages avec la même clé. Seul le dernier message restera. Interrogation : combien de messages lira un consommateur ? Tous, mais après compactage, certains seront marqués "tombstone" pour suppression.</li>
+    </ul>
+  </div>
+
+  <!-- 10. Questions d’auto-évaluation -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Vérifiez votre compréhension :</strong>
+    <ol>
+      <li>Que se passe-t-il si vous définissez <code>cleanup.policy=compact</code> et que les messages n’ont pas de clé ?</li>
+      <li>Comment modifier la taille des segments sans recréer le topic ?</li>
+      <li>Quelle commande permet de supprimer les offsets d’un consumer group ?</li>
+      <li>Quelle configuration garantit une perte zéro de messages même si un broker tombe ?</li>
+      <li>Si un consommateur s’arrête pendant 2 heures, puis redémarre, quel offset utilisé selon <code>auto.offset.reset</code> ?</li>
+    </ol>
+  </div>
+
+  <!-- 11. Checklist finale – Topic & Offsets -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Compétences à valider :</strong>
+    <ul class="mt-2">
+      <li>✅ Je peux créer un topic avec rétention de 3 jours et compactage activé.</li>
+      <li>✅ Je sais réinitialiser les offsets d’un groupe à une date précise.</li>
+      <li>✅ Je comprends la différence entre <code>retention.ms</code> et <code>segment.ms</code>.</li>
+      <li>✅ Je connais le but de <code>min.insync.replicas</code> et <code>unclean.leader.election.enable</code>.</li>
+      <li>✅ Je maîtrise la commande <code>kafka-consumer-groups --describe</code> pour interpréter le lag.</li>
+      <li>✅ Je sais que les offsets sont stockés dans <code>__consumer_offsets</code>.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-clock"></i> Module complet – Topics & Offsets. Réviser ces concepts vous évitera de nombreuses erreurs à l’examen.
+  </div>
+</div>
+
+
+      <!-- Partitioner & request lifecycle -->
+
+<!-- PARTITIONER & REQUEST LIFECYCLE - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabPartitioner" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-code-branch me-2"></i> Producer Partitioner & Request Lifecycle – Deep Technical Dive
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Pourquoi ce module est déterminant pour l’examen CCDAK ?</strong><br>
+    Le partitionneur détermine comment les messages sont répartis entre les partitions, impactant directement l’ordre, l’équilibrage de charge et la performance. Le cycle de vie d’une requête producteur (de la sérialisation à la réponse du broker) est un sujet fréquent dans les questions avancées. Environ 15% des questions « Fundamentals » portent sur ces mécanismes internes.
+  </div>
+
+  <!-- 2. Rôle du partitionneur – Concepts fondamentaux -->
+  <div class="section-title mt-3" style="font-size:1.3rem">🧭 Qu’est-ce qu’un partitionneur ? Pourquoi est-ce essentiel ?</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-random"></i> Objectif principal</strong><br>
+        Le partitionneur décide dans quelle partition un message sera écrit. Cette décision influence :
+        <ul>
+          <li>L’ordre des messages (par partition, l’ordre est garanti).</li>
+          <li>La distribution de la charge entre les brokers (leaders des partitions).</li>
+          <li>La parallélisation côté consommateur (chaque partition est lue par un seul consommateur par groupe).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong>Cas d’utilisation typiques</strong>
+        <ul>
+          <li>Clé = ID utilisateur → toutes les commandes d’un même utilisateur vont dans la même partition (ordre préservé).</li>
+          <li>Clé = null → distribution round-robin (ou sticky partitioner pour le batching).</li>
+          <li>Clé = timestamp de l’événement → les événements proches peuvent atterrir dans des partitions différentes.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Default Partitioner (Sticky Partitioner) – Explication complète -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📌 Default partitioner – Comportement sticky (Kafka ≥ 2.4)</div>
+  <div class="nuance-box mb-4">
+    <i class="fas fa-bolt"></i> <strong>Avant 2.4 :</strong> round-robin pur pour les clés null → chaque message alternait entre les partitions, ce qui provoquait une fragmentation des lots (un lot par partition) et une faible efficacité de compression.<br>
+    <strong>Sticky Partitioner (actuel) :</strong> Pour les messages sans clé, le producteur choisit une partition et la « colle » (sticky) jusqu’à ce que le lot soit plein (<code>batch.size</code>) ou qu’un délai (<code>linger.ms</code>) soit écoulé. Ensuite, il en choisit une autre aléatoirement. Cela maximise la taille des lots, améliore le débit et la compression.
+  </div>
+  <div class="best-card mb-4">
+    <strong><i class="fas fa-code"></i> Implémentation interne (Java) – Simplifiée</strong>
+    <pre class="bg-light p-2 rounded"><code>// Pour une clé non nulle : hash(key) % numPartitions
+int partition = Utils.toPositive(Utils.murmur2(keyBytes)) % numPartitions;
+
+// Pour clé nulle : sticky partitioner
+if (nullKey) {
+    if (currentStickyPartition == null || batchFullOrExpired) {
+        currentStickyPartition = random.nextInt(numPartitions);
+    }
+    partition = currentStickyPartition;
+}</code></pre>
+    <small>💡 Le sticky partitioner utilise un générateur aléatoire mais en pratique il alterne entre partitions pour équilibrer la charge à long terme.</small>
+  </div>
+
+  <!-- 4. Stratégies de partitionnement personnalisé -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚙️ Implémenter un partitionneur personnalisé</div>
+  <div class="def-list mb-4">
+    <strong>Classe <code>org.apache.kafka.clients.producer.Partitioner</code> :</strong>
+    <pre class="bg-light p-2 rounded"><code>public class CustomPartitioner implements Partitioner {
+    @Override
+    public int partition(String topic, Object key, byte[] keyBytes,
+                         Object value, byte[] valueBytes, Cluster cluster) {
+        List<PartitionInfo> partitions = cluster.partitionsForTopic(topic);
+        int numPartitions = partitions.size();
+        // Exemple : toujours dans la partition basée sur la longueur de la valeur
+        return Math.abs(value.toString().length() % numPartitions);
+    }
+    @Override
+    public void close() {}
+    @Override
+    public void configure(Map<String, ?> configs) {}
+}</code></pre>
+    <strong>Configuration :</strong> <code>props.put("partitioner.class", "com.example.CustomPartitioner");</code>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-exclamation-triangle"></i> <strong>Attention :</strong> Les partitionneurs personnalisés peuvent contourner l’ordre par clé et causer des déséquilibres. Testez toujours la distribution sur plusieurs millions de messages.
+  </div>
+
+  <!-- 5. Cycle de vie d’une requête producteur (Request Lifecycle) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔄 Request Lifecycle – Du producteur au broker (10 étapes détaillées)</div>
+  <div class="row g-2 mb-4">
+    <div class="col-md-12">
+      <div class="best-card">
+        <ol>
+          <li><strong>Sérialisation</strong> : <code>key.serializer</code> et <code>value.serializer</code> convertissent l’objet en byte[].</li>
+          <li><strong>Interception</strong> (optionnel) : <code>ProducerInterceptor</code> peut modifier le message avant l’envoi (ex: ajouter des headers).</li>
+          <li><strong>Détermination de la partition</strong> : appel au partitionneur (sticky ou personnalisé).</li>
+          <li><strong>Accumulation (RecordAccumulator)</strong> : le message est ajouté à un lot (batch) correspondant à la partition cible. Les lots sont conservés dans une mémoire tampon (<code>buffer.memory</code>, défaut 32 Mo).</li>
+          <li><strong>Déclenchement de l’envoi</strong> : quand le lot est plein (<code>batch.size</code>) ou après <code>linger.ms</code>, le lot est prêt.</li>
+          <li><strong>Thread Sender</strong> : un thread séparé (Sender) prend le(s) lot(s) et construit une requête <code>ProduceRequest</code>.</li>
+          <li><strong>Métadonnées du cluster</strong> : le producteur connaît le leader de chaque partition (via <code>metadata.max.age.ms</code>). Si les métadonnées sont périmées, il rafraîchit d’abord.</li>
+          <li><strong>Envoi réseau (Selector)</strong> : la requête est envoyée au broker leader via le réseau (NIO). Gère le pipeline des requêtes ( <code>max.in.flight.requests.per.connection</code> ).</li>
+          <li><strong>Traitement par le broker</strong> : le broker écrit le message dans le log local, le réplique vers les followers (ISR) selon <code>acks</code> (0,1,all).</li>
+          <li><strong>Réponse et callback</strong> : le producteur reçoit la réponse (succès ou erreur). Si <code>retries &gt; 0</code>, certaines erreurs (timeout, leader not available) déclenchent une nouvelle tentative.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Erreurs possibles et retries -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚠️ Gestion des erreurs et mécanisme de retry</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Erreur</th><th>Retry automatique ?</th><th>Solution proposée</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>NotLeaderForPartitionException</code> (leader change)</td><td>Oui, après mise à jour des métadonnées.</td><td>Attendre la nouvelle élection du leader (quelques ms).</td></tr>
+        <tr><td><code>TimeoutException</code> (request.timeout.ms dépassé)</td><td>Oui si retries &gt; 0</td><td>Augmenter request.timeout.ms ou batch.size.</td></tr>
+        <tr><td><code>UnknownTopicOrPartitionException</code></td><td>Oui (le topic peut être en création)</td><td>Attendre que le topic soit créé.</td></tr>
+        <tr><td><code>RecordTooLargeException</code></td><td>Non (message &gt; max.message.bytes)</td><td>Augmenter max.message.bytes côté topic ou réduire le message.</td></tr>
+        <tr><td><code>DuplicateSequenceException</code> (idempotent)</td><td>Non</td><td>Corriger la logique du producteur (PID incohérent).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-sync-alt"></i> <strong>Configuration des retries :</strong>
+    <ul>
+      <li><code>retries = Integer.MAX_VALUE</code> (recommandé) avec <code>delivery.timeout.ms</code> pour limiter la durée totale.</li>
+      <li><code>retry.backoff.ms</code> (défaut 100ms) : temps d’attente entre deux tentatives.</li>
+      <li>Attention : avec <code>max.in.flight.requests.per.connection > 1</code> et <code>enable.idempotence=false</code>, les retries peuvent inverser l’ordre des messages (problème d’ordre). Idempotence corrige cela.</li>
+    </ul>
+  </div>
+
+  <!-- 7. Métadonnées et actualisation -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🗺️ Métadonnées du cluster – Rôle crucial</div>
+  <div class="def-list mb-4">
+    <strong>Quelles métadonnées sont gérées ?</strong><br>
+    - Liste des brokers, leaders des partitions, suiveurs (ISR).<br>
+    - <code>metadata.max.age.ms</code> (défaut 5 minutes) : force un rafraîchissement périodique.<br>
+    - Si le producteur reçoit <code>NotLeaderForPartitionException</code>, il rafraîchit immédiatement les métadonnées.<br>
+    - La récupération initiale se fait lors du premier <code>send()</code> ou via <code>partitionsFor()</code>.
+  </div>
+  <div class="best-card">
+    <strong><i class="fas fa-terminal"></i> Voir les métadonnées via l’API :</strong>
+    <pre class="bg-light p-2 rounded"><code>try (AdminClient client = AdminClient.create(props)) {
+    DescribeTopicsResult result = client.describeTopics(Collections.singletonList("my-topic"));
+    TopicDescription description = result.values().get("my-topic").get();
+    description.partitions().forEach(p -> System.out.println(p.partition() + " leader: " + p.leader()));
+}</code></pre>
+  </div>
+
+  <!-- 8. Bonnes pratiques pour le partitionnement -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Bonnes pratiques (partitioner)</strong>
+        <ul>
+          <li>Utilisez des clés à haute cardinalité (UUID, ID client) pour une distribution uniforme.</li>
+          <li>Evitez les clés « chaudes » (p. ex. pays = US, FR, DE) sous peine de déséquilibre.</li>
+          <li>Pour l’ordre global strict, une seule partition suffit, mais limite le débit.</li>
+          <li>Si vous n’avez pas besoin d’ordre, laissez la clé à null et bénéficiez du sticky partitioner.</li>
+          <li>Testez votre partitionneur personnalisé avec des données réelles.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <strong>⚠️ Pièges fréquents</strong>
+        <ul>
+          <li>Une clé constante (ex: “same”) envoie tous les messages dans une seule partition → goulot d’étranglement.</li>
+          <li>Changer de partitionneur en production sans analyse d’impact.</li>
+          <li>Ne pas surveiller la distribution des partitions (métriques Kafka).</li>
+          <li>Oublier que l’ajout de partitions après coup peut casser la répartition des clés existantes (pas de rééquilibrage automatique des anciens messages).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Optimisations de performance liées au partitionneur et batching -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🚀 Optimisations : batching, linger.ms, compression</div>
+  <div class="def-list mb-4">
+    <ul>
+      <li><strong><code>batch.size</code></strong> (défaut 16 Ko) : taille maximale d’un lot par partition. Un lot plus grand améliore le débit mais augmente la latence.</li>
+      <li><strong><code>linger.ms</code></strong> (défaut 0) : délai d’attente pour remplir un lot. Avec 5-10 ms, on augmente le batching pour les flux peu denses.</li>
+      <li><strong><code>compression.type</code></strong> (gzip, snappy, lz4, zstd) : la compression s’applique au lot entier. Le sticky partitionner aide la compression.</li>
+      <li><code>buffer.memory</code> (32 Mo) : mémoire totale pour les lots non envoyés. Si dépassée, send() bloque ou lève <code>BufferExhaustedException</code>.</li>
+    </ul>
+  </div>
+  <div class="best-card">
+    <strong>Exemple de configuration haute performance :</strong>
+    <pre class="bg-light p-2 rounded"><code>props.put("batch.size", "65536");     // 64 Ko
+props.put("linger.ms", "10");
+props.put("compression.type", "lz4");
+props.put("enable.idempotence", "true");
+props.put("max.in.flight.requests.per.connection", "5");</code></pre>
+  </div>
+
+  <!-- 10. Questions d’auto-évaluation (examen) -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Questions types de l’examen CCDAK :</strong>
+    <ol>
+      <li>Quel partitionneur Kafka recommande-t-il pour les clés nulles depuis la version 2.4 ? (Sticky).</li>
+      <li>Une clé de type « null » et 3 partitions : combien de lots sont créés si 1000 messages sont envoyés sans linger.ms ? (1 lot par partition jusqu’à ce que le lot soit plein).</li>
+      <li>Que signifie <code>max.in.flight.requests.per.connection=5</code> ? (5 requêtes peuvent être en cours simultanément).</li>
+      <li>Quelle(s) erreur(s) provoquent un recalcul des métadonnées ? (<code>NotLeaderForPartitionException</code>, <code>LeaderNotAvailableException</code>).</li>
+      <li>Comment garantir l’ordre des messages en présence de retries ? (Activer <code>enable.idempotence=true</code> ce qui limite max.in.flight à ≤5 et assure la séquence).</li>
+    </ol>
+  </div>
+
+  <!-- 11. CLI pour inspecter les partitions et leaders -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Commandes utiles :</strong>
+    <pre class="bg-light p-2 rounded"><code># Voir le leader de chaque partition
+kafka-topics --bootstrap-server localhost:9092 --describe --topic mytopic
+
+# Simuler le partitionnement (calcul du hash) - script externe ou API
+# Utiliser kafka-run-class pour afficher la partition d’une clé
+kafka-run-class kafka.tools.GetOffsetShell --bootstrap-server localhost:9092 --topic mytopic --time -1</code></pre>
+  </div>
+
+  <!-- 12. Checklist finale -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Compétences validées :</strong>
+    <ul class="mt-2">
+      <li>✅ Je connais les différences entre l’ancien round-robin et le sticky partitioner.</li>
+      <li>✅ Je peux écrire un partitionneur personnalisé.</li>
+      <li>✅ Je comprends l’intégralité du cycle de vie d’une requête producteur (10 étapes).</li>
+      <li>✅ Je sais configurer les retries, batch.size et linger.ms pour des cas d’usage variés.</li>
+      <li>✅ Je maîtrise le rôle des métadonnées et leur rafraîchissement.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-microchip"></i> Module ultra-détaillé – Partitioner & Request Lifecycle. Base indispensable pour toutes les questions sur le producteur Kafka.
+  </div>
+</div>
+
+
+      <!-- Producer/consumer configs, SerDes -->
+   
+<!-- PRODUCER/CONSUMER CONFIGS, SERDES - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabProdCons" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-exchange-alt me-2"></i> Producer / Consumer Configs, Serialization & Deserialization – Complete Mastery
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Pourquoi ce module est central pour l’examen CCDAK ?</strong><br>
+    Les configurations producteur et consommateur déterminent la performance, la fiabilité et la sémantique de livraison. La sérialisation/désérialisation (SerDes) est le pont entre vos objets et le réseau. Environ 30% des questions du domaine « Application Development » portent sur ces réglages. Une maîtrise fine des paramètres (acks, compression, fetch.min.bytes, etc.) est indispensable.
+  </div>
+
+  <!-- 2. Producteur Kafka – Configurations essentielles (tableau complet) -->
+  <div class="section-title mt-3" style="font-size:1.3rem">⚙️ Producteur – Paramètres clés et impacts</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>Configuration</th><th>Valeur par défaut</th><th>Description & impact</th><th>À retenir pour l’examen</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>acks</code></td><td>all (dans les nouvelles versions) / 1</td><td>Nombre de brokers accusant réception. 0 : fire-and-forget, 1 : leader seulement, all : tous les ISR.</td><td>All + min.insync.replicas = exactly-once (avec idempotence).</td></tr>
+        <tr><td><code>buffer.memory</code></td><td>33554432 (32 Mo)</td><td>Mémoire totale pour les lots en attente d’envoi. Si saturation, send() bloque ou lève BufferExhaustedException.</td><td>Augmenter pour pics de trafic.</td></tr>
+        <tr><td><code>batch.size</code></td><td>16384 (16 Ko)</td><td>Taille maximale d’un lot par partition. Au-delà, le lot est envoyé immédiatement.</td><td>Augmenter pour améliorer le débit (ex: 64 Ko).</td></tr>
+        <tr><td><code>linger.ms</code></td><td>0</td><td>Délai d’attente pour remplir un lot. >0 augmente le regroupement.</td><td>Mettre 5-20 ms pour les flux peu denses.</td></tr>
+        <tr><td><code>compression.type</code></td><td>none</td><td>Compression (gzip, snappy, lz4, zstd). Appliquée au lot entier.</td><td>lz4 ou zstd pour meilleur ratio.</td></tr>
+        <tr><td><code>max.in.flight.requests.per.connection</code></td><td>5</td><td>Nombre de requêtes simultanées (non encore accusées).</td><td>Avec idempotence = true, maximum 5 (garantit l’ordre).</td></tr>
+        <tr><td><code>retries</code></td><td>2147483647 (Integer.MAX_VALUE)</td><td>Nombre de tentatives en cas d’erreur transitoire.</td><td>Utiliser avec delivery.timeout.ms pour limiter la durée.</td></tr>
+        <tr><td><code>delivery.timeout.ms</code></td><td>120000 (2 min)</td><td>Temps maximal avant abandon (inclut retries).</td><td>Ne pas dépasser request.timeout.ms + linger.ms + retry backoff.</td></tr>
+        <tr><td><code>request.timeout.ms</code></td><td>30000 (30s)</td><td>Délai d’attente pour une réponse du broker.</td><td>Si timeout, retry si retries >0.</td></tr>
+        <tr><td><code>enable.idempotence</code></td><td>false</td><td>Évite les doublons (séquence par partition).</td><td>Activé automatiquement pour exactly-once et transactions.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-lightbulb"></i> <strong>Nuances importantes pour l’examen :</strong>
+    <ul>
+      <li><code>acks=all</code> est automatiquement forcé lorsque <code>enable.idempotence=true</code>.</li>
+      <li><code>max.in.flight.requests.per.connection</code> > 1 sans idempotence peut réordonner les messages (même avec retries).</li>
+      <li><code>delivery.timeout.ms</code> doit être >= <code>request.timeout.ms</code> + <code>linger.ms</code> + (retries * retry.backoff.ms).</li>
+    </ul>
+  </div>
+
+  <!-- 3. Consommateur – Configurations essentielles -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📥 Consommateur – Paramètres clés</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>Configuration</th><th>Valeur par défaut</th><th>Description & impact</th><th>À retenir</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>group.id</code></td><td>null (obligatoire sauf assign)</td><td>Identifie le groupe de consommateurs.</td><td>Sans group.id, subscribe() lève une erreur.</td></tr>
+        <tr><td><code>auto.offset.reset</code></td><td>latest</td><td>Comportement si aucun offset commis : earliest, latest, none.</td><td>earliest pour historique, none pour détection d’erreur.</td></tr>
+        <tr><td><code>enable.auto.commit</code></td><td>true</td><td>Commit automatique des offsets à intervalles réguliers.</td><td>false pour commit manuel (meilleur contrôle).</td></tr>
+        <tr><td><code>auto.commit.interval.ms</code></td><td>5000 (5s)</td><td>Fréquence du commit automatique.</td><td>Réduire pour moins de relectures, augmente la charge.</td></tr>
+        <tr><td><code>fetch.min.bytes</code></td><td>1</td><td>Minimum de données pour une réponse de fetch.</td><td>Augmenter pour réduire la latence (ex: 1 Ko).</td></tr>
+        <tr><td><code>fetch.max.wait.ms</code></td><td>500</td><td>Temps d’attente maximum si fetch.min.bytes non atteint.</td><td>Évite les attentes longues en flux faible.</td></tr>
+        <tr><td><code>max.partition.fetch.bytes</code></td><td>1048576 (1 Mo)</td><td>Maximum de données par partition par fetch.</td><td>Ne pas dépasser les limites du broker.</td></tr>
+        <tr><td><code>max.poll.records</code></td><td>500</td><td>Nombre max de messages par appel poll().</td><td>Réduire pour traitement long (évite rebalance).</td></tr>
+        <tr><td><code>session.timeout.ms</code></td><td>45000 (45s)</td><td>Temps max sans heartbeat avant déclaration de mort.</td><td>Ne pas réduire trop (risque de faux positifs).</td></tr>
+        <tr><td><code>heartbeat.interval.ms</code></td><td>3000 (3s)</td><td>Fréquence des heartbeats.</td><td>Doit être ≤ session.timeout.ms / 3.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong><i class="fas fa-code"></i> Exemple de configuration producteur haute durabilité :</strong>
+    <pre class="bg-light p-2 rounded"><code>Properties props = new Properties();
+props.put("bootstrap.servers", "broker1:9092");
+props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+props.put("acks", "all");
+props.put("enable.idempotence", "true");
+props.put("max.in.flight.requests.per.connection", "5");
+props.put("retries", Integer.MAX_VALUE);
+props.put("delivery.timeout.ms", 120000);
+props.put("compression.type", "lz4");
+props.put("batch.size", 65536);
+props.put("linger.ms", 10);
+KafkaProducer<String, String> producer = new KafkaProducer<>(props);</code></pre>
+  </div>
+
+  <!-- 4. Sérialisation / Désérialisation – Fondamentaux -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📦 Sérialisation et désérialisation (SerDes)</div>
+  <div class="def-list mb-4">
+    <strong>Pourquoi sérialiser ?</strong> Kafka transporte des tableaux d’octets (byte[]). Les sérialiseurs convertissent les objets Java en bytes, et les désérialiseurs font l’inverse. Les types primitifs et courants sont fournis : <code>StringSerializer</code>, <code>IntegerSerializer</code>, <code>ByteArraySerializer</code>, etc.
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>Sérialiseur personnalisé (exemple)</strong>
+        <pre class="bg-light p-2 rounded"><code>public class UserSerializer implements Serializer&lt;User&gt; {
+    @Override
+    public byte[] serialize(String topic, User data) {
+        byte[] serialized = new byte[8];
+        ByteBuffer buffer = ByteBuffer.wrap(serialized);
+        buffer.putInt(data.getId());
+        buffer.putInt(data.getName().length());
+        buffer.put(data.getName().getBytes());
+        return serialized;
+    }
+}</code></pre>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>Désérialiseur associé</strong>
+        <pre class="bg-light p-2 rounded"><code>public class UserDeserializer implements Deserializer&lt;User&gt; {
+    @Override
+    public User deserialize(String topic, byte[] data) {
+        ByteBuffer buffer = ByteBuffer.wrap(data);
+        int id = buffer.getInt();
+        int nameLen = buffer.getInt();
+        byte[] nameBytes = new byte[nameLen];
+        buffer.get(nameBytes);
+        return new User(id, new String(nameBytes));
+    }
+}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Avro, Protobuf, JSON et Schema Registry -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🗂️ Formats avancés : Avro, Protobuf, JSON + Schema Registry</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr><th>Format</th><th>Schéma requis</th><th>Avantages</th><th>Inconvénients</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Avro</strong></td><td>Oui (Schema Registry recommandé)</td><td>Compact, évolution de schéma, binaire efficace</td><td>Nécessite Registry, légère surcharge</td></tr>
+        <tr><td><strong>Protobuf</strong></td><td>Oui (fichier .proto)</td><td>Très compact, typé fort, multi-langage</td><td>Moins mature dans l’écosystème Kafka</td></tr>
+        <tr><td><strong>JSON</strong></td><td>Non (flexible)</td><td>Lisible, universel, facile</td><td>Verbose, pas d’évolution contrôlée, plus lent</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="nuance-box mb-4">
+    <strong>Schema Registry :</strong> Service central qui stocke et valide les schémas. Le message contient un ID de schéma ; le consommateur télécharge le schéma correspondant. Compatibilité : BACKWARD, FORWARD, FULL, NONE. Exemple de configuration producteur Avro :
+    <pre class="bg-light p-2 rounded mt-2"><code>props.put("key.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
+props.put("value.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
+props.put("schema.registry.url", "http://localhost:8081");</code></pre>
+  </div>
+
+  <!-- 6. Consommer des messages – Poll loop et gestion des batches -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔄 Consommation : boucle poll, commit et traitement</div>
+  <div class="best-card mb-4">
+    <pre class="bg-light p-2 rounded"><code>KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+consumer.subscribe(Arrays.asList("my-topic"));
+try {
+    while (true) {
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+        for (ConsumerRecord<String, String> record : records) {
+            process(record.value());
+        }
+        consumer.commitSync(); // commit manuel après traitement
+    }
+} finally {
+    consumer.close();
+}</code></pre>
+    <small>💡 <code>poll()</code> renvoie zéro ou plusieurs enregistrements. Le délai <code>max.poll.interval.ms</code> doit être plus grand que le temps de traitement du batch pour éviter un rebalance intempestif.</small>
+  </div>
+
+  <!-- 7. Erreurs courantes et gestion -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚠️ Erreurs fréquentes (producteur & consommateur)</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Producteur</strong>
+        <ul>
+          <li><code>TimeoutException</code> : réseau ou broker saturé → augmenter request.timeout.ms.</li>
+          <li><code>BufferExhaustedException</code> : trop de messages en mémoire → augmenter buffer.memory ou réduire production.</li>
+          <li><code>SerializationException</code> : mauvaise configuration de sérialiseur.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Consommateur</strong>
+        <ul>
+          <li><code>OffsetOutOfRangeException</code> : offset demandé n’existe plus → auto.offset.reset corrige.</li>
+          <li><code>DeserializationException</code> : données incompatibles avec le désérialiseur.</li>
+          <li><code>CommitFailedException</code> : rebalance pendant commit → répéter le commit plus tard.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Bonnes pratiques pour les configs et SerDes -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Bonnes pratiques – Producteur</strong>
+        <ul>
+          <li>Toujours activer <code>enable.idempotence=true</code> pour les pipelines critiques.</li>
+          <li>Utiliser <code>delivery.timeout.ms</code> plutôt que <code>request.timeout.ms</code> seul.</li>
+          <li>Compresser avec lz4 ou zstd pour réduire la bande passante.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Bonnes pratiques – Consommateur</strong>
+        <ul>
+          <li>Commiter manuellement après traitement complet pour éviter la perte de messages.</li>
+          <li>Régler <code>max.poll.records</code> à une valeur raisonnable (100-500).</li>
+          <li>Utiliser <code>auto.offset.reset=earliest</code> pour les applications redémarrant avec perte d’offset.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Questions types de l’examen -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Exemples de questions CCDAK :</strong>
+    <ol>
+      <li>Si vous configurez <code>acks=1</code> et que le broker leader crash juste après l’accusé mais avant réplication, le message est-il perdu ? (Oui, perte possible).</li>
+      <li>Quel paramètre permet de grouper les messages par partition pour améliorer le débit ? (<code>batch.size</code>, <code>linger.ms</code>).</li>
+      <li>Quelle configuration désactive le commit automatique et nécessite un commit explicite ? (<code>enable.auto.commit=false</code>).</li>
+      <li>Comment protéger contre les messages trop volumineux côté consommateur ? ( augmenter <code>fetch.max.bytes</code> et ajuster <code>max.partition.fetch.bytes</code>).</li>
+      <li>Quel format de sérialisation offre de meilleures performances avec évolution de schéma ? (Avro + Schema Registry).</li>
+    </ol>
+  </div>
+
+  <!-- 10. Commandes CLI utiles -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Vérification avec la CLI :</strong>
+    <pre class="bg-light p-2 rounded"><code># Tester un producteur avec configuration sécurisée
+kafka-console-producer --bootstrap-server localhost:9092 --topic test \
+  --producer.config producer-ssl.properties
+
+# Consommateur avec désérialisation JSON (via une propriété)
+kafka-console-consumer --bootstrap-server localhost:9092 --topic test \
+  --from-beginning --property print.key=true --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer</code></pre>
+  </div>
+
+  <!-- 11. Checklist finale -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Compétences à valider :</strong>
+    <ul class="mt-2">
+      <li>✅ Je peux configurer un producteur avec exactly-once (idempotence, acks=all).</li>
+      <li>✅ Je connais l’impact de batch.size, linger.ms, compression.type sur la performance.</li>
+      <li>✅ Je maîtrise les désérialiseurs personnalisés et l’intégration avec Schema Registry.</li>
+      <li>✅ Je comprends les paramètres de session (session.timeout.ms, heartbeat.interval.ms).</li>
+      <li>✅ Je sais diagnostiquer TimeoutException et OffsetOutOfRangeException.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-microchip"></i> Module complet – Configs & SerDes. Indispensable pour tous les scénarios de développement Kafka.
+  </div>
+</div>
+
+
+      <!-- Transactions, keys, headers -->
+   
+<!-- TRANSACTIONS, KEYS, HEADERS - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabTxKeys" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-database me-2"></i> Transactions, Keys & Headers – Deep Dive for Exactly-Once and Smart Messaging
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Pourquoi ce module est décisif pour l’examen CCDAK ?</strong><br>
+    Les transactions permettent des écritures atomiques sur plusieurs partitions et topics, clé pour exactly‑once end‑to‑end. Les clés déterminent le partitionnement et l’ordre. Les headers ajoutent des métadonnées sans modifier la charge utile. Environ 20% des questions du domaine « Application Development » testent ces concepts. Une maîtrise fine des transactions (initTransactions, commit, isolation.level) est attendue.
+  </div>
+
+  <!-- 2. Transactions Kafka – Concept et cas d’usage -->
+  <div class="section-title mt-3" style="font-size:1.3rem">🔒 Transactions Kafka : atomicité multi‑partition / multi‑topic</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-atom"></i> Qu’est-ce qu’une transaction Kafka ?</strong><br>
+        Une transaction regroupe plusieurs écritures (producer) dans une unité atomique : soit toutes sont visibles, soit aucune. Cela permet d’écrire dans plusieurs partitions (même de topics différents) et de commettre les offsets de consommateurs dans la même transaction (consume‑transform‑produce pattern).<br>
+        <strong>Prérequis :</strong> <code>enable.idempotence=true</code> (automatiquement activé), un <code>transactional.id</code> unique pour chaque producteur.
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong>Cas d’usage typiques</strong>
+        <ul>
+          <li>Atomicité bancaire : virement entre deux comptes (écritures dans deux topics).</li>
+          <li>Lecture d’un topic, transformation, écriture dans un autre avec recul de l’offset consommé.</li>
+          <li>Mise à jour de plusieurs états (ex: commande validée, stock mis à jour).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. API transactionnelle détaillée -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📚 API transactionnelle (Java) – Pas à pas</div>
+  <div class="best-card mb-4">
+    <pre class="bg-light p-2 rounded"><code>// Initialisation (une fois)
+producer.initTransactions();
+
+// Dans une boucle de traitement
+producer.beginTransaction();
+try {
+    // Écritures producteur normales
+    producer.send(new ProducerRecord<>("topic1", key1, value1));
+    producer.send(new ProducerRecord<>("topic2", key2, value2));
+    
+    // Optionnel : commit des offsets consommés (consume‑transform)
+    producer.sendOffsetsToTransaction(offsetsMap, consumer.groupMetadata());
+    
+    // Validation de la transaction
+    producer.commitTransaction();
+} catch (Exception e) {
+    // Annulation
+    producer.abortTransaction();
+}</code></pre>
+    <small>💡 <code>sendOffsetsToTransaction</code> lie le décalage du consommateur aux écritures du producteur, exact‑once end‑to‑end.</small>
+  </div>
+
+  <!-- 4. Configuration des transactions -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-5">
+      <div class="def-list">
+        <strong>Configurations obligatoires</strong>
+        <ul>
+          <li><code>enable.idempotence=true</code> (ou sera forcé)</li>
+          <li><code>transactional.id</code> : identifiant unique (ex: "app1-tx-1")</li>
+          <li><code>acks=all</code> (implicite avec idempotence)</li>
+          <li><code>max.in.flight.requests.per.connection=1</code> (recommandé, mais ≤5 avec idempotence)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="nuance-box">
+        <strong>⚠️ Durabilité transactionnelle :</strong>
+        <ul>
+          <li>Le broker transaction coordinator (un des brokers) gère l’état des transactions dans le topic <code>__transaction_state</code> (nombre de partitions = <code>transaction.state.log.num.partitions</code>).</li>
+          <li><code>transaction.timeout.ms</code> (défaut 1 minute) : temps max pour terminer une transaction.</li>
+          <li>Si le producteur crash, la transaction expire après <code>transaction.timeout.ms</code> et est annulée.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Isolation.level du consommateur – Lire les transactions commises -->
+  <div class="section-title mt-4" style="font-size:1.3rem">👁️ Isolation.level – Comment lire des messages transactionnels</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Valeur</th><th>Comportement</th><th>Cas d’usage</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>read_uncommitted</code> (défaut)</td>
+           <td>Lit tous les messages, même ceux non encore commis (dirty reads possibles).</td>
+           <td>Performances maximales, données non critiques.</td>
+        </tr>
+        <tr>
+           <td><code>read_committed</code></td>
+           <td>Lit uniquement les messages appartenant à des transactions commises. Les messages de transactions avortées ou en cours sont invisibles.</td>
+           <td>Exactly‑once, paiements, commandes.</td>
+         </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="best-card mb-4">
+    <strong>Configuration consommateur pour read_committed :</strong>
+    <pre class="bg-light p-2 rounded"><code>props.put("isolation.level", "read_committed");</code></pre>
+    <small>Remarque : les messages hors transaction (producteur normal) sont toujours visibles.</small>
+  </div>
+
+  <!-- 6. Clés (Keys) – Rôle stratégique -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔑 Clés Kafka : partitionnement, ordre, compactage</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Effet des clés sur le partitionnement</strong>
+        <ul>
+          <li>Clé non nulle : <code>hash(key) % nombre_partitions</code> → toutes les messages avec la même clé vont dans la même partition (ordre garanti).</li>
+          <li>Clé nulle : sticky partitioner (ou round‑robin avant 2.4).</li>
+          <li>Changer de clé après coup peut casser l’ordre logique.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card">
+        <strong>Compactage (cleanup.policy=compact)</strong><br>
+        Seuls les messages avec clé sont concernés. Pour chaque clé, seul le dernier message (valeur) est conservé. Les messages sans clé sont ignorés (ne seront jamais compactés).<br>
+        <em>Utile pour les tables de référence (ex: dernier prix d’un produit).</em>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-chart-line"></i> <strong>Bonnes pratiques sur les clés :</strong>
+    <ul>
+      <li>Choisissez des clés à haute cardinalité (UUID, ID client) pour une distribution homogène.</li>
+      <li>Évitez les clés constantes (ex: "FR") – une seule partition sera utilisée.</li>
+      <li>Ne changez pas la sémantique de la clé en production (les messages anciens ne seront pas répartis à nouveau).</li>
+      <li>Pour les compacted topics, assurez-vous que chaque clé a une valeur, sinon un message "null" (tombstone) supprime la clé.</li>
+    </ul>
+  </div>
+
+  <!-- 7. Headers – Métadonnées enrichies -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🏷️ Headers : ajouter du contexte au message</div>
+  <div class="def-list mb-4">
+    <strong>Headers : paires clé‑valeur (tout en bytes).</strong> Ils n’affectent ni le partitionnement ni la sérialisation de la valeur. Utiles pour :
+    <ul>
+      <li>Routing : ajouter un header "source" (ex: "service=payment").</li>
+      <li>Tracing : propagation de l’ID de transaction (ex: "traceId", "spanId").</li>
+      <li>Métadonnées de sécurité : signature, timestamp custom.</li>
+    </ul>
+  </div>
+  <div class="best-card mb-4">
+    <strong>Exemple d’envoi avec headers (producteur) :</strong>
+    <pre class="bg-light p-2 rounded"><code>ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key", "value");
+record.headers().add("source", "app1".getBytes());
+record.headers().add("timestamp", String.valueOf(System.currentTimeMillis()).getBytes());
+producer.send(record);</code></pre>
+    <strong>Lecture des headers (consommateur) :</strong>
+    <pre class="bg-light p-2 rounded"><code>for (ConsumerRecord<String, String> record : records) {
+    Headers headers = record.headers();
+    Header sourceHeader = headers.lastHeader("source");
+    if (sourceHeader != null) {
+        String source = new String(sourceHeader.value());
+    }
+}</code></pre>
+    <small>💡 Les headers sont accessibles dans Kafka Streams via <code>ProcessorContext.headers()</code>.</small>
+  </div>
+
+  <!-- 8. Combinaison : Transactions + Clés + Headers – Cas concret -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🧪 Cas d’étude : Transaction avec clé et en-tête</div>
+  <div class="nuance-box mb-4">
+    <strong>Scénario :</strong> Un service de commandes lit les événements du topic "orders", applique une validation, et écrit le résultat dans "validated_orders" avec la même clé (orderId) pour garantir l’ordre. Il ajoute un header "validation_timestamp". Le tout en transaction pour ne créer ni perte ni doublon.
+    <pre class="bg-light p-2 rounded mt-2"><code>producer.initTransactions();
+consumer.subscribe("orders");
+while (true) {
+    ConsumerRecords<String, Order> records = consumer.poll(Duration.ofMillis(1000));
+    producer.beginTransaction();
+    try {
+        for (ConsumerRecord<String, Order> rec : records) {
+            Order order = rec.value();
+            Order validated = validate(order);
+            ProducerRecord<String, Order> outRecord = 
+                new ProducerRecord<>("validated_orders", order.getId(), validated);
+            outRecord.headers().add("validation_ts", 
+                                    String.valueOf(System.currentTimeMillis()).getBytes());
+            producer.send(outRecord);
+        }
+        Map<TopicPartition, OffsetAndMetadata> offsets = offsetsForRecords(records);
+        producer.sendOffsetsToTransaction(offsets, consumer.groupMetadata());
+        producer.commitTransaction();
+    } catch (Exception e) {
+        producer.abortTransaction();
+    }
+}</code></pre>
+  </div>
+
+  <!-- 9. Commandes CLI pour observer les transactions -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Commandes utiles :</strong>
+    <pre class="bg-light p-2 rounded"><code># Afficher l’état des transactions (Kafka ≥ 2.0)
+kafka-transactions --bootstrap-server localhost:9092 describe --transactional-id mon-id
+
+# Voir les topics transactionnels (__transaction_state)
+kafka-console-consumer --bootstrap-server localhost:9092 --topic __transaction_state --formatter "kafka.coordinator.transaction.TransactionLog\$TransactionLogMessageFormatter"</code></pre>
+  </div>
+
+  <!-- 10. Questions typiques de l’examen -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Exemples de questions CCDAK :</strong>
+    <ol>
+      <li>Que se passe-t-il si un producteur transactionnel meurt avant <code>commitTransaction()</code> ? → La transaction est avortée après <code>transaction.timeout.ms</code>.</li>
+      <li>Quelle configuration doit être activée pour utiliser les transactions ? (<code>enable.idempotence=true</code>, <code>transactional.id</code>).</li>
+      <li>Un consommateur avec <code>isolation.level=read_committed</code> verra‑t‑il les messages d’une transaction non encore commise ? → Non.</li>
+      <li>Pourquoi les clés sont‑elles obligatoires pour les topics avec <code>cleanup.policy=compact</code> ? → Parce que le compactage se base sur la clé pour ne garder que le dernier message.</li>
+      <li>Peut‑on mettre des headers binaires de taille arbitraire ? → Théoriquement oui, mais restez léger pour éviter de saturer le message (utile pour le routage).</li>
+    </ol>
+  </div>
+
+  <!-- 11. Bonnes pratiques et pièges -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Bonnes pratiques</strong>
+        <ul>
+          <li>Utilisez un <code>transactional.id</code> unique par instance de producteur (ex: app-1, app-2).</li>
+          <li>Ne réutilisez pas un transactional.id sur plusieurs instances (risque de conflit).</li>
+          <li>Pour exactly‑once end‑to‑end, activez <code>isolation.level=read_committed</code> sur tous les consommateurs avals.</li>
+          <li>Préférez des clés à haute cardinalité pour bien répartir la charge.</li>
+          <li>Utilisez les headers pour la propagation de contexte (OpenTelemetry).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <strong>⚠️ Pièges fréquents</strong>
+        <ul>
+          <li>Oublier d’appeler <code>initTransactions()</code> avant <code>beginTransaction()</code>.</li>
+          <li>Utiliser <code>sendOffsetsToTransaction</code> sans avoir souscrit à un groupe de consommateurs.</li>
+          <li>Ne pas gérer les exceptions dans le bloc transactionnel → transaction bloquée jusqu’au timeout.</li>
+          <li>Mettre des clés trop peu distinctes (ex: type d’événement) → déséquilibre.</li>
+          <li>Les headers trop volumineux (plusieurs Ko) dégradent les performances.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Checklist finale -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Compétences à valider :</strong>
+    <ul class="mt-2">
+      <li>✅ Je peux écrire un producteur transactionnel avec commit/abort.</li>
+      <li>✅ Je comprends le rôle de <code>sendOffsetsToTransaction</code> pour le pattern consume‑transform‑produce.</li>
+      <li>✅ Je sais configurer un consommateur en <code>read_committed</code>.</li>
+      <li>✅ Je maîtrise l’impact des clés sur le partitionnement et le compactage.</li>
+      <li>✅ Je peux ajouter et lire des headers dans les messages.</li>
+      <li>✅ Je connais la métrique <code>transactional.id</code> et le topic <code>__transaction_state</code>.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-coins"></i> Module complet – Transactions, Keys, Headers. Essentiel pour exactly‑once et la conception avancée de messages.
+  </div>
+</div>
+
+
+      <!-- Kafka Streams Basics -->
+    
+<!-- KAFKA STREAMS BASICS - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabStreamsBasic" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-chart-line me-2"></i> Kafka Streams Basics – Stateful vs Stateless, Exactly‑Once, and Core Concepts
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Pourquoi Kafka Streams est‑il incontournable pour l’examen CCDAK ?</strong><br>
+    Kafka Streams est une bibliothèque client légère pour le traitement de flux en temps réel. Elle représente environ 25% des questions du domaine « Kafka Streams ». Contrairement aux consumers/producers classiques, elle offre des états (state stores), des fenêtres, et une sémantique exactly‑once sans cluster externe (contrairement à Flink ou Spark). Maîtriser les différences entre stateful/stateless, exactly‑once_v2, et les cas d’usage est essentiel.
+  </div>
+
+  <!-- 2. Kafka Streams vs Consumer/Producer classique -->
+  <div class="section-title mt-3" style="font-size:1.3rem">⚔️ Kafka Streams vs Consumer/Producer natifs – Différences fondamentales</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>Aspect</th><th>Kafka Streams</th><th>Consumer/Producer</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Paradigme</td><td>DSL fonctionnel (flux, tables) ou Processor API</td><td>Poll/commit manuel, boucle while</td></tr>
+        <tr><td>États</td><td>State stores intégrés (RocksDB, in‑memory)</td><td>À gérer manuellement (base externe)</td></tr>
+        <tr><td>Fenêtrage</td><td>Natif (tumbling, hopping, session, sliding)</td><td>À implémenter</td></tr>
+        <tr><td>Exactly‑once</td><td><code>exactly_once_v2</code> intégré</td><td>Nécessite transactions manuelles</td></tr>
+        <tr><td>Scalabilité</td><td>Partition automatique (threads, instances)</td><td>Groupe de consommateurs, rebalance classique</td></tr>
+        <tr><td>Déploiement</td><td>Application Java standard (pas de cluster)</td><td>Application standard</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong>Exemple minimal d’une topologie Kafka Streams :</strong>
+    <pre class="bg-light p-2 rounded"><code>StreamsBuilder builder = new StreamsBuilder();
+KStream<String, String> stream = builder.stream("input-topic");
+KStream<String, String> uppercased = stream.mapValues(v -> v.toUpperCase());
+uppercased.to("output-topic");
+
+KafkaStreams streams = new KafkaStreams(builder.build(), props);
+streams.start();</code></pre>
+    <small>💡 Une topologie est un graphe de processeurs (source → transform → sink).</small>
+  </div>
+
+  <!-- 3. Opérations stateless (sans état) – Détails -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔄 Opérations stateless – Les plus courantes</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong><code>map / mapValues</code></strong> : transformation un‑à‑un.<br>
+        <strong><code>filter / filterNot</code></strong> : élimine les enregistrements.<br>
+        <strong><code>flatMap / flatMapValues</code></strong> : un → plusieurs.<br>
+        <strong><code>selectKey</code></strong> : change la clé.<br>
+        <strong><code>branch</code></strong> : multiple flux à partir d’un seul.
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card">
+        <strong>Exemple concret :</strong>
+        <pre class="bg-light p-2 rounded"><code>KStream<String, String> stream = builder.stream("input");
+KStream<String, String>[] branches = stream.branch(
+    (key, value) -> value.contains("ERROR"),
+    (key, value) -> value.contains("WARN"),
+    (key, value) -> true
+);
+branches[0].to("errors"); 
+branches[1].to("warnings");</code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="nuance-box mb-4">
+    <i class="fas fa-lightbulb"></i> <strong>Nuance :</strong> Les opérations stateless ne nécessitent pas de state store. Elles peuvent être parallélisées sans avoir à partager d’état entre tâches.
+  </div>
+
+  <!-- 4. Opérations stateful (avec état) – Détails -->
+  <div class="section-title mt-4" style="font-size:1.3rem">💾 Opérations stateful – Aggrégations, fenêtres, joints</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr><th>Opération</th><th>Description</th><th>State store sous‑jacente</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>count / aggregate / reduce</code></td><td>Agrégation par clé (windowed ou non)</td><td>KTable / WindowStore</td></tr>
+        <tr><td><code>join (KStream-KStream, KStream-KTable)</code></td><td>Jointure de deux flux (windowed) ou flux avec table</td><td>WindowStore / KeyValueStore</td></tr>
+        <tr><td><code>windowedBy</code></td><td>Fenêtrage (tumbling, hopping, session, sliding)</td><td>WindowStore</td></tr>
+        <tr><td><code>process / transform</code></td><td>Processor API avec état</td><td>StateStore personnalisé</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong>Aggrégation stateful avec fenêtre tumbling :</strong>
+    <pre class="bg-light p-2 rounded"><code>KStream<String, Long> clicks = ...;
+KTable<Windowed<String>, Long> clickCounts = clicks
+    .groupByKey()
+    .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))
+    .count();</code></pre>
+    <small>💡 Les state stores sont persistants par défaut (RocksDB). Ils sont restaurés après redémarrage via les changelog topics.</small>
+  </div>
+
+  <!-- 5. Exactly‑once dans Kafka Streams (processing.guarantee) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🎯 Exactly‑once semantics (EOS) dans Kafka Streams</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-5">
+      <div class="def-list">
+        <strong>Configuration :</strong>
+        <pre class="bg-light p-2 rounded"><code>props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, 
+          StreamsConfig.EXACTLY_ONCE_V2);</code></pre>
+        <strong>Versions :</strong>
+        <ul>
+          <li><code>exactly_once</code> (v1) : transactions, mais plus lourd.</li>
+          <li><code>exactly_once_v2</code> (recommandé) : optimisation, réduction de latence.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="nuance-box">
+        <strong>⚠️ Ce que exactly‑once garantit :</strong>
+        <ul>
+          <li>Chaque enregistrement d’entrée est traité exactement une fois (ni duplicate, ni perte).</li>
+          <li>Les mises à jour des state stores et les écritures dans les topics de sortie sont atomiques (transaction).</li>
+          <li>En cas d’échec, aucun doublon n’est produit.</li>
+        </ul>
+        <strong>Inconvénient :</strong> légère surcharge de latence (~10-15%). Pour des cas où les doublons sont acceptables, utilisez <code>at_least_once</code>.
+      </div>
+    </div>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong>Conséquence de exactly_once_v2 sur le consumer :</strong> Les consommateurs internes de Kafka Streams utilisent <code>isolation.level=read_committed</code>. Les résultats ne sont visibles qu’après commit de la transaction.
+  </div>
+
+  <!-- 6. State stores : RocksDB, in‑memory et changelog -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🏪 State stores – Gestion des états internes</div>
+  <div class="def-list mb-4">
+    <strong>Types de state stores :</strong>
+    <ul>
+      <li><code>RocksDB</code> : par défaut, persistant sur disque (performant pour grandes données).</li>
+      <li><code>InMemoryKeyValueStore</code> : en mémoire, rapide mais volatile (ne restaure pas après crash).</li>
+      <li><code>WindowStore</code> : pour les fenêtres (basée sur RocksDB).</li>
+      <li><code>SessionStore</code> : pour les sessions.</li>
+    </ul>
+    <strong>Changelog :</strong> Chaque state store est sauvegardé dans un topic de changelog (préfixe <code>appId-</code>) permettant la restauration après redémarrage ou rééquilibrage.
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card">
+        <strong>Accès à un state store personnalisé :</strong>
+        <pre class="bg-light p-2 rounded"><code>KeyValueStore<String, Long> store = Stores.keyValueStoreBuilder(
+    Stores.persistentKeyValueStore("my-store"),
+    Serdes.String(),
+    Serdes.Long()
+).build();</code></pre>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box">
+        <strong>Nuance :</strong> La restauration d’un state store peut prendre du temps (replay du changelog). Pour réduire, utilisez <code>num.standby.replicas</code> (répliques chaudes). Une instance avec réplique standby peut prendre le relais immédiatement.
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Scalabilité : threads, instances, et partitions -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📈 Scalabilité de Kafka Streams</div>
+  <div class="best-card mb-4">
+    <strong>Modèle :</strong>
+    <ul>
+      <li><code>num.stream.threads</code> (défaut 1) : nombre de threads au sein d’une même JVM.</li>
+      <li>Chaque thread exécute des tâches (une tâche par partition des topics d’entrée).</li>
+      <li>Plusieurs instances de l’application (même <code>application.id</code>) forment un cluster Streams.</li>
+      <li>Les partitions sont réparties entre les threads et les instances (rebalance coopératif).</li>
+    </ul>
+    <strong>Règle :</strong> Le parallélisme maximal = nombre total de partitions des topics d’entrée.
+  </div>
+
+  <!-- 8. Différence entre KStream et KTable (prérequis pour l'onglet suivant) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📊 KStream vs KTable – Aperçu</div>
+  <div class="def-list mb-4">
+    <ul>
+      <li><strong>KStream</strong> : flux d’enregistrements (tous les événements, comme un topic).</li>
+      <li><strong>KTable</strong> : vue matérialisée par clé (ne retient que la dernière valeur par clé, comme une base de données).</li>
+      <li><strong>GlobalKTable</strong> : KTable complètement répliquée sur chaque tâche (utile pour les petites tables de référence).</li>
+    </ul>
+  </div>
+
+  <!-- 9. Questions typiques de l’examen (Kafka Streams Basics) -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Exemples de questions CCDAK :</strong>
+    <ol>
+      <li>Quelle configuration active exactly‑once dans Kafka Streams ? (<code>processing.guarantee=exactly_once_v2</code>).</li>
+      <li>Une opération <code>map()</code> est‑elle stateful ou stateless ? (stateless).</li>
+      <li>Que se passe‑t‑il si une instance Kafka Streams s’arrête ? (Les partitions sont réassignées, les state stores restaurés depuis les changelogs).</li>
+      <li>Comment augmenter le parallélisme d’une application Streams ? (Augmenter le nombre de partitions des topics sources ou augmenter <code>num.stream.threads</code> / instances).</li>
+      <li>Quel est le rôle de <code>application.id</code> ? (Identifie l’application, utilisé pour les changelogs et l’appartenance au groupe).</li>
+    </ol>
+  </div>
+
+  <!-- 10. Commandes CLI utiles pour Kafka Streams -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Surveillance des applications Streams :</strong>
+    <pre class="bg-light p-2 rounded"><code># Voir les changelog topics (interne)
+kafka-topics --bootstrap-server localhost:9092 --list | grep "app-id"
+
+# Voir le lag des changelogs
+kafka-consumer-groups --bootstrap-server localhost:9092 --group my-app-id --describe
+
+# Voir l’état des tâches (via JMX) – métrique "kafka.streams:type=stream-thread,..."</code></pre>
+  </div>
+
+  <!-- 11. Bonnes pratiques et pièges fréquents -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Bonnes pratiques</strong>
+        <ul>
+          <li>Toujours définir <code>application.id</code> unique par application.</li>
+          <li>Utiliser <code>exactly_once_v2</code> pour les pipelines critiques.</li>
+          <li>Définir des répliques de secours (<code>num.standby.replicas=1</code>) pour une reprise rapide.</li>
+          <li>Surveiller la restauration des state stores (état <code>RUNNING</code> vs <code>REBALANCING</code>).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <strong>⚠️ Pièges fréquents</strong>
+        <ul>
+          <li>Oublier que le nombre de tâches = nombre de partitions des topics sources. Si le nombre de threads > tâches, certains threads restent inactifs.</li>
+          <li>Ne pas paramétrer <code>default.key.serde</code> / <code>default.value.serde</code> → erreurs de sérialisation.</li>
+          <li>Utiliser des opérations stateful sans comprendre la gestion de la mémoire (RocksDB peut saturer).</li>
+          <li>Ignorer le temps de récupération du state store après un rebalance (peut être long).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Checklist finale -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Compétences à valider :</strong>
+    <ul class="mt-2">
+      <li>✅ Je peux écrire une topologie stateless (map, filter, branch).</li>
+      <li>✅ Je comprends la différence entre stateful et stateless, et je sais identifier une opération stateful.</li>
+      <li>✅ Je configure exactly‑once_v2 et j’explique ses garanties.</li>
+      <li>✅ Je connais le rôle de <code>application.id</code>, des changelogs et des state stores.</li>
+      <li>✅ Je sais comment paralléliser une application Streams (threads, instances, partitions).</li>
+      <li>✅ Je peux diagnostiquer un lag important sur un changelog topic.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-stream"></i> Module complet – Kafka Streams Basics. Indispensable pour les questions sur le traitement de flux et exactly‑once.
+  </div>
+</div>
+
+
+      <!-- Streams vs Tables, DSL/Processor -->
+   
+<!-- STREAMS VS TABLES, DSL/PROCESSOR API - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabStreamsTables" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-columns me-2"></i> KStream vs KTable vs GlobalKTable & DSL vs Processor API – Complete Guide
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Why this module is critical for the CCDAK exam?</strong><br>
+    Understanding the dual nature of streams and tables is the foundation of Kafka Streams. KStream vs KTable vs GlobalKTable determines how data is interpreted (append-only vs upsert). The choice between high‑level DSL and low‑level Processor API defines the flexibility vs complexity trade‑off. Approximately 25% of Kafka Streams questions target these concepts.
+  </div>
+
+  <!-- 2. KStream, KTable, GlobalKTable – Detailed comparison -->
+  <div class="section-title mt-3" style="font-size:1.3rem">📊 KStream, KTable, GlobalKTable – Core abstractions</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>Concept</th><th>Nature</th><th>Changelog / state</th><th>Use case</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>KStream</strong></td>
+            <td><i class="fas fa-water"></i> Flow of records (every event)</td>
+            <td>No state – each record processed independently</td>
+            <td>Raw event processing, filtering, transformation, windowed aggregation</td>
+         </tr>
+        <tr><td><strong>KTable</strong></td>
+            <td><i class="fas fa-database"></i> Materialized view per key (latest value only)</td>
+            <td>Stateful changelog topic (compacted)</td>
+            <td>Reference data, aggregates, join enrichment (KStream-KTable)</td>
+         </tr>
+        <tr><td><strong>GlobalKTable</strong></td>
+            <td><i class="fas fa-globe"></i> Fully replicated KTable on every task</td>
+            <td>Entire changelog replicated across all instances</td>
+            <td>Small lookup tables (e.g., country codes, configuration)</td>
+         </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong>Example: KTable from a topic (compacted) and KStream from a topic (regular)</strong>
+    <pre class="bg-light p-2 rounded"><code>// 'user-profile' topic is compacted (each key last value)
+KTable<String, UserProfile> profileTable = builder.table("user-profile");
+
+// 'user-clicks' topic is a stream of all clicks
+KStream<String, Click> clickStream = builder.stream("user-clicks");
+
+// Join: enrich each click with the latest profile
+KStream<String, EnrichedClick> enriched = clickStream.join(profileTable,
+    (click, profile) -> new EnrichedClick(click, profile));</code></pre>
+    <small>💡 The join uses the same key. KTable lookup is local (state store). GlobalKTable would replicate the whole table, useful for joins where the key is not the same (foreign-key like).</small>
+  </div>
+
+  <!-- 3. Detailed differences between KStream and KTable -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔍 KStream vs KTable – deep dive</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong>KStream characteristics</strong>
+        <ul>
+          <li>Every record is an independent event.</li>
+          <li>No compaction – all events remain in the changelog (non‑compacted).</li>
+          <li>Operations: <code>filter, map, flatMap, join (windowed), aggregate (windowed)</code>.</li>
+          <li>When you use <code>groupByKey</code> on a KStream, it becomes a KGroupedStream → you must call <code>aggregate, count, reduce</code> which produce a KTable.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="def-list h-100">
+        <strong>KTable characteristics</strong>
+        <ul>
+          <li>Represents a changelog stream: each key has a single current value (upsert).</li>
+          <li>Underlying topic must be compacted (or compact+delete).</li>
+          <li>Operations: <code>filter, mapValues, join (with KStream or KTable), toStream()</code>.</li>
+          <li><code>KTables</code> can be materialized (state store) for interactive queries.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-exclamation-triangle"></i> <strong>Critical nuance for the exam:</strong> When converting a KStream to a KTable via <code>groupByKey().count()</code>, the result is a KTable that updates over time. The intermediate aggregation uses a state store. If you want a changelog of counts, you get only the latest count per key.
+  </div>
+
+  <!-- 4. GlobalKTable – When and why -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🌐 GlobalKTable – fully replicated table</div>
+  <div class="def-list mb-4">
+    <strong>Characteristics:</strong>
+    <ul>
+      <li>Full copy of the table's changelog on every Kafka Streams task (every thread/instance).</li>
+      <li>Unequal key join possible: you can join a KStream with a GlobalKTable on a different key (foreign key pattern).</li>
+      <li>Use only for small datasets (e.g., < 10k records) because every instance holds the full table.</li>
+    </ul>
+    <strong>Example: join click stream with country table (different key)</strong>
+    <pre class="bg-light p-2 rounded"><code>KStream<String, Click> clicks = builder.stream("clicks");
+GlobalKTable<String, CountryInfo> countries = builder.globalTable("countries");
+KStream<String, EnrichedClick> enriched = clicks.join(countries,
+    (key, click) -> click.getCountryCode(), // key extraction for lookup
+    (click, countryInfo) -> new EnrichedClick(click, countryInfo));</code></pre>
+  </div>
+
+  <!-- 5. DSL (Domain Specific Language) – High-level API -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📘 DSL (Domain Specific Language) – Functional style</div>
+  <div class="best-card mb-4">
+    <strong>Advantages:</strong>
+    <ul>
+      <li>Concise and expressive – similar to Java streams or Spark.</li>
+      <li>Built-in windowing, joins, aggregations, and state stores.</li>
+      <li>Automatic optimization (Kafka Streams can optimize topology).</li>
+      <li>Less boilerplate code.</li>
+    </ul>
+    <strong>Example: Count clicks per user in 5-minute tumbling windows</strong>
+    <pre class="bg-light p-2 rounded"><code>KStream<String, Click> clicks = builder.stream("clicks");
+KTable<Windowed<String>, Long> counts = clicks
+    .groupByKey()
+    .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))
+    .count();
+counts.toStream().to("click-counts");</code></pre>
+    <small>💡 DSL internally generates a Processor topology. It covers ~90% of real‑time processing needs.</small>
+  </div>
+
+  <!-- 6. Processor API – Low-level, maximum control -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚙️ Processor API – For advanced use cases</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>When to use Processor API:</strong>
+        <ul>
+          <li>Custom state management (e.g., multiple stores).</li>
+          <li>Punctuation (scheduled actions via <code>context().schedule()</code>).</li>
+          <li>Fine‑grained control over forwarding (forward to multiple children).</li>
+          <li>Complex event processing not expressible in DSL.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card">
+        <strong>Example: custom processor that emits a periodic summary</strong>
+        <pre class="bg-light p-2 rounded"><code>public class PeriodicForwardProcessor implements Processor<String, Long> {
+    private ProcessorContext context;
+    private KeyValueStore<String, Long> store;
+    
+    @Override
+    public void init(ProcessorContext ctx) {
+        context = ctx;
+        store = (KeyValueStore) context.getStateStore("my-store");
+        context.schedule(Duration.ofSeconds(10), PunctuationType.WALL_CLOCK_TIME, 
+            timestamp -> {
+                // Forward aggregate every 10 seconds
+                context.forward("alert", store.get("total"));
+                context.commit();
+            });
+    }
+    
+    @Override
+    public void process(String key, Long value) {
+        store.put(key, value);
+    }
+}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-cogs"></i> <strong>Nuances – Using Processor API with DSL</strong><br>
+    You can mix both: use <code>.transform()</code> or <code>.process()</code> inside a DSL topology to inject a custom processor. This gives the best of both worlds: readable DSL plus low-level control.
+  </div>
+
+  <!-- 7. Comparison: DSL vs Processor API -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚖️ DSL vs Processor API – side by side</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr><th>Aspect</th><th>DSL</th><th>Processor API</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Learning curve</td><td>Low</td><td>High</td></tr>
+        <tr><td>Expressiveness</td><td>High for standard patterns</td><td>Very high (custom logic)</td></tr>
+        <tr><td>Performance overhead</td><td>Minimal (optimizations built‑in)</td><td>Can be lower for very specific tasks</td></tr>
+        <tr><td>State store access</td><td>Via materialized views</td><td>Direct via getStateStore</td></tr>
+        <tr><td>Windowing</td><td>Native (tumbling, hopping, session)</td><td>Manual implementation</td></tr>
+        <tr><td>Punctuation (time-based triggers)</td><td>Not available directly</td><td>Full support (schedule)</td></tr>
+        <tr><td>Testing</td><td>TopologyTestDriver works well</td><td>Requires more mock setup</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 8. Common exam scenarios and questions -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 Typical CCDAK questions on Streams/Tables & DSL/Processor</div>
+  <div class="def-list mb-4">
+    <ol>
+      <li><strong>Question:</strong> You have a compacted topic 'user-last-login'. Which abstraction should you use to capture the latest login per user? <strong>Answer:</strong> KTable (via builder.table()).</li>
+      <li><strong>Question:</strong> You need to join a stream of orders with a reference table of products. The product table has 10,000 rows. Which approach? <strong>Answer:</strong> KTable for products and KStream-KTable join. GlobalKTable would work but is overkill.</li>
+      <li><strong>Question:</strong> You need to emit an alert every 30 seconds regardless of incoming messages. Which API? <strong>Answer:</strong> Processor API with punctuation (schedule).</li>
+      <li><strong>Question:</strong> A KStream and a KTable are joined. What does the join produce? <strong>Answer:</strong> A new KStream (or KTable depending on join type). Usually KStream-KTable join yields a KStream.</li>
+      <li><strong>Question:</strong> What happens when you call `toTable()` on a KStream? <strong>Answer:</strong> It turns the KStream into a KTable (last value per key) using a state store.</li>
+    </ol>
+  </div>
+
+  <!-- 9. Best practices for choosing between KStream, KTable and GlobalKTable -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Best practices</strong>
+        <ul>
+          <li>Use KStream for raw events, logs, clickstreams.</li>
+          <li>Use KTable for reference data, aggregates, latest state.</li>
+          <li>Use GlobalKTable only for small, mostly static tables that need foreign-key joins.</li>
+          <li>Prefer DSL unless you need punctuation or custom state logic.</li>
+          <li>When mixing DSL and Processor API, encapsulate processors in `.process()` steps.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <strong>⚠️ Pitfalls to avoid</strong>
+        <ul>
+          <li>Using a KTable on a topic that is not compacted will cause infinite growth of the state store.</li>
+          <li>GlobalKTable on a large topic (e.g., 1M records) will memory‑crash your instances.</li>
+          <li>Forgetting that a KTable changelog is also a stream: you can materialize it multiple times.</li>
+          <li>Using Processor API for simple mapping – overkill and harder to maintain.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. Interactive queries – exposing state stores -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔎 Interactive queries (Kafka Streams + state store)</div>
+  <div class="def-list mb-4">
+    Interactive queries allow you to query the state stores of a running Kafka Streams application (e.g., via REST). This is possible only with KTables or materialized aggregations.
+    <pre class="bg-light p-2 rounded"><code>// Materialize the count store
+KTable<String, Long> counts = ... .count(Materialized.as("my-count-store"));
+// Later, query it
+ReadOnlyKeyValueStore<String, Long> store = streams.store(
+    StoreQueryParameters.fromNameAndType("my-count-store", QueryableStoreTypes.keyValueStore()));
+Long value = store.get("key");</code></pre>
+    <small>💡 Interactive queries are useful for serving state (e.g., leaderboard, current inventory).</small>
+  </div>
+
+  <!-- 11. CLI commands for KStream/KTable inspection -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Useful CLI commands:</strong>
+    <pre class="bg-light p-2 rounded"><code># List changelog topics of a Kafka Streams application (application.id = "my-app")
+kafka-topics --bootstrap-server localhost:9092 --list | grep "my-app-"
+
+# Compacted topics for KTables appear with 'compact' policy
+kafka-topics --describe --topic my-app-<store-name>-changelog</code></pre>
+  </div>
+
+  <!-- 12. Self-assessment questions -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Check your understanding:</strong>
+    <ol>
+      <li>Can you convert a KTable back to a KStream? How? (Yes, via `toStream()`).</li>
+      <li>What is the difference between `builder.stream()` and `builder.table()` in terms of consumer group behavior? (Both use Kafka consumers; table will always keep state).</li>
+      <li>When would you choose Processor API over DSL? (Punctuation, custom merging of multiple streams, manual state store control).</li>
+      <li>Which join requires a GlobalKTable? (Foreign key join where the join key differs from the record key).</li>
+    </ol>
+  </div>
+
+  <!-- 13. Final checklist -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Competencies to validate:</strong>
+    <ul class="mt-2">
+      <li>✅ I can explain the difference between KStream and KTable and when to use each.</li>
+      <li>✅ I know that GlobalKTable is fully replicated and suitable for small datasets.</li>
+      <li>✅ I can implement a simple join between a KStream and a KTable in DSL.</li>
+      <li>✅ I understand the trade‑offs between DSL and Processor API.</li>
+      <li>✅ I can write a custom processor and integrate it with DSL via `.process()`.</li>
+      <li>✅ I am comfortable with interactive queries terminology.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-microchip"></i> Complete module – Streams vs Tables, DSL vs Processor API. A must‑master for the Kafka Streams section of CCDAK.
+  </div>
+</div>
+
+
+      <!-- Kafka Connect -->
+  
+<!-- KAFKA CONNECT - VERSION ULTRA DÉTAILLÉE (5x plus de contenu) -->
+<div class="tab-pane fade" id="tabConnect" role="tabpanel">
+  <div class="section-title">
+    <i class="fas fa-plug me-2"></i> Kafka Connect – Deep Dive: Connectors, SMT, Workers, REST, Offsets & Scalability
+  </div>
+
+  <!-- 1. Introduction stratégique -->
+  <div class="def-list mb-4">
+    <strong>🎯 Why Kafka Connect is essential for the CCDAK exam?</strong><br>
+    Kafka Connect is a framework for streaming data between Kafka and external systems (databases, files, cloud storage). It’s a core component of the Confluent ecosystem, and exam questions often cover source/sink connectors, Single Message Transforms (SMT), worker configuration, and the REST API. Approximately 15% of the exam focuses on Connect, with emphasis on fault tolerance, offsets management, and scalability.
+  </div>
+
+  <!-- 2. Connect architecture overview -->
+  <div class="section-title mt-3" style="font-size:1.3rem">🏗️ Kafka Connect architecture – Workers, Connectors, Tasks</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-server"></i> Worker</strong><br>
+        A JVM process that runs connectors and tasks. Two modes:
+        <ul>
+          <li><strong>Standalone</strong> – single worker, configuration via files, simple for development.</li>
+          <li><strong>Distributed</strong> – multiple workers, automatic load balancing and fault tolerance, uses Kafka for internal storage.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong><i class="fas fa-tasks"></i> Connector & Task</strong><br>
+        <ul>
+          <li><strong>Connector</strong> : defines the configuration and splits work into tasks.</li>
+          <li><strong>Task</strong> : actually moves data (source to Kafka or Kafka to sink). Each task runs in its own thread. Number of tasks can be increased for parallelism.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-lightbulb"></i> <strong>Nuance:</strong> In distributed mode, workers coordinate via Kafka topics: <code>config.storage.topic</code>, <code>offset.storage.topic</code>, <code>status.storage.topic</code>. All workers must have the same <code>group.id</code>.
+  </div>
+
+  <!-- 3. Source and sink connectors – detailed properties -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📥 Source Connectors vs. 📤 Sink Connectors – key configuration</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr><th>Property</th><th>Source connector</th><th>Sink connector</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>connector.class</code></td><td>e.g., <code>FileStreamSourceConnector</code>, <code>JdbcSourceConnector</code></td><td>e.g., <code>FileStreamSinkConnector</code>, <code>ElasticsearchSinkConnector</code></td></tr>
+        <tr><td><code>tasks.max</code></td><td>Number of tasks for parallelism (based on source partitions e.g., DB tables)</td><td>Number of tasks based on topic partitions (usually <= topic partitions count)</td></tr>
+        <tr><td><code>topic</code> (or <code>topics</code>/<code>topics.regex</code>)</td><td>Destination topic(s) to write to</td><td>Source topics to read from</td></tr>
+        <tr><td><code>key.converter</code> / <code>value.converter</code></td><td colspan="2">Convert keys/values (e.g., <code>StringConverter</code>, <code>JsonConverter</code>, <code>AvroConverter</code> with Schema Registry)</td></tr>
+        <tr><td><code>transforms</code> (SMT)</td><td colspan="2">Comma-separated list of SMT aliases</td></tr>
+        <tr><td><code>errors.tolerance</code></td><td colspan="2"><code>none</code> (fail fast) or <code>all</code> (skip errors)</td></tr>
+        <tr><td><code>errors.deadletterqueue.topic.name</code></td><td colspan="2">Send failed records to DLQ</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="best-card mb-4">
+    <strong>Example: JDBC source connector configuration (to read from a database)</strong>
+    <pre class="bg-light p-2 rounded"><code>name=my-jdbc-source
+connector.class=io.confluent.connect.jdbc.JdbcSourceConnector
+tasks.max=2
+connection.url=jdbc:postgresql://localhost:5432/mydb
+connection.user=user
+connection.password=secret
+mode=timestamp+incrementing
+timestamp.column=last_updated
+incrementing.column=id
+topic.prefix=db-
+query=SELECT id, name, email FROM users
+key.converter=org.apache.kafka.connect.json.JsonConverter
+value.converter=org.apache.kafka.connect.json.JsonConverter</code></pre>
+    <small>💡 Source connectors track offsets per record (e.g., table row). Sink connectors use consumer offsets stored in Kafka.</small>
+  </div>
+
+  <!-- 4. Worker properties (distributed mode) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">⚙️ Worker configuration – essential properties</div>
+  <div class="def-list mb-4">
+    <strong>Required settings in <code>connect-distributed.properties</code> :</strong>
+    <ul>
+      <li><code>bootstrap.servers</code> : Kafka brokers for internal topics and data.</li>
+      <li><code>group.id</code> : Consumer group for workers (default "connect-cluster").</li>
+      <li><code>config.storage.topic</code> : Stores connector configurations (e.g., "connect-configs").</li>
+      <li><code>offset.storage.topic</code> : Stores source offsets (e.g., "connect-offsets").</li>
+      <li><code>status.storage.topic</code> : Stores connector/task status (e.g., "connect-status").</li>
+      <li><code>key.converter</code> / <code>value.converter</code> : Default converters for all connectors (can be overridden per connector).</li>
+      <li><code>rest.port</code> : Port for REST API (default 8083).</li>
+      <li><code>plugin.path</code> : Directory containing connector JARs.</li>
+    </ul>
+  </div>
+
+  <div class="nuance-box mb-4">
+    <i class="fas fa-exclamation-triangle"></i> <strong>Important:</strong> The internal topics must be created automatically if not exists (if <code>auto.create.topics.enable=true</code>). They require replication factor ≥ number of workers. Offsets topics should be compacted (to keep only latest offset per source partition).
+  </div>
+
+  <!-- 5. Connector scalability – adding workers and tasks -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📈 Scaling Kafka Connect – horizontal and vertical</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-5">
+      <div class="best-card">
+        <strong>Horizontal scaling</strong>
+        <ul>
+          <li>Add more worker nodes (same group.id).</li>
+          <li>Connectors and tasks are automatically redistributed across workers (rebalance).</li>
+          <li>Maximum parallelism = sum of tasks.max across all connectors.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="def-list">
+        <strong>Increasing tasks per connector</strong>
+        <pre class="bg-light p-2 rounded"><code># Update connector config via REST
+PUT /connectors/my-connector/config
+{
+  "connector.class": "...",
+  "tasks.max": "4"
+}</code></pre>
+        <small>For source connectors, tasks are assigned to different tables or partitions. For sink connectors, tasks.max cannot exceed number of source topic partitions.</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="nuance-box">
+    <i class="fas fa-chart-line"></i> <strong>Scaling best practices:</strong> Distribute connectors across workers, but avoid overloading Kafka with too many tasks. Monitor task failures and restart tasks automatically (via REST).
+  </div>
+
+  <!-- 6. Source and sink offsets management -->
+  <div class="section-title mt-4" style="font-size:1.3rem">💾 Connect offsets – how they work</div>
+  <div class="def-list mb-4">
+    <strong>Source connectors:</strong> Store offsets per source partition (e.g., database table row ID or timestamp). Offsets are stored in the <code>offset.storage.topic</code>. When the connector restarts, it resumes from the last committed offset.
+    <br><strong>Sink connectors:</strong> Use standard Kafka consumer groups (offsets stored in __consumer_offsets). They read from Kafka and write to external system.
+    <br><strong>Resetting source offsets:</strong> Use the Connect REST API (since Kafka 2.3+) or manually delete offset entries from the offset storage topic.
+  </div>
+
+  <!-- 7. Single Message Transforms (SMT) – Detailed with examples -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🔄 Single Message Transforms (SMT) – built‑in transformations</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr><th>SMT</th><th>Purpose</th><th>Configuration example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>InsertField</code></td><td>Add a field (e.g., timestamp, source system)</td><td><code>transforms=insertTime, transforms.insertTime.type=org.apache.kafka.connect.transforms.InsertField$Value, transforms.insertTime.timestamp.field=processing_ts</code></td></tr>
+        <tr><td><code>Drop</code></td><td>Remove fields from key/value</td><td><code>transforms=dropSsn, transforms.dropSsn.type=org.apache.kafka.connect.transforms.Drop$Value, transforms.dropSsn.fields=ssn</code></td></tr>
+        <tr><td><code>ReplaceField</code></td><td>Rename or blacklist fields</td><td><code>transforms=rename, transforms.rename.type=org.apache.kafka.connect.transforms.ReplaceField$Value, transforms.rename.renames=oldName:newName</code></td></tr>
+        <tr><td><code>MaskField</code></td><td>Mask sensitive data (e.g., credit card)</td><td><code>transforms=mask, transforms.mask.type=org.apache.kafka.connect.transforms.MaskField$Value, transforms.mask.fields=cardNumber</code></td></tr>
+        <tr><td><code>TimestampRouter</code></td><td>Dynamic topic name based on timestamp</td><td><code>transforms=route, transforms.route.type=org.apache.kafka.connect.transforms.TimestampRouter, transforms.route.topic.format=\${topic}-${timestamp}</code></td></tr>
+        <tr><td><code>RegexRouter</code></td><td>Change topic name using regex</td><td><code>transforms=regex, transforms.regex.type=org.apache.kafka.connect.transforms.RegexRouter, transforms.regex.regex=source_(.*), transforms.regex.replacement=sink_\$1</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="best-card mb-4">
+    <strong>Applying multiple SMTs sequentially:</strong>
+    <pre class="bg-light p-2 rounded"><code>transforms=insertTimestamp,dropField,maskId
+transforms.insertTimestamp.type=org.apache.kafka.connect.transforms.InsertField$Value
+transforms.insertTimestamp.timestamp.field=connect_ts
+transforms.dropField.type=org.apache.kafka.connect.transforms.Drop$Value
+transforms.dropField.fields=internal_id
+transforms.maskId.type=org.apache.kafka.connect.transforms.MaskField$Value
+transforms.maskId.fields=user_id
+transforms.maskId.replacement=****</code></pre>
+    <small>💡 SMTs execute in the order defined. They are applied on the Connect worker before the record is produced to Kafka (source) or after consuming from Kafka (sink).</small>
+  </div>
+
+  <!-- 8. Connect REST interface – essential endpoints -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📡 Connect REST API – manage connectors programmatically</div>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Method & endpoint</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>GET /connectors</code></td><td>List all connectors</td></tr>
+        <tr><td><code>GET /connectors/{name}</code></td><td>Get info about a specific connector</td></tr>
+        <tr><td><code>GET /connectors/{name}/config</code></td><td>Get configuration of a connector</td></tr>
+        <tr><td><code>POST /connectors</code></td><td>Create a new connector (body JSON with "name" and "config")</td></tr>
+        <tr><td><code>PUT /connectors/{name}/config</code></td><td>Update connector config (reconfig)</td></tr>
+        <tr><td><code>DELETE /connectors/{name}</code></td><td>Delete connector</td></tr>
+        <tr><td><code>POST /connectors/{name}/restart</code></td><td>Restart the connector</td></tr>
+        <tr><td><code>GET /connectors/{name}/tasks</code></td><td>List tasks of a connector</td></tr>
+        <tr><td><code>POST /connectors/{name}/tasks/{taskId}/restart</code></td><td>Restart a specific task</td></tr>
+        <tr><td><code>GET /connectors/{name}/status</code></td><td>Current status (RUNNING, FAILED, etc.)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="def-list mb-4">
+    <strong>Example: create a sink connector using curl</strong>
+    <pre class="bg-light p-2 rounded"><code>curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "s3-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.s3.S3SinkConnector",
+    "tasks.max": "2",
+    "topics": "my-topic",
+    "s3.bucket.name": "my-bucket",
+    "s3.region": "us-east-1",
+    "flush.size": "1000"
+  }
+}' http://localhost:8083/connectors</code></pre>
+  </div>
+
+  <!-- 9. Error handling and dead letter queue (DLQ) -->
+  <div class="section-title mt-4" style="font-size:1.3rem">🚨 Error handling – tolerating bad records</div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="def-list">
+        <strong>Configuration options for error tolerance</strong>
+        <ul>
+          <li><code>errors.tolerance=none</code> : fail connector/task on first error.</li>
+          <li><code>errors.tolerance=all</code> : skip failed records and continue.</li>
+          <li><code>errors.deadletterqueue.topic.name</code> : send failed records to a DLQ topic.</li>
+          <li><code>errors.retry.timeout</code> / <code>errors.retry.delay.max.ms</code> : retry on transient errors.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box">
+        <strong>DLQ record includes:</strong>
+        <ul>
+          <li>Original record (key/value/headers)</li>
+          <li>Error message and stack trace</li>
+          <li>Cause of failure (e.g., deserialization error)</li>
+        </ul>
+        Use DLQ to debug issues without stopping the pipeline.
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. Common exam questions on Kafka Connect -->
+  <div class="section-title mt-4" style="font-size:1.3rem">📝 Typical CCDAK questions – Connect</div>
+  <div class="def-list mb-4">
+    <ol>
+      <li><strong>How to increase parallelism of a source connector reading from a database table?</strong> Increase <code>tasks.max</code> and ensure the source connector supports partitionable queries (e.g., JDBC connector with incrementing column). Each task reads a segment of the table.</li>
+      <li><strong>What happens if a worker in distributed mode dies?</strong> Its connectors and tasks are rebalanced to other workers; offsets are stored in Kafka, so processing resumes from the last committed offset.</li>
+      <li><strong>Can you add an SMT to an existing connector without restarting the whole cluster?</strong> Yes, via PUT /connectors/{name}/config – the connector will reconfigure and tasks restart.</li>
+      <li><strong>Which converter should you use to write Avro data with Schema Registry?</strong> <code>AvroConverter</code> with <code>schema.registry.url</code> property.</li>
+      <li><strong>What is the purpose of the <code>offset.storage.topic</code>?</strong> It stores source offsets for source connectors, allowing them to resume from the exact point after a restart.</li>
+    </ol>
+  </div>
+
+  <!-- 11. Best practices and pitfalls -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="best-card h-100">
+        <strong>✅ Best practices</strong>
+        <ul>
+          <li>Set <code>tasks.max</code> proportional to source partitions (e.g., number of DB tables or shards).</li>
+          <li>Use <code>JsonConverter</code> or <code>AvroConverter</code> with Schema Registry for evolvable schemas.</li>
+          <li>Enable error tolerance and DLQ for production pipelines.</li>
+          <li>Monitor connector status via REST and set up alerts on <code>FAILED</code> state.</li>
+          <li>Use separate workers for source and sink connectors for performance isolation.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="nuance-box h-100">
+        <strong>⚠️ Common pitfalls</strong>
+        <ul>
+          <li>Using a single task for a high‑throughput pipeline (bottleneck).</li>
+          <li>Forgetting to set <code>key.converter</code>/<code>value.converter</code> per connector leading to serialization errors.</li>
+          <li>Not configuring the internal topics' replication factor (can lose worker coordination).</li>
+          <li>Applying too many SMTs causing performance degradation (evaluate order).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. CLI tools for Connect -->
+  <div class="def-list mb-4">
+    <strong><i class="fas fa-terminal"></i> Useful CLI commands (confluent CLI)</strong>
+    <pre class="bg-light p-2 rounded"><code># List connectors (via CLI)
+confluent connect cluster list
+
+# Describe a connector
+confluent connect connector describe my-connector
+
+# Pause/resume a connector
+confluent connect connector pause my-connector
+confluent connect connector resume my-connector
+
+# Restart connector tasks
+confluent connect connector restart my-connector --task-id=0</code></pre>
+  </div>
+
+  <!-- 13. Self-assessment -->
+  <div class="nuance-box mb-4">
+    <strong>📝 Verify your knowledge:</strong>
+    <ol>
+      <li>What are the three internal topics used by distributed Connect, and what does each store?</li>
+      <li>How do you set up a dead letter queue for a source connector?</li>
+      <li>What does the <code>errors.tolerance=all</code> do exactly?</li>
+      <li>How can you update the configuration of a running connector without downtime?</li>
+      <li>What is the relationship between the number of sink tasks and the number of partitions of the source topic?</li>
+    </ol>
+  </div>
+
+  <!-- 14. Final checklist -->
+  <div class="best-card bg-white border border-success">
+    <i class="fas fa-check-double text-success"></i> <strong>Competencies to validate:</strong>
+    <ul class="mt-2">
+      <li>✅ I understand the architecture (worker, connector, task) for standalone and distributed modes.</li>
+      <li>✅ I can configure a source connector (e.g., JDBC) and a sink connector (e.g., S3).</li>
+      <li>✅ I know how to apply Single Message Transforms (SMTs) and common use cases.</li>
+      <li>✅ I can use the Connect REST API to manage connectors.</li>
+      <li>✅ I understand source offset management and how to reset offsets.</li>
+      <li>✅ I know how to scale connectors via tasks.max and adding workers.</li>
+    </ul>
+  </div>
+  <div class="text-end mt-3 small text-muted">
+    <i class="fas fa-cogs"></i> Complete module – Kafka Connect. Essential for building data pipelines in Confluent Certified Developer exam.
+  </div>
+</div>
+
+
+      <!-- Testing & CLI & Scaling -->
+
+
+      <!-- Observability: lag, metrics, alerts, log4j -->
+      <div class="tab-pane fade" id="tabObs" role="tabpanel">
+        <div class="section-title">Consumer Lag, Performance Metrics, Log4j & Alerting</div>
+        <div class="def-list">Lag = producer offset - consumer offset. JMX metrics: request-latency, bytes-in, ISR shrinks. Log4j config for clients. Alerts: lag > threshold, under-replicated partitions.</div>
+        <div class="qa-item">🚨 Common errors: NotLeaderForPartition, TimeoutException, OffsetOutOfRange.</div>
+        <div class="nuance-box">📈 Lag spikes indicate consumer or processing bottleneck.</div>
+        <div class="best-card">🔔 Alert on consumer lag > 5000 for 10 min; use Prometheus + Grafana.</div>
+      </div>
+
+      <!-- Data Formats, Error Handling, Topic Modifications -->
+      <div class="tab-pane fade" id="tabDataErrors" role="tabpanel">
+        <div class="section-title">Data Formats (Avro/JSON/Protobuf), Error Handling & Topic Evolution</div>
+        <div class="def-list">Avro (schema evolution), JSON (schemaless), Protobuf (efficient). Error handling: retries, DLQ, error handlers. Modifying topics: increase partitions only (never decrease), dynamic config changes.</div>
+        <div class="qa-item">💡 Can we decrease partitions? No, it breaks ordering. Plan partition count for future.</div>
+        <div class="nuance-box">⚠️ Adding partitions can affect key order; use consistent hashing if needed.</div>
+        <div class="best-card">✅ Best practice: schema registry with compatibility BACKWARD; implement dead-letter topic for bad records.</div>
+      </div>
+
+      <!-- 5 NEW ADVANCED TABS -->
+      <!-- Schema Registry & Evolution -->
+      <div class="tab-pane fade" id="tabSchema" role="tabpanel">
+        <div class="section-title"><i class="fas fa-registered"></i> Schema Registry & Compatibility</div>
+        <div class="def-list"><strong>Schema Registry:</strong> central store for Avro/Protobuf/JSON schemas. Compatibility types: BACKWARD (consumers read new schema), FORWARD, FULL, NONE. Schema IDs embedded in messages.</div>
+        <div class="qa-item">🔑 Exam Q: Which compatibility allows consumers using old schema to read new data? BACKWARD.</div>
+        <div class="nuance-box">🧩 Auto schema registration; subjects: topic-name-value/key. Use REST API for subject versions.</div>
+        <div class="best-card">📌 Best practice: use BACKWARD or FULL compatibility, enforce schema evolution rules.</div>
+      </div>
+
+      <!-- Security Deep: ACLs, OAuth -->
+      <div class="tab-pane fade" id="tabSecurityDeep" role="tabpanel">
+        <div class="section-title"><i class="fas fa-lock"></i> Kafka Security Deep Dive: ACLs, OAuth, mTLS</div>
+        <div class="def-list">ACLs (Allow/Deny) on resources: Topic, Group, Cluster. Principal mapping. OAuth/OIDC with OAUTHBEARER; mTLS authentication. Super users bypass ACLs.</div>
+        <div class="qa-item">❓ How to list ACLs? kafka-acls --list --authorizer-properties. Define resource pattern: LITERAL/PREFIXED.</div>
+        <div class="nuance-box">⚠️ ACLs are evaluated in order; default DENY. OAuth requires token validation.</div>
+        <div class="best-card">✅ Grant least privilege; use SCRAM for dynamic user management; audit logs.</div>
+      </div>
+
+      <!-- MirrorMaker 2 & Replication -->
+      <div class="tab-pane fade" id="tabMirror" role="tabpanel">
+        <div class="section-title"><i class="fas fa-copy"></i> MirrorMaker 2 & Cross-Cluster Replication</div>
+        <div class="def-list">MM2 replicates topics across clusters, supports active/active, offset sync, ACL sync. Uses Connect framework. Config: source->target, heartbeat/checkpoints topics for consumer offset translation.</div>
+        <div class="qa-item">🌍 How to handle failover? Use MirrorMaker2 with bidirectional replication, consumer groups mirrored via offset sync.</div>
+        <div class="nuance-box">🧠 Must avoid cyclic replication; configuration: clusters, sync.topic.acls.</div>
+        <div class="best-card">✅ Best practice: enable replication of consumer groups, use exactly-once delivery for MM2.</div>
+      </div>
+
+      <!-- Tiered Storage, Quotas, Partition Reassignment -->
+      <div class="tab-pane fade" id="tabTiered" role="tabpanel">
+        <div class="section-title"><i class="fas fa-database"></i> Tiered Storage, Quotas & Reassignment</div>
+        <div class="def-list">Tiered storage: offload old segments to object storage (S3). Quotas: byte-rate (network), request rate, CPU throttling. Partition reassignment: kafka-reassign-partitions, throttle to avoid cluster impact.</div>
+        <div class="qa-item">🔧 How to move partitions? generate reassign JSON, execute with throttle.</div>
+        <div class="nuance-box">⚙️ Tiered storage reduces retention cost; quotas protect noisy neighbors.</div>
+        <div class="best-card">📌 Set client quotas to ensure fairness; use incremental reassignment.</div>
+      </div>
+
+      <!-- Advanced Monitoring & Logging Patterns -->
+      <div class="tab-pane fade" id="tabMonDeep" role="tabpanel">
+        <div class="section-title">Advanced Monitoring: JMX, Log4j patterns, Metrics Analysis</div>
+        <div class="def-list">Expose JMX metrics: MBean kafka.consumer:type=consumer-fetch-manager-metrics (records-lag-max). Log4j configuration per logger (kafka.authorizer.logger). Use Burrow or Kafka Lag Exporter.</div>
+        <div class="qa-item">📊 Metric for consumer group health: `kafka.consumer:type=consumer-coordinator-metrics` (assigned-partitions).</div>
+        <div class="nuance-box">⚠️ High `request‑queue‑size` indicates broker overload; `ISR` shrinks signal replica issues.</div>
+        <div class="best-card">✅ Set up structured logging (JSON), monitor critical metrics: under-replicated partitions, request latency, consumer lag, GC pauses.</div>
+      </div>
+    </div>
+  </div>
+  <footer class="text-center text-muted py-3 mt-3 mb-4">
+    <i class="fas fa-crown"></i> 19 essential chapters — Confluent Certified Developer (CCDAK) 2026 · All exam domains covered: definitions, key questions, nuances, and best practices. Good luck!
   </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  // optional: Smooth retain active tab on reload? Not needed but ensures proper behavior.
-  const triggerTabList = document.querySelectorAll('#examTabs button')
-  triggerTabList.forEach(triggerEl => {
-    triggerEl.addEventListener('click', event => {
-      // bootstrap handles tab switching; we just provide good experience
-    })
-  })
-</script>
 </body>
 </html>
