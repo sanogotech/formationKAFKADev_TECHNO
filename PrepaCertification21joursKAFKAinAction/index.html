@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>CCDAK Exam Prep | Confluent Certified Developer – 12 Essential Tabs</title>
+  <!-- Bootstrap 5 + Icons + Custom Font -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      background: #f4f7fc;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      scroll-behavior: smooth;
+    }
+    /* custom header */
+    .exam-header {
+      background: linear-gradient(135deg, #0B2B40 0%, #1A4A5F 100%);
+      border-radius: 0 0 2rem 2rem;
+      padding: 2rem 0 1.8rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+    }
+    .exam-header h1 {
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      font-size: 2.2rem;
+    }
+    .exam-header p {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+    .tab-card {
+      background: white;
+      border-radius: 1.25rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      overflow: hidden;
+      margin-bottom: 2rem;
+      border: none;
+    }
+    .nav-tabs {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0.75rem 1.2rem 0 1.2rem;
+      background: #ffffff;
+      flex-wrap: wrap;
+      row-gap: 0.5rem;
+    }
+    .nav-tabs .nav-link {
+      font-weight: 600;
+      color: #1e4663;
+      border: none;
+      border-radius: 40px;
+      padding: 0.55rem 1.1rem;
+      margin-right: 0.4rem;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+      background: #f1f5f9;
+      margin-bottom: 6px;
+    }
+    .nav-tabs .nav-link i {
+      margin-right: 8px;
+      font-size: 0.9rem;
+    }
+    .nav-tabs .nav-link:hover {
+      background: #e2e8f0;
+      color: #0f3b5c;
+      border-color: transparent;
+    }
+    .nav-tabs .nav-link.active {
+      background: #1A4A5F;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    .tab-pane {
+      padding: 2rem 1.8rem;
+      background: white;
+    }
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      border-left: 5px solid #1A4A5F;
+      padding-left: 1rem;
+      margin-bottom: 1.5rem;
+      color: #0c2e3f;
+    }
+    .key-badge {
+      background-color: #EFF6FF;
+      color: #1E4A76;
+      font-weight: 600;
+      padding: 0.2rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      display: inline-block;
+      margin-bottom: 0.75rem;
+    }
+    .nuance-box {
+      background: #FFF8E7;
+      border-left: 4px solid #f4b942;
+      padding: 1rem 1.2rem;
+      border-radius: 16px;
+      margin: 1.2rem 0;
+    }
+    .best-card {
+      background: #EFF9F0;
+      border-left: 4px solid #2c7a4d;
+      padding: 1rem 1.2rem;
+      border-radius: 16px;
+      margin: 1rem 0;
+    }
+    .def-list {
+      background: #F8FAFE;
+      padding: 0.9rem 1.2rem;
+      border-radius: 20px;
+    }
+    .qa-item {
+      font-weight: 500;
+      margin-top: 0.8rem;
+    }
+    hr {
+      margin: 1.5rem 0;
+      opacity: 0.5;
+    }
+    footer {
+      background: #eef2f5;
+      border-radius: 1rem;
+      font-size: 0.8rem;
+    }
+    @media (max-width: 768px) {
+      .tab-pane { padding: 1.5rem; }
+      .nav-tabs .nav-link { font-size: 0.75rem; padding: 0.4rem 0.8rem; }
+      .section-title { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="exam-header text-white text-center">
+  <div class="container">
+    <i class="fas fa-layer-group fa-2x mb-2"></i>
+    <h1>📘 Confluent Certified Developer (CCDAK) <br> Exam Cram Guide</h1>
+    <p class="mb-0">12 deep‑dive tabs • Definitions • Key questions • Nuances • Best practices • Exam essentials</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="tab-card">
+    <!-- 12 Tabs navigation -->
+    <ul class="nav nav-tabs" id="examTabs" role="tablist">
+      <li class="nav-item" role="presentation"><button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab"><i class="fas fa-shield-alt"></i> 1. Security & Delivery</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab"><i class="fas fa-users"></i> 2. Consumer Groups & Partitions</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab"><i class="fas fa-cog"></i> 3. Topic Cfg & Offsets</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab"><i class="fas fa-code-branch"></i> 4. Partitioner & Request Lifecycle</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab5-tab" data-bs-toggle="tab" data-bs-target="#tab5" type="button" role="tab"><i class="fas fa-exchange-alt"></i> 5. Producer / Consumer & SerDes</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab6-tab" data-bs-toggle="tab" data-bs-target="#tab6" type="button" role="tab"><i class="fas fa-database"></i> 6. Transactions, Keys & Headers</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab7-tab" data-bs-toggle="tab" data-bs-target="#tab7" type="button" role="tab"><i class="fas fa-chart-line"></i> 7. Kafka Streams Basics</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab8-tab" data-bs-toggle="tab" data-bs-target="#tab8" type="button" role="tab"><i class="fas fa-columns"></i> 8. Streams vs Tables & DSL/Processor</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab9-tab" data-bs-toggle="tab" data-bs-target="#tab9" type="button" role="tab"><i class="fas fa-plug"></i> 9. Kafka Connect (SMT, REST, Scalability)</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab10-tab" data-bs-toggle="tab" data-bs-target="#tab10" type="button" role="tab"><i class="fas fa-vial"></i> 10. Testing & CLI & Scaling</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab11-tab" data-bs-toggle="tab" data-bs-target="#tab11" type="button" role="tab"><i class="fas fa-chart-simple"></i> 11. Observability: Lag, Metrics, Alerts</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab12-tab" data-bs-toggle="tab" data-bs-target="#tab12" type="button" role="tab"><i class="fas fa-file-alt"></i> 12. Data Formats, Errors & Best Practices</button></li>
+    </ul>
+
+    <div class="tab-content" id="examTabsContent">
+      <!-- 1. SECURITY & DELIVERY GUARANTEES + RESOURCE HIERARCHY -->
+      <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+        <div class="section-title"><i class="fas fa-lock me-2"></i> Security, Delivery Guarantees & Hierarchy</div>
+        <div class="def-list"><strong>📖 Definitions:</strong> <br/>• <strong>Secured Kafka cluster:</strong> SSL/TLS encryption, SASL authentication (PLAIN, SCRAM, Kerberos), ACLs.<br/>• <strong>Delivery guarantees:</strong> At-most-once (fire & forget, possible loss), At-least-once (retries + acks=all, duplicates possible), Exactly-once (idempotent producer + transactions).<br/>• <strong>Resource hierarchy:</strong> Cluster → Broker → Topic → Partition → Record (offset).</div>
+        <div class="qa-item"><i class="fas fa-question-circle text-primary"></i> <strong>🔑 Key Questions:</strong> How to connect to SSL/SASL cluster? (set security.protocol, ssl.truststore.location, sasl.mechanism). Which guarantee minimizes duplicates? Exactly‑once requires transactional.id.</div>
+        <div class="nuance-box"><i class="fas fa-lightbulb"></i> <strong>Nuances:</strong> Idempotent producer (enable.idempotence=true) guarantees no duplicates per partition sequence. Exactly‑once across partitions needs transactions. Acks=all + min.insync.replicas=2 ensures strong durability.</div>
+        <div class="best-card"><i class="fas fa-check-circle"></i> <strong>✅ Best Practices:</strong> Always secure production clusters with TLS & SASL; use idempotence for critical pipelines; understand trade-offs: exactly‑once adds latency. Define resource hierarchy for monitoring quotas.</div>
+      </div>
+
+      <!-- 2. Consumer groups & partitions interaction + assign vs subscribe -->
+      <div class="tab-pane fade" id="tab2" role="tabpanel">
+        <div class="section-title"><i class="fas fa-layer-group"></i> Consumer Groups, Partitions & Assign/Subscribe</div>
+        <div class="def-list"><strong>📌 Core:</strong> Group coordinates partition assignment (rebalance). Each partition assigned to exactly one consumer per group. <strong>Assign()</strong> : manual partition assignment, no group management. <strong>Subscribe()</strong> : dynamic rebalancing, group coordination.</div>
+        <div class="qa-item"><i class="fas fa-brain"></i> <strong>Exam Q:</strong> Difference? assign() avoids rebalance but lacks fault tolerance; subscribe() supports automatic failover. When to use assign? For stateless deterministic mapping.</div>
+        <div class="nuance-box">⚙️ <strong>Nuances:</strong> Rebalance triggers revoke/assign callbacks; cooperative rebalancing (partition.assignment.strategy=CooperativeStickyAssignor) reduces stop-the-world. Max.poll.interval.ms impacts liveliness.</div>
+        <div class="best-card">💡 <strong>Best practice:</strong> Use subscribe() for dynamic scaling, assign() for custom sink consumers. Always handle rebalance listeners to commit offsets gracefully.</div>
+      </div>
+
+      <!-- 3. Topic configurations & consumer group offset handling -->
+      <div class="tab-pane fade" id="tab3" role="tabpanel">
+        <div class="section-title">Topic Configs & Offset Management</div>
+        <div class="def-list"><strong>⚙️ Topic configs:</strong> retention.ms, segment.bytes, cleanup.policy (delete/compact), min.insync.replicas, unclean.leader.election.enable. <strong>Consumer offsets:</strong> stored in __consumer_offsets topic; auto.offset.reset (latest/earliest/none); commitSync vs commitAsync.</div>
+        <div class="qa-item"><i class="fas fa-question"></i> <strong>Key question:</strong> How to reset consumer group offset? Use kafka-consumer-groups --reset-offsets --to-datetime / --to-earliest. Offsets committed after processing to avoid reprocessing.</div>
+        <div class="nuance-box">⚠️ <strong>Nuances:</strong> enable.auto.commit true causes at-least-once; manual commit gives control. Topic min.insync.replicas=2 with acks=all prevents data loss. Avoid frequent partition increases.</div>
+        <div class="best-card">📌 <strong>Practical:</strong> Monitor lag using kafka-consumer-groups; set retention.ms based on compliance; compacted topics for keyed state.</div>
+      </div>
+
+      <!-- 4. Producer partitioner (default) + request lifecycle -->
+      <div class="tab-pane fade" id="tab4" role="tabpanel">
+        <div class="section-title"><i class="fas fa-random"></i> Partitioner & Request Lifecycle</div>
+        <div class="def-list"><strong>🔹 Default partitioner (sticky):</strong> If key is null → sticky batch partition (fill one partition before moving). If key present → hash(key) % numPartitions. <strong>Request lifecycle:</strong> 1) Serialize key/value 2) Interceptor 3) Partitioner determines partition 4) Buffer in RecordAccumulator 5) Sender thread builds ProduceRequest 6) Send to leader broker 7) Acks wait 8) Callback.</div>
+        <div class="qa-item">🧠 <strong>Exam focus:</strong> Why sticky partitioner? Improves batching and throughput. Custom partitioner can implement Partitioner interface. Request timeout handling: request.timeout.ms, retries.</div>
+        <div class="nuance-box"><i class="fas fa-hourglass-half"></i> Nuances: The metadata fetch may block if partitions unknown. Leader epoch helps consistency.</div>
+        <div class="best-card">✅ <strong>Best practices:</strong> For even distribution, ensure keys have sufficient cardinality; tune linger.ms and batch.size for latency/throughput trade-off.</div>
+      </div>
+
+      <!-- 5. Producer/consumer configs, SerDes, consume messages -->
+      <div class="tab-pane fade" id="tab5" role="tabpanel">
+        <div class="section-title">Configs, Serialization & Deserialization</div>
+        <div class="def-list"><strong>Producer configs:</strong> acks, compression.type, max.in.flight.requests.per.connection, enable.idempotence. <strong>Consumer configs:</strong> fetch.min.bytes, max.poll.records, session.timeout.ms. <strong>SerDes:</strong> String, Avro, JSON, Protobuf (Schema Registry). consume(): poll loop, deserialize keys/values.</div>
+        <div class="qa-item">❓ <strong>Key Q:</strong> How to serialise custom objects? Implement Serializer/Deserializer or use Avro with Confluent Schema Registry. Importance of schema evolution compatibility.</div>
+        <div class="nuance-box">⚠️ <strong>Nuances:</strong> Deserialization errors can bring down consumer: use error handling (Recoverable). Consumer subscribe + poll handles group coordination automatically.</div>
+        <div class="best-card">📘 <strong>Best practice:</strong> Use Avro + Schema Registry for evolvable contracts; configure idempotent producer to avoid duplicates; tune fetch.max.bytes for large messages.</div>
+      </div>
+
+      <!-- 6. Transactions, headers, partition strategies & keys -->
+      <div class="tab-pane fade" id="tab6" role="tabpanel">
+        <div class="section-title">Transactions, Headers, Key Design</div>
+        <div class="def-list">🔐 <strong>Transactions:</strong> atomic writes across partitions & topics: initTransactions(), beginTransaction(), sendOffsetsToTransaction(), commitTransaction(). Idempotent producer is required. <strong>Headers:</strong> optional metadata (routing, tracing). <strong>Key strategies:</strong> keys determine partition; good key cardinality for load balancing; null keys use sticky partitioner.</div>
+        <div class="qa-item"><i class="fas fa-star-of-life"></i> Design keys: high cardinality keys (user_id) avoid hot partitions. Headers: add contentType, messageId for filtering; use Compacted topics with keys for log compaction.</div>
+        <div class="nuance-box">🧩 Exactly-once semantics in consumer: combine idempotent producer + transactional reads with isolation.level=read_committed.</div>
+        <div class="best-card">✔️ Best practice: transactional API for critical banking/orders; keys for stateful streams; design headers to propagate context (no size limit but keep small).</div>
+      </div>
+
+      <!-- 7. Kafka Streams: diff consumer/producer, stateful/stateless, exactly-once -->
+      <div class="tab-pane fade" id="tab7" role="tabpanel">
+        <div class="section-title">Kafka Streams: Stateful/Stateless & Exactly‑once</div>
+        <div class="def-list">📊 <strong>Kafka Streams vs Consumer/Producer:</strong> built-in exactly‑once, state stores, event-time processing, continuous topology. No external cluster needed. <strong>Stateless ops:</strong> filter, map, foreach, branch. <strong>Stateful ops:</strong> aggregations, joins, windowing, count, reduce. <strong>Exactly‑once in KStreams:</strong> processing.guarantee=exactly_once_v2 (uses transactions & idempotence).</div>
+        <div class="qa-item">🎯 <strong>Exam nuance:</strong> Stateful requires state store (RocksDB). Exactly‑once ensures each record processed once despite failures.</div>
+        <div class="nuance-box"><i class="fas fa-cogs"></i> Nuance: exactly_once_v2 reduces performance overhead compared to v1. Standby replicas for high availability. Kafka Streams uses consumer group for scaling.</div>
+        <div class="best-card">✅ Best practice: Use stateful for windowed aggregates, configure state dir, and enable exactly-once for idempotent pipelines.</div>
+      </div>
+
+      <!-- 8. Streams vs Tables, DSL vs Processor API -->
+      <div class="tab-pane fade" id="tab8" role="tabpanel">
+        <div class="section-title">KStream vs KTable & DSL/Processor API</div>
+        <div class="def-list">🔁 <strong>KStream:</strong> full history, append-only stream. <strong>KTable:</strong> changelog, latest value per key (upsert). <strong>GlobalKTable:</strong> replicated on all tasks. <strong>DSL:</strong> high-level, built-in operators (join, aggregate). <strong>Processor API:</strong> fine-grained control, custom processors, punctuations, access to state stores.</div>
+        <div class="qa-item">📌 Key Q: When to choose DSL vs Processor? DSL for 90% scenarios; Processor API for custom logic, low-level timers, or custom join windows.</div>
+        <div class="nuance-box">⚡ Stream-Table duality: a table over a stream of changes; KTable materialized view. Joining stream with table for enrichment is powerful.</div>
+        <div class="best-card">💡 Best practice: Prefer DSL for readability & built-in optimizations; mix Processor API via .process() for complex event processing.</div>
+      </div>
+
+      <!-- 9. Kafka Connect: connectors, worker, offsets, SMT, REST, scalability -->
+      <div class="tab-pane fade" id="tab9" role="tabpanel">
+        <div class="section-title">Kafka Connect (Source/Sink, SMT, Workers, Offsets)</div>
+        <div class="def-list">🔌 <strong>Connectors:</strong> source (import) / sink (export). <strong>Worker properties:</strong> offset.storage.topic, config.storage.topic, rest.port. <strong>Scalability:</strong> distributed mode, tasks run in parallel; add workers for horizontal scaling. <strong>Connect offsets:</strong> offsets stored in Kafka topics (source offsets). <strong>SMT:</strong> single message transforms (e.g., InsertField, RegexRouter, MaskField). <strong>REST interface:</strong> GET /connectors, POST /connectors, PUT /connectors/name/config.</div>
+        <div class="qa-item"><i class="fas fa-network-wired"></i> Exam: How to scale connectors? Increase tasks.max, then add worker nodes. SMT applied per record, lightweight. Connect offsets enable resume from failure.</div>
+        <div class="nuance-box">🧠 Nuances: Source connectors require manual offset resetting? Use REST to restart tasks. Dead Letter Queue for error handling.</div>
+        <div class="best-card">✅ Best practices: Use exactly-once source connectors (e.g., JDBC with incrementing) + idempotent writes. Place SMTs before sink to filter/transform.</div>
+      </div>
+
+      <!-- 10. Testing, CLI tools, scaling, deployment frameworks -->
+      <div class="tab-pane fade" id="tab10" role="tabpanel">
+        <div class="section-title">Testing, CLI, Scaling & Deployment</div>
+        <div class="def-list">🧪 <strong>Testing tools:</strong> Embedded Kafka (kafka-clients test), MockProducer/MockConsumer, Testcontainers, TopologyTestDriver for Kafka Streams. <strong>CLI tools:</strong> kafka-console-producer, kafka-console-consumer, kafka-consumer-groups, kafka-topics, kafka-dump-log. <strong>Scaling:</strong> Horizontal (more consumer instances/Streams threads/Connect workers), Vertical (bigger heap, CPU). <strong>Deployment frameworks:</strong> Kubernetes (Strimzi), Docker Compose, Confluent Platform, AWS MSK, Confluent Cloud.</div>
+        <div class="qa-item">🔧 Key: how to test exactly-once? Use idempotent producer + transactional consumer test. Horizontal scaling: increase partitions for parallelism.</div>
+        <div class="nuance-box">📐 Nuance: more consumers than partitions idle; Kafka Streams max tasks = partition count. Vertical scaling helps with state store performance.</div>
+        <div class="best-card">🚀 Best practice: Test with TopologyTestDriver for Streams, integration test with EmbeddedKafka. Deploy with Helm charts for observability.</div>
+      </div>
+
+      <!-- 11. Observability: Lag, performance metrics, log4j, alerts, common errors -->
+      <div class="tab-pane fade" id="tab11" role="tabpanel">
+        <div class="section-title">Observability, Lag, Metrics & Alerting</div>
+        <div class="def-list">📈 <strong>Lag:</strong> difference between producer offset and consumer offset. Monitor via kafka-consumer-groups or JMX. <strong>Performance metrics:</strong> request latency (produce/fetch), bytes-in/out, request queue size, ISR shrinks. <strong>Log4j:</strong> configure log4j.properties for kafka clients – set ERROR/WARN. <strong>Common errors:</strong> NotLeaderForPartitionException, TimeoutException, OffsetOutOfRangeException, RebalanceException. <strong>Alerts:</strong> set lag > threshold, under-replicated partitions, broker down.</div>
+        <div class="qa-item">🚨 Exam Q: How to config logging in Kafka apps? Use log4j, SLF4J binding; enable debug only for dev. Critical lag detection: use metric consumer.lag.</div>
+        <div class="nuance-box">📊 Nuance: consumer lag is per partition; high lag may require increasing consumers or tuning fetch. Metrics exposed via JMX (Prometheus JMX exporter).</div>
+        <div class="best-card">🔔 Best practice: alert on consumer group lag > 10k messages for 5 mins; monitor under-replicated partitions; use Confluent Control Center or Datadog.</div>
+      </div>
+
+      <!-- 12. Data formats, error handling, best practices for modifying topics & partitioning requirements -->
+      <div class="tab-pane fade" id="tab12" role="tabpanel">
+        <div class="section-title">Data Formats, Error Handling & Topic Evolution</div>
+        <div class="def-list">📄 <strong>Common data formats:</strong> Avro (schema evolution), JSON (flexible but no schema), Protobuf (efficient). <strong>Error handling:</strong> retries, callback for producer, Dead Letter Queue for consumer (deserialization errors), exception handlers. <strong>Modifying topics:</strong> Increase partitions (never decrease), change config via kafka-configs, dynamic updates; avoid changing key semantics. <strong>Partitioning requirements:</strong> based on throughput & ordering; keys guarantee order per partition.</div>
+        <div class="qa-item">💡 <strong>Key nuance:</strong> decreasing partitions not allowed. Best practice: plan partitions for peak throughput (1 partition = ~10 MB/s). Adding partitions can break key ordering if keyed.</div>
+        <div class="nuance-box">⚠️ <strong>Error handling best practices:</strong> implement ProducerInterceptor for audit; Consumer with recoverable error skip to DLQ using external topic; use Spring Kafka error handlers.</div>
+        <div class="best-card">✅ <strong>Final best practices:</strong> always use schema registry with Avro, plan partition count with future growth, test modifying topic configs in staging, implement idempotency for critical streams, and monitor offsets.</div>
+      </div>
+    </div>
+  </div>
+  <footer class="text-center text-muted py-3 my-4">
+    <i class="fas fa-graduation-cap"></i> Confluent Certified Developer (CCDAK) revision · 12 comprehensive tabs combining definitions, exam Q&A, nuances & best practices · Essential for exam success
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // optional: Smooth retain active tab on reload? Not needed but ensures proper behavior.
+  const triggerTabList = document.querySelectorAll('#examTabs button')
+  triggerTabList.forEach(triggerEl => {
+    triggerEl.addEventListener('click', event => {
+      // bootstrap handles tab switching; we just provide good experience
+    })
+  })
+</script>
+</body>
+</html>
